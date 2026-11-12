@@ -115,9 +115,53 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 .l-line:hover{color:var(--text)}
 .l-line.active{color:var(--text);font-size:25px;transform:scale(1.04);text-shadow:0 0 24px rgba(var(--tint-rgb),.85)}
 @media (max-width:860px){#lyricDisplayPanel{inset:0 0 170px 0}}
+
+/* ════════ طرق العرض (View Modes) ════════ */
+#list .row .t .album { display: none; }
+
+#list.mode-compact { padding: 2px 10px; }
+#list.mode-compact .row { padding: 4px 10px; gap: 6px; border-radius: 6px; }
+#list.mode-compact .row .th { display: none; }
+#list.mode-compact .row b { font-size: 12px; }
+#list.mode-compact .row span { font-size: 10px; margin-top: 0; }
+#list.mode-compact .row i { font-size: 10px; }
+#list.mode-compact .row .mini { width: 22px; height: 22px; font-size: 11px; }
+
+#list.mode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding: 12px; align-content: start; }
+#list.mode-grid > *:not(.row) { grid-column: 1 / -1; }
+#list.mode-grid .row { flex-direction: column; align-items: stretch; padding: 0; gap: 0; background: rgba(var(--w), .04); border-radius: 12px; overflow: hidden; border-inline-start: 0; position: relative; transition: transform .15s, box-shadow .15s, background .15s; }
+#list.mode-grid .row:hover { background: rgba(var(--w), .08); transform: translateY(-2px); box-shadow: 0 10px 26px -12px rgba(var(--tint-rgb), .55); }
+#list.mode-grid .row.cur { box-shadow: 0 0 0 2px var(--tint); border-inline-start: 0; }
+#list.mode-grid .row .th { width: 100%; aspect-ratio: 1; height: auto; border-radius: 0; font-size: 40px; order: -1; }
+#list.mode-grid .row .t { flex: 0 0 auto; width: 100%; padding: 10px 10px 12px; text-align: center; }
+#list.mode-grid .row b { font-size: 13px; }
+#list.mode-grid .row span { font-size: 11px; margin-top: 3px; }
+#list.mode-grid .row i { display: none; }
+#list.mode-grid .row .mini { position: absolute; top: 8px; opacity: 0; transition: opacity .15s; background: rgba(0, 0, 0, .55); backdrop-filter: blur(8px); z-index: 3; }
+#list.mode-grid .row .mini[data-act="fav"] { left: 8px; }
+#list.mode-grid .row .mini[data-act="more"] { right: 8px; }
+#list.mode-grid .row:hover .mini { opacity: 1; }
+#list.mode-grid .acts, #list.mode-grid h3, #list.mode-grid .empty, #list.mode-grid .stats, #list.mode-grid .hs { grid-column: 1 / -1; }
+
+#list.mode-detailed .row { padding: 12px 14px; gap: 14px; }
+#list.mode-detailed .row .th { width: 56px; height: 56px; font-size: 22px; }
+#list.mode-detailed .row b { font-size: 15px; }
+#list.mode-detailed .row span { font-size: 13px; margin-top: 3px; }
+#list.mode-detailed .row .t .album { display: block; font-size: 11px; color: var(--mute); opacity: .7; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#list.mode-detailed .row i { font-size: 13px; }
+
+#list.mode-list .grid, #list.mode-compact .grid { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; }
+#list.mode-list .card { flex-direction: row; align-items: center; justify-content: flex-start; text-align: start; padding: 8px 12px; gap: 12px; border-radius: 10px; }
+#list.mode-list .card .av { width: 48px; height: 48px; font-size: 18px; flex: none; }
+#list.mode-list .card b { max-width: none; font-size: 14px; }
+#list.mode-list .card span { font-size: 12px; }
+#list.mode-compact .card { flex-direction: row; align-items: center; justify-content: flex-start; text-align: start; padding: 4px 10px; gap: 8px; border-radius: 6px; background: none; }
+#list.mode-compact .card:hover { background: rgba(var(--w), .07); }
+#list.mode-compact .card .av { width: 28px; height: 28px; font-size: 12px; flex: none; }
+#list.mode-compact .card b { max-width: none; font-size: 12px; }
+#list.mode-compact .card span { display: none; }
 </style>
-</head>
-<body>
+</head><body>
 <div class="app">
 <nav class="side panel">
   <div class="brand"><img src="icon-192.png" alt=""><span>لحن</span></div>
@@ -138,7 +182,7 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
   <button class="nv" id="lang">🌐 اللغة</button>
 </nav>
 <main>
-  <div class="top"><input id="q" type="search" placeholder="ابحث في القايمة…" aria-label="ابحث في القايمة…"><button class="chip pri" id="addf">ملفات</button><button class="chip" id="addd">مجلد</button><button class="chip" id="vm" aria-label="المزيد">⋯</button></div>
+  <div class="top"><input id="q" type="search" placeholder="ابحث في القايمة…" aria-label="ابحث في القايمة…"><button class="chip pri" id="addf">ملفات</button><button class="chip" id="addd">مجلد</button><button class="chip" id="viewMode" aria-label="طريقة العرض" title="طريقة العرض">☰</button><button class="chip" id="vm" aria-label="المزيد">⋯</button></div>
   <div class="hero"><h1 id="vt"></h1><div class="sub"><span id="count"></span> <span>أغنية</span></div></div>
   <select id="view" hidden></select>
   <div id="list"></div>
@@ -354,7 +398,10 @@ async function setTrack(i, autoplay) {
   if (tracks[cur] !== t) return;
   $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
   tintFrom(cover);
-  if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: m.title || t.title, artist: m.artist || t.artist, album: m.album || t.album, artwork: cover ? [{ src: cover }] : [] });
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: m.title || t.title, artist: m.artist || t.artist, album: m.album || t.album, artwork: cover ? [{ src: cover }] : [] });
+    navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+  }
   if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
 }
 
@@ -408,10 +455,33 @@ addEventListener('keydown', (e) => {
   else if (e.code === 'ArrowRight') audio.currentTime += 5;
   else if (e.code === 'ArrowLeft') audio.currentTime -= 5;
 });
+
+/* ---- Media Session كامل (أزرار الميديا في الكيبورد) ---- */
 if ('mediaSession' in navigator) {
   const ms = navigator.mediaSession;
-  ms.setActionHandler('play', toggle); ms.setActionHandler('pause', toggle);
-  ms.setActionHandler('nexttrack', () => step(1, false)); ms.setActionHandler('previoustrack', () => step(-1, false));
+  ms.setActionHandler('play', () => { if (audio.paused) toggle(); });
+  ms.setActionHandler('pause', () => { if (!audio.paused) toggle(); });
+  ms.setActionHandler('stop', () => { audio.pause(); audio.currentTime = 0; });
+  ms.setActionHandler('nexttrack', () => step(1, false));
+  ms.setActionHandler('previoustrack', () => step(-1, false));
+  ms.setActionHandler('seekbackward', (d) => { audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10)); });
+  ms.setActionHandler('seekforward', (d) => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 10)); });
+  ms.setActionHandler('seekto', (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
+  const syncMediaState = () => {
+    try {
+      ms.playbackState = audio.paused ? 'paused' : 'playing';
+      if (isFinite(audio.duration) && audio.duration > 0) {
+        ms.setPositionState({ duration: audio.duration, position: Math.min(audio.currentTime, audio.duration), playbackRate: audio.playbackRate });
+      }
+    } catch (_) {}
+  };
+  audio.addEventListener('play', syncMediaState);
+  audio.addEventListener('pause', syncMediaState);
+  audio.addEventListener('loadedmetadata', syncMediaState);
+  audio.addEventListener('ratechange', syncMediaState);
+  audio.addEventListener('seeked', syncMediaState);
+  let __msT = 0;
+  audio.addEventListener('timeupdate', () => { const now = Date.now(); if (now - __msT > 1000) { __msT = now; syncMediaState(); } });
 }
 
 /* ---- v2 additions ---- */
@@ -443,10 +513,7 @@ function draw() {
 }
 if (MOBILE) $('#viz').style.display = 'none';
 else audio.addEventListener('play', () => {
-  try {
-    if (!ac) { ensureGraph(); }
-    ac.resume(); if (!raf) draw();
-  } catch (_) {}
+  try { if (!ac) { ensureGraph(); } ac.resume(); if (!raf) draw(); } catch (_) {}
 });
 
 /* ---- v3: playlists, favorites, sharing, skins & lyrics DB ---- */
@@ -454,6 +521,51 @@ const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {} }, JSON.pars
 if (!DB.lyrics) DB.lyrics = {};
 const persist = () => { try { localStorage.ng2 = JSON.stringify(DB); } catch (_) {} };
 let view = 'queue'; const metaCache = new Map();
+
+/* ==== طرق العرض (View Modes) — مضاف هنا ==== */
+const TRACK_MODES = { list: { icon: '☰', label: 'قائمة' }, compact: { icon: '≣', label: 'مضغوط' }, grid: { icon: '⊞', label: 'شبكة' }, detailed: { icon: '▤', label: 'مفصّل' } };
+const CARD_MODES = { grid: { icon: '⊞', label: 'شبكة' }, list: { icon: '☰', label: 'قائمة' }, compact: { icon: '≣', label: 'مضغوط' } };
+let trackMode = localStorage.ng_track_mode || 'list';
+let cardMode = localStorage.ng_card_mode || 'grid';
+if (!TRACK_MODES[trackMode]) trackMode = 'list';
+if (!CARD_MODES[cardMode]) cardMode = 'grid';
+
+function applyModeClass() {
+  const L = $('#list'), btn = $('#viewMode');
+  if (!L || !btn) return;
+  L.classList.remove('mode-list', 'mode-grid', 'mode-compact', 'mode-detailed');
+  if (view === 'home') { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  const isCards = view === 'artists' || view === 'albums';
+  const modes = isCards ? CARD_MODES : TRACK_MODES;
+  const current = isCards ? cardMode : trackMode;
+  L.classList.add('mode-' + current);
+  btn.textContent = modes[current]?.icon || '☰';
+  btn.title = 'طريقة العرض: ' + (modes[current]?.label || '');
+  btn.setAttribute('aria-label', btn.title);
+}
+function setMode(m) {
+  if (view === 'artists' || view === 'albums') {
+    if (!CARD_MODES[m]) return;
+    cardMode = m; try { localStorage.ng_card_mode = m; } catch (_) {}
+  } else {
+    if (!TRACK_MODES[m]) return;
+    trackMode = m; try { localStorage.ng_track_mode = m; } catch (_) {}
+  }
+  render();
+}
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#viewMode');
+  if (!btn) return;
+  e.stopPropagation();
+  const p = btn.getBoundingClientRect();
+  const isCards = view === 'artists' || view === 'albums';
+  const modes = isCards ? CARD_MODES : TRACK_MODES;
+  const current = isCards ? cardMode : trackMode;
+  showMenu(p.left, p.bottom + 4, Object.entries(modes).map(([id, m]) => [(id === current ? '● ' : '○ ') + m.icon + '  ' + m.label, () => setMode(id)]));
+});
+/* ==== نهاية طرق العرض ==== */
+
 const metaOf = (k) => { if (!metaCache.has(k)) { const m = DB.lib[k]; metaCache.set(k, m ? Promise.resolve({ path: k, url: '', title: m.title, artist: m.artist, album: m.album, duration: m.duration }) : api.meta(k)); } return metaCache.get(k); };
 document.body.insertAdjacentHTML('beforeend', '<div id="menu" hidden></div><div id="toast"></div>');
 let tt; const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
@@ -489,10 +601,11 @@ function render() {
   $('#count').textContent = keys.length;
   $('#list').innerHTML = keys.length ? keys.map((k) => {
     const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k);
-    return `<div class="row${k === ck ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span></div><i>${m.duration ? fmt(m.duration) : ''}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? '♥' : '♡'}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`;
+    const album = m.album ? `<span class="album" dir="auto">💿 ${esc(m.album)}</span>` : '';
+    return `<div class="row${k === ck ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span>${album}</div><i>${m.duration ? fmt(m.duration) : ''}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? '♥' : '♡'}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`;
   }).join('') : `<div class="empty">${EMPTY[view === 'queue' ? 0 : view === 'fav' ? 1 : view === 'lib' ? 3 : 2]}</div>`;
   $('#fv').textContent = isFav(ck) ? '♥' : '♡'; $('#fv').classList.toggle('on', isFav(ck));
-  applyFilter(); renderSide(); renderQ();
+  applyFilter(); renderSide(); renderQ(); applyModeClass();
 }
 async function startQueue(keys, startKey) {
   const ks = keys.filter((k) => files.has(k));
@@ -545,7 +658,6 @@ function importList() {
 }
 function renameList() { const o = view.slice(3), n = (prompt('الاسم الجديد:', o) || '').trim(); if (!n || n === o || DB.lists[n]) return; DB.lists[n] = DB.lists[o]; delete DB.lists[o]; view = 'pl:' + n; persist(); render(); }
 function deleteList() { const o = view.slice(3); if (!confirm('تحذف القايمة «' + o + '»؟ (الأغاني نفسها مش هتتمسح)')) return; delete DB.lists[o]; view = 'queue'; persist(); render(); }
-
 /* ---- Lyrics & Metadata Editing Logic ---- */
 let lyricMode = 'synced';
 function openLyricModal(k) {
@@ -610,18 +722,9 @@ $('#editMetaSave').onclick = () => {
       Object.entries(DB.lib).forEach(([k, m]) => {
         if (!m.artist) return;
         const parts = artistsOf(m);
-        if (parts.includes(oldName)) {
-          m.artist = parts.map(a => a === oldName ? newName : a).join(', ');
-          metaCache.delete(k);
-        }
+        if (parts.includes(oldName)) { m.artist = parts.map(a => a === oldName ? newName : a).join(', '); metaCache.delete(k); }
       });
-      tracks.forEach((t, idx) => {
-        const m = DB.lib[t.path];
-        if (m) {
-          t.artist = m.artist;
-          if (idx === cur) $('#artist').textContent = t.artist || 'فنان غير معروف';
-        }
-      });
+      tracks.forEach((t, idx) => { const m = DB.lib[t.path]; if (m) { t.artist = m.artist; if (idx === cur) $('#artist').textContent = t.artist || 'فنان غير معروف'; } });
       if (view === 'ar:' + oldName) view = 'ar:' + newName;
       toast('تم تعديل اسم الفنان');
     }
@@ -635,47 +738,32 @@ function parseLyrics(raw) {
   if (!raw) return { type: 'plain', lines: [] };
   const lines = [];
   const isLrc = /\[\d{2}:\d{2}/.test(raw);
-  if (!isLrc) {
-    return { type: 'plain', text: raw, lines: raw.split('\n').map(t => ({ time: -1, text: t })) };
-  }
+  if (!isLrc) return { type: 'plain', text: raw, lines: raw.split('\n').map(t => ({ time: -1, text: t })) };
   const regex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\](.*)/;
   raw.split('\n').forEach(line => {
     const match = line.match(regex);
     if (match) {
-      const min = parseInt(match[1], 10);
-      const sec = parseInt(match[2], 10);
-      const ms = match[3] ? parseInt(match[3].padEnd(3, '0').slice(0,3), 10) : 0;
-      const time = min * 60 + sec + ms / 1000;
-      const text = match[4].trim();
-      lines.push({ time, text });
-    } else if (line.trim()) {
-      lines.push({ time: -1, text: line.trim() });
-    }
+      const min = parseInt(match[1], 10), sec = parseInt(match[2], 10), ms = match[3] ? parseInt(match[3].padEnd(3, '0').slice(0, 3), 10) : 0;
+      lines.push({ time: min * 60 + sec + ms / 1000, text: match[4].trim() });
+    } else if (line.trim()) lines.push({ time: -1, text: line.trim() });
   });
-  return { type: 'synced', lines: lines.sort((a,b) => a.time - b.time) };
+  return { type: 'synced', lines: lines.sort((a, b) => a.time - b.time) };
 }
-
 function renderLyricsView() {
-  const k = curKey();
-  if (!k) return;
+  const k = curKey(); if (!k) return;
   const t = DB.lib[k] || tracks[cur] || {};
   $('#lyricTitle').textContent = t.title || '';
   $('#lyricArtist').textContent = t.artist || '';
   const raw = DB.lyrics[k] || '';
   const parsed = parseLyrics(raw);
   const container = $('#lyricsScroll');
-  
-  if (!raw.trim()) {
-    container.innerHTML = `<div class="empty">مفيش كلمات متضافة للأغنية دي.<br>اضغط «تعديل الكلمات» لإضافتها بصيغة عادية أو متزامنة.</div>`;
-    return;
-  }
+  if (!raw.trim()) { container.innerHTML = `<div class="empty">مفيش كلمات متضافة للأغنية دي.<br>اضغط «تعديل الكلمات» لإضافتها بصيغة عادية أو متزامنة.</div>`; return; }
   if (lyricMode === 'plain' || parsed.type === 'plain') {
     container.innerHTML = `<div style="white-space:pre-wrap;font-size:18px;line-height:2.2;color:var(--text);text-align:center" dir="auto">${esc(parsed.text || raw)}</div>`;
   } else {
     container.innerHTML = parsed.lines.map((l, i) => `<div class="l-line" data-i="${i}" data-time="${l.time}" dir="auto">${esc(l.text)}</div>`).join('');
   }
 }
-
 function syncLyricsPlayback() {
   const k = curKey();
   if (!k || $('#lyricDisplayPanel').hidden || lyricMode === 'plain') return;
@@ -684,33 +772,21 @@ function syncLyricsPlayback() {
   const parsed = parseLyrics(raw);
   const ct = audio.currentTime;
   let activeIdx = -1;
-  for (let i = 0; i < parsed.lines.length; i++) {
-    if (parsed.lines[i].time <= ct) activeIdx = i;
-    else break;
-  }
+  for (let i = 0; i < parsed.lines.length; i++) { if (parsed.lines[i].time <= ct) activeIdx = i; else break; }
   const lines = document.querySelectorAll('.l-line');
   lines.forEach((el, i) => {
     const isActive = i === activeIdx;
     el.classList.toggle('active', isActive);
-    if (isActive && !el.dataset.scrolled) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.dataset.scrolled = '1';
-    } else if (!isActive) {
-      delete el.dataset.scrolled;
-    }
+    if (isActive && !el.dataset.scrolled) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.dataset.scrolled = '1'; }
+    else if (!isActive) delete el.dataset.scrolled;
   });
 }
-
 $('#lyricsScroll').addEventListener('click', (e) => {
   const line = e.target.closest('.l-line');
-  if (line && line.dataset.time >= 0) {
-    audio.currentTime = parseFloat(line.dataset.time);
-    if (audio.paused) audio.play().catch(()=>{});
-  }
+  if (line && line.dataset.time >= 0) { audio.currentTime = parseFloat(line.dataset.time); if (audio.paused) audio.play().catch(()=>{}); }
 });
 $('#lyricBtn').onclick = () => {
-  const k = curKey();
-  if (!k) return toast('مفيش أغنية شغالة حالياً');
+  const k = curKey(); if (!k) return toast('مفيش أغنية شغالة حالياً');
   $('#lyricDisplayPanel').hidden = !$('#lyricDisplayPanel').hidden;
   if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
 };
@@ -901,15 +977,8 @@ function trs(s) {
   return s;
 }
 const TR = new WeakMap();
-function trText(n) {
-  const rec = TR.get(n); let o = n.nodeValue; if (rec && o === rec.t) o = rec.o;
-  const t = trs(o); TR.set(n, { o, t }); if (t !== n.nodeValue) n.nodeValue = t;
-}
-function trAttr(el, a) {
-  const v = el.getAttribute(a); if (v == null) return;
-  const st = (el.__tr = el.__tr || {}), rec = st[a]; let o = v; if (rec && v === rec.t) o = rec.o;
-  const t = trs(o); st[a] = { o, t }; if (t !== v) el.setAttribute(a, t);
-}
+function trText(n) { const rec = TR.get(n); let o = n.nodeValue; if (rec && o === rec.t) o = rec.o; const t = trs(o); TR.set(n, { o, t }); if (t !== n.nodeValue) n.nodeValue = t; }
+function trAttr(el, a) { const v = el.getAttribute(a); if (v == null) return; const st = (el.__tr = el.__tr || {}), rec = st[a]; let o = v; if (rec && v === rec.t) o = rec.o; const t = trs(o); st[a] = { o, t }; if (t !== v) el.setAttribute(a, t); }
 const ATTRS = ['aria-label', 'placeholder', 'title'];
 function trTree(root) {
   if (root.nodeType === 1) ATTRS.forEach((a) => trAttr(root, a));
@@ -918,10 +987,7 @@ function trTree(root) {
 }
 const _p = window.prompt, _c = window.confirm;
 window.prompt = (m, d) => _p(trs(m), d); window.confirm = (m) => _c(trs(m));
-function setLang(c) {
-  LG = c; try { localStorage.ng_lang = c; } catch (_) {}
-  document.documentElement.lang = c; document.documentElement.dir = LANGS[c][1]; trTree(document.body);
-}
+function setLang(c) { LG = c; try { localStorage.ng_lang = c; } catch (_) {} document.documentElement.lang = c; document.documentElement.dir = LANGS[c][1]; trTree(document.body); }
 $('#lang').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(); showMenu(p.left, p.top - 190, LI.map((c) => [(c === LG ? '● ' : '○ ') + LANGS[c][0], () => setLang(c)])); };
 new MutationObserver((ms) => ms.forEach((m) => {
   if (m.type === 'characterData') trText(m.target);
@@ -1065,7 +1131,7 @@ addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#qd').hidden = t
 /* ---- v8: artists & albums, history, home, selection, M3U, sleep wheel ---- */
 const rx = (s) => new RegExp('^' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(.+?)') + '$');
 const addRows = (lines) => lines.forEach((ln) => { const p = ln.split('|'); if (EX.has(p[0]) || PT.some((q) => q[1][0] === p[0])) return; p[0].includes('{n}') ? PT.push([rx(p[0]), p]) : EX.set(p[0], p); });
-addRows(['الرئيسية|Home', 'الفنانون|Artists', 'الألبومات|Albums', 'السجل|History', 'مؤقت النوم|Sleep timer', 'دقيقة|minutes', 'ابدأ|Start', 'حتى نهاية الأغنية|Until the song ends', 'مؤقت النوم: نهاية الأغنية|Sleep timer: end of song', 'تكرار الكل|Repeat all', 'تكرار أغنية واحدة|Repeat one', 'بدون تكرار|No repeat', 'محدد|selected', '{n} محدد|{n} selected', 'تشغيل|Play', 'تشغيل بعد دي|Play next', 'إضافة للقايمة الجاية|Add to queue', 'حذف من المكتبة|Remove from library', 'إلغاء التحديد|Clear selection', 'تحديد الكل|Select all', 'استيراد M3U|Import M3U', 'تصدير M3U|Export M3U', 'مسح السجل|Clear history', 'تمسح السجل كله؟|Clear the entire history?', 'إيقاف التسجيل|Pause recording', 'تشغيل التسجيل|Resume recording', 'ما تفصلش الاسم ده|Don’t split this name', 'لون خاص|Custom color', 'أكتر الفنانين استماعاً|Top artists', 'أكتر الأغاني استماعاً|Top songs', 'أكتر الألبومات استماعاً|Top albums', 'النهاردة|Today', 'إمبارح|Yesterday', 'الأسبوع|This week', 'الشهر|This month', 'السنة|This year', 'الكل|All time', 'د|min', 'مفيش بيانات لسه — الإحصائيات بتبدأ من أول ما تسمع|No data yet — stats start as you listen', 'السجل فاضي|History is empty', 'تشغيل الكل|Play all', 'عشوائي|Shuffle', 'تشغيل بعد دي|Play next']);
+addRows(['الرئيسية|Home', 'الفنانون|Artists', 'الألبومات|Albums', 'السجل|History', 'مؤقت النوم|Sleep timer', 'دقيقة|minutes', 'ابدأ|Start', 'حتى نهاية الأغنية|Until the song ends', 'مؤقت النوم: نهاية الأغنية|Sleep timer: end of song', 'تكرار الكل|Repeat all', 'تكرار أغنية واحدة|Repeat one', 'بدون تكرار|No repeat', 'محدد|selected', '{n} محدد|{n} selected', 'تشغيل|Play', 'تشغيل بعد دي|Play next', 'إضافة للقايمة الجاية|Add to queue', 'حذف من المكتبة|Remove from library', 'إلغاء التحديد|Clear selection', 'تحديد الكل|Select all', 'استيراد M3U|Import M3U', 'تصدير M3U|Export M3U', 'مسح السجل|Clear history', 'تمسح السجل كله؟|Clear the entire history?', 'إيقاف التسجيل|Pause recording', 'تشغيل التسجيل|Resume recording', 'ما تفصلش الاسم ده|Don’t split this name', 'لون خاص|Custom color', 'أكتر الفنانين استماعاً|Top artists', 'أكتر الأغاني استماعاً|Top songs', 'أكتر الألبومات استماعاً|Top albums', 'النهاردة|Today', 'إمبارح|Yesterday', 'الأسبوع|This week', 'الشهر|This month', 'السنة|This year', 'الكل|All time', 'د|min', 'مفيش بيانات لسه — الإحصائيات بتبدأ من أول ما تسمع|No data yet — stats start as you listen', 'السجل فاضي|History is empty', 'تشغيل الكل|Play all', 'عشوائي|Shuffle', 'تشغيل بعد دي|Play next', 'قائمة|List', 'شبكة|Grid', 'مضغوط|Compact', 'مفصّل|Detailed', 'طريقة العرض|View mode']);
 
 var SEL = new Set(), selAnchor = null, lastView = '', HIST = JSON.parse(localStorage.ng_hist || '[]'), HP = localStorage.ng_hp || 'week';
 const SEP = /\s*(?:[,،;؛&\/]|\s(?:feat\.?|ft\.?)\s)\s*/i;
@@ -1238,10 +1304,7 @@ const gKeys = (g) => (g.startsWith('ar:') ? groups('artist') : groups('album')).
 const shuf = (ks) => [...ks].sort(() => Math.random() - .5);
 function groupMenu(g, x, y) {
   const ks = gKeys(g), it = [['▶ تشغيل الكل', () => startQueue(ks, ks[0])], ['🔀 عشوائي', () => startQueue(shuf(ks), null)], ['⏭ تشغيل بعد دي', async () => { for (const k of [...ks].reverse()) await enqueue(k, true); }], ['＋ إضافة للقايمة الجاية', async () => { for (const k of ks) await enqueue(k, false); }], ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti(ks, x2, y2)], ['↗ فتح', () => { view = g; render(); }]];
-  if (g.startsWith('ar:')) {
-    it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(g.slice(3))]);
-    it.push(['🚫 ما تفصلش الاسم ده', () => { view = g; noSplit(); }]);
-  }
+  if (g.startsWith('ar:')) { it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(g.slice(3))]); it.push(['🚫 ما تفصلش الاسم ده', () => { view = g; noSplit(); }]); }
   showMenu(x, y, it);
 }
 function navMenu(v, x, y) {
@@ -1255,14 +1318,7 @@ function navMenu(v, x, y) {
 function curMenu(x, y) { const k = curKey(); if (!k) return; SEL.clear(); SEL.add(k); selMenu(x, y); SEL.clear(); }
 function qMenu(i, x, y) {
   const k = (tracks[i] || {}).path, m = DB.lib[k] || {}; if (!k) return;
-  const it = [
-    ['▶ تشغيل', () => setTrack(i, true)],
-    ['✏️ تعديل المعلومات', () => openEditSongModal(k)],
-    ['📝 تعديل الكلمات (ليركس)', () => openLyricModal(k)],
-    [isFav(k) ? '♡ شيل من المفضلة' : '♥ أضف للمفضلة', () => toggleFav(k)],
-    ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti([k], x2, y2)],
-    ['↗ مشاركة الأغنية', () => shareTrack(k)]
-  ];
+  const it = [['▶ تشغيل', () => setTrack(i, true)], ['✏️ تعديل المعلومات', () => openEditSongModal(k)], ['📝 تعديل الكلمات (ليركس)', () => openLyricModal(k)], [isFav(k) ? '♡ شيل من المفضلة' : '♥ أضف للمفضلة', () => toggleFav(k)], ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti([k], x2, y2)], ['↗ مشاركة الأغنية', () => shareTrack(k)]];
   artistsOf(m).forEach((a) => it.push(['👤 ' + a, () => { view = 'ar:' + a; render(); }])); if (m.album) it.push(['💿 ' + m.album, () => { view = 'al:' + m.album; render(); }]);
   it.push(['✕ إزالة من هنا', () => { if (i === cur) return toast('مينفعش تشيل الأغنية الشغالة'); tracks.splice(i, 1); if (i < cur) cur--; save(); render(); renderQ(); }]);
   showMenu(x, y, it);
@@ -1282,7 +1338,7 @@ document.addEventListener('contextmenu', (e) => {
   if (c('#play')) return showMenu(x, y, [[audio.paused ? '▶ تشغيل' : '⏸ إيقاف مؤقت', () => $('#play').click()], ['⏹ إيقاف تام', () => { audio.pause(); audio.currentTime = 0; }]]);
   if (c('#next,#prev')) return showMenu(x, y, [['⏭ التالي', () => $('#next').click()], ['⏮ السابق', () => $('#prev').click()], ['⏮ من الأول', () => { audio.currentTime = 0; }]]);
   if (c('#shuffle')) return showMenu(x, y, [['🔀 عشوائي (تشغيل/إيقاف)', () => $('#shuffle').click()]]);
-  if ((el = c('button[id]')) && ['repeat', 'spd', 'slp', 'eqb', 'skn', 'lang', 'vm', 'qb', 'np', 'addf', 'addd', 'lyricBtn'].includes(el.id)) return el.click();
+  if ((el = c('button[id]')) && ['repeat', 'spd', 'slp', 'eqb', 'skn', 'lang', 'vm', 'qb', 'np', 'addf', 'addd', 'lyricBtn', 'viewMode'].includes(el.id)) return el.click();
   if (c('.hero,#vt,.top,#list,main,.sub')) return showMenu(x, y, [['＋ إضافة ملفات', () => $('#addf').click()], ['＋ إضافة مجلد', () => $('#addd').click()], ['☑ تحديد الكل', () => { visKeys().forEach((k) => SEL.add(k)); paintSel(); }], ['⋯ المزيد…', () => $('#vm').click()]]);
   showMenu(x, y, [['🎨 الشكل', () => $('#skn').click()], ['🌐 اللغة', () => $('#lang').click()], ['🎚 المعادل', () => $('#eqb').click()], ['⏱ مؤقت النوم', () => $('#slp').click()], ['⚡ السرعة', () => $('#spd').click()]]);
 });
