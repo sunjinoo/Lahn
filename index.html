@@ -487,6 +487,7 @@ addEventListener('keydown', (e) => {
 /* ---- Media Session كامل ---- */
 if ('mediaSession' in navigator) {
   const ms = navigator.mediaSession;
+try {
   ms.setActionHandler('play', () => { if (audio.paused) toggle(); });
   ms.setActionHandler('pause', () => { if (!audio.paused) toggle(); });
   ms.setActionHandler('stop', () => { audio.pause(); audio.currentTime = 0; });
@@ -495,6 +496,9 @@ if ('mediaSession' in navigator) {
   ms.setActionHandler('seekbackward', (d) => { audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10)); });
   ms.setActionHandler('seekforward', (d) => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 10)); });
   ms.setActionHandler('seekto', (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
+} catch (e) {
+  console.warn('MediaSession action handler error:', e);
+}
   const syncMediaState = () => {
     try {
       ms.playbackState = audio.paused ? 'paused' : 'playing';
@@ -508,8 +512,8 @@ if ('mediaSession' in navigator) {
   audio.addEventListener('loadedmetadata', syncMediaState);
   audio.addEventListener('ratechange', syncMediaState);
   audio.addEventListener('seeked', syncMediaState);
-  let __msT = 0;
-  audio.addEventListener('timeupdate', () => { const now = Date.now(); if (now - __msT > 1000) { __msT = now; syncMediaState(); } });
+ // تحديث الحالة كل ثانية (مش معتمد على timeupdate بس، عشان نضمن إنه شغال في الخلفية)
+setInterval(syncMediaState, 1000);
 }
 
 /* ---- v2 additions ---- */
@@ -1423,7 +1427,18 @@ setLang(LG);
 </script>
 <script>
 if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+    // يبحث عن تحديث فوراً عند فتح الصفحة
+    reg.update();
+    // ويبحث كل دقيقة طول ما الصفحة مفتوحة
+    setInterval(() => reg.update(), 60000);
+    // ولما المستخدم يرجع للتاب تاني
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') reg.update();
+    });
+  }).catch(() => {});
+}
 </script>
 </body>
 </html>
