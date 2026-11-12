@@ -1,0 +1,10 @@
+{
+  "name": "lahn-player",
+  "version": "1.0.0",
+  "description": "Lahn PWA Desktop App",
+  "main": "main.js",
+  "author": "Mohamed",
+  "devDependencies": {
+    "electron": "^45.3.1"
+  }
+}

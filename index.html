@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12101a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>لحن</title>
+<style>
+:root{--tint:rgb(139,124,246);--tint-rgb:139,124,246;--bg:#12101a;--text:#f2eefc;--mute:#9d97b5;--line:rgba(255,255,255,.09);--w:255,255,255;--on:#15121f}
+*{box-sizing:border-box;margin:0}html,body{height:100%}
+body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",sans-serif;color:var(--text);overflow:hidden;background:radial-gradient(900px 600px at 70% -10%,rgba(var(--tint-rgb),.28),transparent 60%),var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:8px}
+.app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:minmax(0,1fr) 92px;gap:10px;height:100%;padding:10px}
+.panel{background:rgba(var(--w),.045);border:1px solid var(--line);border-radius:18px}
+.side{grid-row:1;display:flex;flex-direction:column;gap:2px;padding:14px 10px;overflow-y:auto;min-height:0}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 14px;font-weight:700;font-size:19px}.brand img{width:30px;height:30px;border-radius:9px}
+.nv{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:11px;text-align:start;color:var(--mute);font-size:14px}
+.nv:hover{background:rgba(var(--w),.07);color:var(--text)}.nv.on{background:rgba(var(--tint-rgb),.22);color:var(--text)}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:16px 12px 4px;font-size:12px;color:var(--mute)}
+#pls{display:flex;flex-direction:column;gap:2px}.grow{flex:1;min-height:12px}
+main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-radius:18px;background:linear-gradient(rgba(var(--tint-rgb),.24),transparent 280px),rgba(var(--w),.03);border:1px solid var(--line)}
+.top{display:flex;gap:10px;align-items:center;padding:16px 22px 0}
+#q{flex:1;min-width:0;padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(var(--w),.07);color:var(--text);font:inherit;font-size:14px}
+.chip{padding:8px 15px;border-radius:999px;font-size:13px;background:rgba(var(--w),.09);transition:background .15s;white-space:nowrap}
+.chip:hover{background:rgba(var(--tint-rgb),.35)}.chip.on{background:rgba(var(--tint-rgb),.4)}.chip.pri{background:var(--text);color:var(--on)}
+.hero{padding:22px 24px 10px}#vt{font-size:32px;font-weight:750;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{margin-top:4px;font-size:13px;color:var(--mute)}
+#list{flex:1;overflow-y:auto;padding:4px 14px 14px}#list::-webkit-scrollbar{width:8px}#list::-webkit-scrollbar-thumb{background:rgba(var(--w),.14);border-radius:8px}
+.row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;cursor:pointer;border-inline-start:3px solid transparent}
+.row:hover{background:rgba(var(--w),.06)}.row.cur{background:rgba(var(--tint-rgb),.16);border-inline-start-color:var(--tint)}.row.cur b{color:var(--tint)}
+.row.off{opacity:.5}.row[hidden]{display:none}.row .t{flex:1;min-width:0}
+.row b{display:block;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row span{display:block;font-size:12px;color:var(--mute);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row i{font-style:normal;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;direction:ltr}
+.mini{width:32px;height:32px;border-radius:50%;color:var(--mute);font-size:17px;flex:none}.mini:hover{background:rgba(var(--w),.12);color:var(--text)}
+.empty{padding:50px 24px;text-align:center;color:var(--mute);line-height:1.9;font-size:14px}
+body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
+.bar{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:1fr minmax(320px,1.5fr) 1fr;align-items:center;gap:16px;padding:10px 18px;background:rgba(var(--w),.06);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:18px}
+.np{display:flex;align-items:center;gap:12px;min-width:0}
+.thumb{width:62px;height:62px;border-radius:12px;overflow:hidden;flex:none;background:rgba(var(--w),.08);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px -8px rgba(var(--tint-rgb),.7)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:none}.thumb svg{width:28px;height:28px;opacity:.4}
+.info{min-width:0;flex:1;cursor:pointer}
+#title{display:block;font-weight:650;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#artist{display:block;font-size:12px;color:var(--mute);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mid{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.ctl{display:flex;align-items:center;gap:8px;direction:ltr}
+.ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--mute);position:relative}.ib:hover{color:var(--text);background:rgba(var(--w),.1)}.ib.on{color:var(--tint)}.ib svg{width:20px;height:20px}
+.play{width:46px;height:46px;background:var(--text);color:var(--on)}.play:hover{background:var(--text);color:var(--on);filter:brightness(1.1);transform:scale(1.05)}.play svg{width:24px;height:24px}
+#repeat[data-one="1"]::after{content:"1";position:absolute;font-size:9px;font-weight:700;top:17px;left:50%;transform:translateX(-50%)}
+.seekrow{display:flex;align-items:center;gap:10px;width:100%;direction:ltr;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;width:100%;height:4px;border-radius:4px;cursor:pointer;background:linear-gradient(to right,var(--text) var(--p,0%),rgba(var(--w),.2) var(--p,0%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--text);opacity:0;transition:opacity .15s}
+input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-webkit-slider-thumb{opacity:1}
+.rt{display:flex;align-items:center;justify-content:flex-end;direction:ltr;gap:8px}.vol{display:flex;align-items:center;gap:8px;width:130px;color:var(--mute)}.vol svg{width:18px;height:18px;flex:none}
+#npv{position:fixed;inset:0 0 112px 0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;background:radial-gradient(700px 500px at 50% 30%,rgba(var(--tint-rgb),.45),transparent 70%),var(--bg)}
+#npv[hidden]{display:none}#npv img{width:min(340px,40vh);aspect-ratio:1;object-fit:cover;border-radius:22px;background:rgba(var(--w),.08);box-shadow:0 30px 80px -20px rgba(var(--tint-rgb),.8)}
+#npv h2{font-size:26px;max-width:min(560px,90vw)}#npv p{color:var(--mute)}#viz{width:min(420px,86vw);height:70px}.cl{position:absolute;top:14px;inset-inline-end:14px}
+#menu{position:fixed;z-index:80;min-width:220px;max-height:70vh;overflow:auto;background:color-mix(in srgb,var(--bg) 92%,var(--text));border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#menu[hidden]{display:none}#menu button{display:block;width:100%;text-align:start;padding:10px 12px;border-radius:9px;font-size:14px}#menu button:hover{background:rgba(var(--w),.1)}
+#toast{position:fixed;bottom:116px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--on);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:90}#toast.show{opacity:1}
+#eqp{position:fixed;inset:0;z-index:55;display:grid;place-items:center;background:rgba(0,0,0,.55)}#eqp[hidden]{display:none}
+.eqc{background:color-mix(in srgb,var(--bg) 90%,var(--text));border:1px solid var(--line);border-radius:20px;padding:20px;width:min(540px,94vw)}
+.eqh{display:flex;gap:8px;align-items:center}.eqh b{flex:1;font-size:16px}
+#eqpre{margin-top:14px;width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(var(--w),.05);color:var(--text);font:inherit;font-size:13px}#eqpre option{background:#1b1827;color:#f2eefc}
+.eqs{display:flex;gap:4px;justify-content:space-between;direction:ltr;margin:18px 0 8px}
+.eqb{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:var(--mute)}.eqb div{height:130px;width:24px;display:grid;place-items:center}
+.eqb input{width:120px;margin:0;transform:rotate(-90deg);background:rgba(var(--w),.2)!important}.eqb input::-webkit-slider-thumb{opacity:1}.eqc small{color:var(--mute);font-size:12px}
+@media (max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto}.side{flex-direction:row;overflow-x:auto;padding:8px;gap:6px;align-items:center}.brand,.sh,.grow{display:none}.nv{width:auto;white-space:nowrap}#pls{flex-direction:row}main{grid-row:2}.bar{grid-row:3;grid-template-columns:1fr;gap:6px;padding:10px 14px}.rt{display:flex;justify-content:center}.vol{display:none}.top{padding:12px 14px 0}.hero{padding:12px 16px 4px}#vt{font-size:24px}#npv{inset:0 0 170px 0}#toast{bottom:180px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+#qd{position:fixed;top:10px;bottom:112px;inset-inline-end:10px;width:min(390px,94vw);z-index:45;display:flex;flex-direction:column;background:color-mix(in srgb,var(--bg) 92%,var(--text));border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}#qd[hidden]{display:none}
+.qh2{display:flex;align-items:center;gap:8px;padding:14px 16px}.qh2 b{flex:0 1 auto}.qh2 .sub{flex:1;margin:0}
+#qs{margin:0 14px 8px;padding:9px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(var(--w),.06);color:var(--text);font:inherit;font-size:13px}
+#qr{max-height:200px;overflow-y:auto;padding:0 8px;border-bottom:1px solid var(--line)}#qr:empty{display:none}#ql{flex:1;overflow-y:auto;padding:6px 8px 10px}
+.qr{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:10px;cursor:pointer;border-inline-start:3px solid transparent}.qr:hover{background:rgba(var(--w),.07)}.qr.cur{background:rgba(var(--tint-rgb),.18);border-inline-start-color:var(--tint)}
+.qr .t{flex:1;min-width:0}.qr b{display:block;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.qr span{display:block;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qr .mini{width:28px;height:28px;font-size:13px}
+@media (max-width:860px){#qd{bottom:176px}}
+
+.row.sel{background:rgba(var(--tint-rgb),.3)!important}.row a{cursor:pointer}.row a:hover{text-decoration:underline;color:var(--text)}
+#selbar{display:flex;gap:8px;align-items:center;padding:8px 24px;background:rgba(var(--tint-rgb),.22);font-size:14px}#selbar[hidden]{display:none}#selbar>span{flex:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;padding:6px 8px}
+.card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:14px;text-align:center;background:rgba(var(--w),.05);min-width:0}.card:hover{background:rgba(var(--w),.1)}
+.card b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.card span{font-size:12px;color:var(--mute)}
+.av{width:84px;height:84px;border-radius:14px;display:grid;place-items:center;font-size:32px;font-weight:700;color:#fff}.av.rd{border-radius:50%}
+.hs{display:flex;gap:12px;overflow-x:auto;padding:4px 8px 10px}.hs .card{flex:none;width:130px}
+#list h3{font-size:15px;padding:16px 10px 6px;color:var(--mute);font-weight:600}
+.stats{display:flex;gap:10px;padding:6px 8px}.stats div{flex:1;padding:14px;border-radius:14px;background:rgba(var(--w),.06);text-align:center}.stats b{font-size:26px}.stats small{font-size:13px;color:var(--mute)}.stats span{display:block;font-size:12px;color:var(--mute);margin-top:2px}
+.acts{display:flex;gap:8px;padding:6px 10px}
+#slw{position:fixed;inset:0;z-index:55;display:grid;place-items:center;background:rgba(0,0,0,.55)}#slw[hidden]{display:none}
+.wheelw{position:relative;display:flex;align-items:center;justify-content:center;gap:14px;margin:12px 0;direction:ltr}
+.wheelw::before{content:"";position:absolute;height:40px;width:170px;border-radius:12px;background:rgba(var(--tint-rgb),.25);pointer-events:none}
+#wheel{height:200px;width:110px;overflow-y:auto;scroll-snap-type:y mandatory;padding:80px 0;text-align:center;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 35%,#000 65%,transparent);mask-image:linear-gradient(transparent,#000 35%,#000 65%,transparent)}
+#wheel::-webkit-scrollbar{display:none}#wheel div{height:40px;line-height:40px;font-size:22px;scroll-snap-align:center;color:var(--mute)}#wheel div.sel{color:var(--text);font-weight:700}
+.slb{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+.row .th{width:46px;height:46px;border-radius:9px;flex:none;background:rgba(var(--w),.09) center/cover no-repeat;display:grid;place-items:center;font-size:18px;color:var(--mute)}
+.av[data-cv],.av[data-cvk]{background-position:center;background-repeat:no-repeat}
+
+/* --- Modals & Lyrics UI --- */
+.modal-overlay{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(0,0,0,.65);backdrop-filter:blur(8px)}
+.modal-overlay[hidden]{display:none}
+.modal-card{background:color-mix(in srgb,var(--bg) 92%,var(--text));border:1px solid var(--line);border-radius:20px;padding:24px;width:min(540px,94vw);max-height:85vh;display:flex;flex-direction:column;gap:14px;box-shadow:0 25px 60px rgba(0,0,0,.6)}
+.modal-card input[type="text"], .modal-card textarea{width:100%;background:rgba(var(--w),.06);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px 14px;font:inherit;font-size:14px}
+.modal-card textarea{height:220px;resize:vertical;line-height:1.6}
+.field-lbl{font-size:12px;color:var(--mute);margin-bottom:4px;display:block}
+#lyricDisplayPanel{position:fixed;inset:0 0 112px 0;z-index:44;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(800px 600px at 50% 30%,rgba(var(--tint-rgb),.38),transparent 70%),var(--bg);padding:30px 20px;text-align:center}
+#lyricDisplayPanel[hidden]{display:none}
+.lyrics-container{flex:1;width:min(700px,92vw);overflow-y:auto;padding:40px 10px;scroll-behavior:smooth;-webkit-mask-image:linear-gradient(transparent,#fff 15%,#fff 85%,transparent);mask-image:linear-gradient(transparent,#fff 15%,#fff 85%,transparent)}
+.lyrics-container::-webkit-scrollbar{display:none}
+.l-line{font-size:19px;font-weight:600;color:var(--mute);padding:11px 0;transition:all .25s ease;cursor:pointer}
+.l-line:hover{color:var(--text)}
+.l-line.active{color:var(--text);font-size:25px;transform:scale(1.04);text-shadow:0 0 24px rgba(var(--tint-rgb),.85)}
+@media (max-width:860px){#lyricDisplayPanel{inset:0 0 170px 0}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="side panel">
+  <div class="brand"><img src="icon-192.png" alt=""><span>لحن</span></div>
+  <button class="nv" data-v="queue">☰ <span>قايمة التشغيل</span></button>
+  <button class="nv" data-v="home">⌂ <span>الرئيسية</span></button>
+  <button class="nv" data-v="lib">♫ <span>أغانيك</span></button>
+  <button class="nv" data-v="artists">👤 <span>الفنانون</span></button>
+  <button class="nv" data-v="albums">💿 <span>الألبومات</span></button>
+  <button class="nv" data-v="fav">♥ <span>المفضلة</span></button>
+  <button class="nv" data-v="hist">🕘 <span>السجل</span></button>
+  <div class="sh"><span>قوائمي</span><button class="mini" id="np" aria-label="قايمة جديدة">＋</button></div>
+  <div id="pls"></div><div class="grow"></div>
+  <div class="sh"><span id="today"></span></div>
+  <button class="nv" id="spd">السرعة 1×</button>
+  <button class="nv" id="slp">مؤقت النوم: إيقاف</button>
+  <button class="nv" id="eqb">🎚 المعادل</button>
+  <button class="nv" id="skn">🎨 الشكل</button>
+  <button class="nv" id="lang">🌐 اللغة</button>
+</nav>
+<main>
+  <div class="top"><input id="q" type="search" placeholder="ابحث في القايمة…" aria-label="ابحث في القايمة…"><button class="chip pri" id="addf">ملفات</button><button class="chip" id="addd">مجلد</button><button class="chip" id="vm" aria-label="المزيد">⋯</button></div>
+  <div class="hero"><h1 id="vt"></h1><div class="sub"><span id="count"></span> <span>أغنية</span></div></div>
+  <select id="view" hidden></select>
+  <div id="list"></div>
+</main>
+<footer class="bar">
+  <div class="np"><div class="thumb" id="thumb"><img id="art" alt=""><svg id="ph" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.6A4 4 0 1 0 14 17V7h4V3z"/></svg></div><div class="info"><span id="title">مفيش حاجة شغالة</span><span id="artist">ضيف موسيقى من القايمة</span></div><button class="mini" id="fv" aria-label="مفضلة">♡</button></div>
+  <div class="mid">
+    <div class="ctl">
+      <button class="ib" id="shuffle" aria-label="عشوائي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+      <button class="ib" id="prev" aria-label="السابق"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12 18 6v12z"/></svg></button>
+      <button class="ib play" id="play" aria-label="تشغيل"><svg viewBox="0 0 24 24" fill="currentColor"><path id="pp" d="M8 5v14l11-7z"/></svg></button>
+      <button class="ib" id="next" aria-label="التالي"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18V6l8.5 6z"/></svg></button>
+      <button class="ib" id="repeat" aria-label="تكرار"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 1 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
+    </div>
+    <div class="seekrow"><span id="tc">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل"><span id="td">0:00</span></div>
+  </div>
+  <div class="rt">
+    <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
+    <div class="vol"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="range" id="vol" min="0" max="100" aria-label="مستوى الصوت"></div>
+  </div>
+</footer>
+</div>
+
+<!-- شاشة عرض الكلمات التفاعلية -->
+<div id="lyricDisplayPanel" hidden>
+  <button class="mini cl" id="lyricClose" aria-label="إغلاق">✕</button>
+  <div style="margin-bottom:8px">
+    <h3 id="lyricTitle" style="font-size:22px;font-weight:700" dir="auto"></h3>
+    <span id="lyricArtist" style="font-size:14px;color:var(--mute)" dir="auto"></span>
+  </div>
+  <div class="lyrics-container" id="lyricsScroll"></div>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+    <button class="chip" id="lyricModeBtn">طريقة العرض: متزامن</button>
+    <button class="chip pri" id="lyricEditBtn">📝 تعديل الكلمات</button>
+  </div>
+</div>
+
+<!-- نافذة إضافة / تعديل الكلمات -->
+<div id="lyricModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="eqh"><b>إضافة / تعديل الكلمات (ليركس)</b><button class="chip" id="lyricModalClose" aria-label="إغلاق">✕</button></div>
+    <p style="font-size:12px;color:var(--mute);line-height:1.6">اكتب الكلمات النصية العادية، أو استخدم صيغة التوقيت (LRC) للكلمات المتزامنة مثل:<br><code dir="ltr" style="color:var(--tint)">[00:12.50] السطر الأول هنا</code></p>
+    <textarea id="lyricInput" dir="auto" placeholder="الصق أو اكتب الكلمات هنا..."></textarea>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="chip" id="lyricCancel">إلغاء</button>
+      <button class="chip pri" id="lyricSave">حفظ الكلمات</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تعديل معلومات الأغنية أو الفنان -->
+<div id="editMetaModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="eqh"><b id="editMetaHeader">تعديل المعلومات</b><button class="chip" id="editMetaClose" aria-label="إغلاق">✕</button></div>
+    <div id="editSongFields">
+      <label class="field-lbl">اسم الأغنية</label>
+      <input type="text" id="editTitleInput" dir="auto">
+      <label class="field-lbl" style="margin-top:10px">اسم الفنان</label>
+      <input type="text" id="editArtistInput" dir="auto">
+      <label class="field-lbl" style="margin-top:10px">الألبوم</label>
+      <input type="text" id="editAlbumInput" dir="auto">
+    </div>
+    <div id="editArtistFields" hidden>
+      <label class="field-lbl">الاسم الجديد للفنان (سيتم تحديثه في جميع أغانيه)</label>
+      <input type="text" id="editSingleArtistInput" dir="auto">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="chip" id="editMetaCancel">إلغاء</button>
+      <button class="chip pri" id="editMetaSave">حفظ التعديلات</button>
+    </div>
+  </div>
+</div>
+
+<div id="npv" hidden><button class="mini cl" id="npx" aria-label="إغلاق">✕</button><img id="art2" alt=""><h2 id="title2" dir="auto"></h2><p id="artist2" dir="auto"></p><canvas id="viz"></canvas></div>
+<script>
+const $ = (s) => document.querySelector(s);
+const AUD = /\.(mp3|flac|m4a|aac|ogg|opus|wav)$/i;
+const files = new Map(), tagCache = new Map();
+const rel = (f) => f.webkitRelativePath || f.name;
+const reg = (list) => [...list].filter((f) => AUD.test(f.name))
+  .sort((a, b) => rel(a).localeCompare(rel(b), undefined, { numeric: true }))
+  .map((f) => { const k = f.name + '|' + f.size; files.set(k, f); return k; });
+const txt = (d) => {
+  const e = d[0], lab = e === 0 ? 'windows-1256' : e === 3 ? 'utf-8' : e === 1 ? 'utf-16le' : 'utf-16be';
+  return new TextDecoder(lab).decode(d.subarray(1)).replace(/\0[\s\S]*$/, '').trim();
+};
+async function readTags(k, noCache) {
+  if (tagCache.has(k)) { const c0 = tagCache.get(k); if (!noCache || c0.cover) return c0; }
+  const f = files.get(k), r = { title: '', artist: '', album: '', cover: null };
+  try {
+    if (/\.mp3$/i.test(f.name)) {
+      const h = new Uint8Array(await f.slice(0, 10).arrayBuffer());
+      if (h[0] === 0x49 && h[1] === 0x44 && h[2] === 0x33) {
+        const ver = h[3], size = ((h[6] & 127) << 21) | ((h[7] & 127) << 14) | ((h[8] & 127) << 7) | (h[9] & 127);
+        const b = new Uint8Array(await f.slice(10, 10 + size).arrayBuffer()), dv = new DataView(b.buffer);
+        let p = 0;
+        while (p + 10 <= b.length) {
+          const id = String.fromCharCode(b[p], b[p + 1], b[p + 2], b[p + 3]);
+          if (!/^[A-Z0-9]{4}$/.test(id)) break;
+          const sz = ver === 4 ? ((b[p + 4] & 127) << 21) | ((b[p + 5] & 127) << 14) | ((b[p + 6] & 127) << 7) | (b[p + 7] & 127) : dv.getUint32(p + 4);
+          const d = b.subarray(p + 10, p + 10 + sz); p += 10 + sz;
+          if (id === 'TIT2') r.title = txt(d);
+          else if (id === 'TPE1') r.artist = txt(d);
+          else if (id === 'TALB') r.album = txt(d);
+          else if (id === 'TDRC' || id === 'TYER') r.year = txt(d).slice(0, 4);
+          else if (id === 'TCON') r.genre = txt(d);
+          else if (id === 'APIC' && !r.cover && !window.__scan) {
+            const e = d[0]; let i = 1;
+            while (i < d.length && d[i] !== 0) i++;
+            let mime = String.fromCharCode(...d.subarray(1, i)); i += 2;
+            if (e === 1 || e === 2) { while (i + 1 < d.length && !(d[i] === 0 && d[i + 1] === 0)) i += 2; i += 2; }
+            else { while (i < d.length && d[i] !== 0) i++; i++; }
+            if (!/^image\//.test(mime)) mime = 'image/jpeg';
+            r.cover = URL.createObjectURL(new Blob([d.subarray(i)], { type: mime }));
+          }
+        }
+      }
+    }
+  } catch (_) {}
+  if (!window.__scan && !noCache) tagCache.set(k, r); return r;
+}
+const dur = (url) => new Promise((res) => {
+  const a = new Audio(); a.preload = 'metadata';
+  const t = setTimeout(() => res(0), 4000);
+  a.onloadedmetadata = () => { clearTimeout(t); res(a.duration || 0); };
+  a.onerror = () => { clearTimeout(t); res(0); };
+  a.src = url;
+});
+const api = {
+  async meta(k) {
+    const f = files.get(k), tg = await readTags(k), url = URL.createObjectURL(f);
+    return { path: k, url, title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, duration: await dur(url) };
+  },
+  cover: (k) => readTags(k).then((t) => t.cover),
+  pick(kind) {
+    return new Promise((res) => {
+      const i = document.createElement('input'); i.type = 'file'; i.multiple = true;
+      if (kind === 'folder') i.webkitdirectory = true; else i.accept = 'audio/*,.flac,.opus';
+      i.onchange = () => res(reg(i.files)); i.oncancel = () => res([]);
+      i.click();
+    });
+  },
+};
+async function dropFiles(dt) {
+  const out = [];
+  const walk = async (en) => {
+    if (en.isFile) out.push(await new Promise((r) => en.file(r)));
+    else { const rd = en.createReader(); let b; do { b = await new Promise((r) => rd.readEntries(r)); for (const c of b) await walk(c); } while (b.length); }
+  };
+  const ents = [...dt.items].map((i) => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  for (const en of ents) await walk(en);
+  return out;
+}
+const audio = new Audio();
+let tracks = [], cur = -1, shuffle = false, repeat = 0;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (s) => { if (!isFinite(s) || s < 0) s = 0; return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+const fill = (el) => el.style.setProperty('--p', (el.value / el.max * 100) + '%');
+const save = () => { try { localStorage.q = JSON.stringify(tracks.map((t) => t.path)); localStorage.i = cur; } catch (_) {} };
+
+audio.volume = +(localStorage.vol ?? 0.8);
+$('#vol').value = audio.volume * 100; fill($('#vol'));
+
+function render() { queueMicrotask(applyFilter);
+  $('#count').textContent = tracks.length ? tracks.length : '';
+  $('#list').innerHTML = tracks.length ? tracks.map((t, i) =>
+    `<button class="row${i === cur ? ' cur' : ''}" data-i="${i}"><div class="t"><b dir="auto">${esc(t.title)}</b><span dir="auto">${esc(t.artist || 'فنان غير معروف')}</span></div><i>${t.duration ? fmt(t.duration) : ''}</i></button>`).join('')
+    : '<div class="empty">اسحب ملفات أو مجلد موسيقى هنا،<br>أو استخدم زراير «ملفات» و«مجلد» فوق.</div>';
+}
+
+async function add(paths) {
+  paths = paths.filter((p) => !tracks.some((t) => t.path === p));
+  for (let k = 0; k < paths.length; k += 20) {
+    tracks.push(...await Promise.all(paths.slice(k, k + 20).map(api.meta)));
+    render();
+  }
+  save();
+  if (cur < 0 && tracks.length) setTrack(0, true);
+}
+
+function setTint(rgb) { if (window.__fix) return;
+  const m = Math.max(...rgb), k = m < 150 ? 150 / (m || 1) : 1;
+  const [r, g, b] = rgb.map((v) => Math.min(255, Math.round(v * k)));
+  const s = document.documentElement.style;
+  s.setProperty('--tint', `rgb(${r},${g},${b})`); s.setProperty('--tint-rgb', `${r},${g},${b}`);
+}
+function tintFrom(src) {
+  if (!src) return setTint([139, 124, 246]);
+  const im = new Image();
+  im.onload = () => {
+    const c = document.createElement('canvas'); c.width = c.height = 24;
+    const x = c.getContext('2d'); x.drawImage(im, 0, 0, 24, 24);
+    const d = x.getImageData(0, 0, 24, 24).data; let r = 0, g = 0, b = 0, w = 0;
+    for (let k = 0; k < d.length; k += 4) {
+      const mx = Math.max(d[k], d[k + 1], d[k + 2]), mn = Math.min(d[k], d[k + 1], d[k + 2]), s = (mx - mn) / (mx || 1);
+      const wt = .1 + s * s * (mx / 255); r += d[k] * wt; g += d[k + 1] * wt; b += d[k + 2] * wt; w += wt;
+    }
+    setTint([r / w, g / w, b / w]);
+  };
+  im.src = src;
+}
+
+async function setTrack(i, autoplay) {
+  cur = i; const t = tracks[i];
+  const m = DB.lib[t.path] || t;
+  audio.src = t.url || (t.url = URL.createObjectURL(files.get(t.path)));
+  if (autoplay) audio.play().catch(() => {});
+  $('#title').textContent = m.title || t.title; $('#artist').textContent = (m.artist || t.artist) || 'فنان غير معروف';
+  document.title = (m.title || t.title) + ' – لحن';
+  render(); save();
+  const row = $('.row.cur'); if (row) row.scrollIntoView({ block: 'nearest' });
+  const cover = await api.cover(t.path);
+  if (tracks[cur] !== t) return;
+  $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
+  tintFrom(cover);
+  if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: m.title || t.title, artist: m.artist || t.artist, album: m.album || t.album, artwork: cover ? [{ src: cover }] : [] });
+  if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
+}
+
+function step(dir, auto) {
+  if (!tracks.length) return;
+  if (auto && repeat === 2) { audio.currentTime = 0; audio.play(); return; }
+  let n;
+  if (shuffle && tracks.length > 1) { do n = Math.floor(Math.random() * tracks.length); while (n === cur); }
+  else n = cur + dir;
+  if (n >= tracks.length || n < 0) {
+    if (repeat === 1 || !auto) n = (n + tracks.length) % tracks.length; else { audio.pause(); return; }
+  }
+  setTrack(n, true);
+}
+const toggle = () => { if (cur < 0) return; audio.paused ? audio.play() : audio.pause(); };
+
+audio.addEventListener('play', () => { $('#pp').setAttribute('d', 'M6 5h4v14H6zM14 5h4v14h-4z'); $('#play').setAttribute('aria-label', 'إيقاف'); });
+audio.addEventListener('pause', () => { $('#pp').setAttribute('d', 'M8 5v14l11-7z'); $('#play').setAttribute('aria-label', 'تشغيل'); });
+audio.addEventListener('ended', () => step(1, true));
+audio.addEventListener('loadedmetadata', () => { $('#td').textContent = fmt(audio.duration); });
+audio.addEventListener('timeupdate', () => {
+  $('#tc').textContent = fmt(audio.currentTime);
+  if (!seeking && audio.duration) { $('#seek').value = audio.currentTime / audio.duration * 1000; fill($('#seek')); }
+  syncLyricsPlayback();
+});
+let seeking = false;
+$('#seek').addEventListener('input', (e) => { seeking = true; fill(e.target); $('#tc').textContent = fmt(e.target.value / 1000 * audio.duration); });
+$('#seek').addEventListener('change', (e) => { if (audio.duration) audio.currentTime = e.target.value / 1000 * audio.duration; seeking = false; });
+$('#vol').addEventListener('input', (e) => { audio.volume = e.target.value / 100; localStorage.vol = audio.volume; fill(e.target); });
+
+$('#play').onclick = toggle; $('#next').onclick = () => step(1, false); $('#prev').onclick = () => {
+  if (audio.currentTime > 3) audio.currentTime = 0; else step(-1, false);
+};
+$('#shuffle').onclick = (e) => { shuffle = !shuffle; e.currentTarget.classList.toggle('on', shuffle); };
+$('#repeat').onclick = (e) => {
+  repeat = (repeat + 1) % 3; const b = e.currentTarget;
+  b.classList.toggle('on', repeat > 0); b.dataset.one = repeat === 2 ? '1' : '0';
+};
+$('#addf').onclick = async () => add(await api.pick('files'));
+$('#addd').onclick = async () => add(await api.pick('folder'));
+
+addEventListener('dragover', (e) => { e.preventDefault(); document.body.classList.add('drag'); });
+addEventListener('dragleave', (e) => { if (!e.relatedTarget) document.body.classList.remove('drag'); });
+addEventListener('drop', async (e) => {
+  e.preventDefault(); document.body.classList.remove('drag');
+  add(reg(await dropFiles(e.dataTransfer)));
+});
+addEventListener('keydown', (e) => {
+  if (e.target.matches('input,textarea')) return;
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  else if (e.code === 'ArrowRight') audio.currentTime += 5;
+  else if (e.code === 'ArrowLeft') audio.currentTime -= 5;
+});
+if ('mediaSession' in navigator) {
+  const ms = navigator.mediaSession;
+  ms.setActionHandler('play', toggle); ms.setActionHandler('pause', toggle);
+  ms.setActionHandler('nexttrack', () => step(1, false)); ms.setActionHandler('previoustrack', () => step(-1, false));
+}
+
+/* ---- v2 additions ---- */
+const MOBILE = /Android|iPhone|iPad/i.test(navigator.userAgent);
+function applyFilter() {
+  const f = ($('#q').value || '').trim().toLowerCase();
+  document.querySelectorAll('.row').forEach((r) => { const t = tracks[+r.dataset.i]; r.hidden = !!f && !((t.title + ' ' + t.artist).toLowerCase().includes(f)); });
+}
+$('#q').addEventListener('input', applyFilter);
+const SP = [1, 1.25, 1.5, 2, 0.75]; let pi = 0;
+$('#spd').onclick = () => { pi = (pi + 1) % SP.length; audio.defaultPlaybackRate = audio.playbackRate = SP[pi]; $('#spd').textContent = 'السرعة ' + SP[pi] + '×'; $('#spd').classList.toggle('on', SP[pi] !== 1); };
+const SL = [0, 15, 30, 60]; let si = 0, slT = null;
+const slLabel = () => { $('#slp').textContent = 'مؤقت النوم: ' + (SL[si] ? SL[si] + ' د' : 'إيقاف'); $('#slp').classList.toggle('on', !!SL[si]); };
+$('#slp').onclick = () => { si = (si + 1) % SL.length; clearTimeout(slT); slLabel(); if (SL[si]) slT = setTimeout(() => { audio.pause(); si = 0; slLabel(); }, SL[si] * 60000); };
+let ac, an, buf, raf = 0;
+function draw() {
+  raf = requestAnimationFrame(draw);
+  const c = $('#viz'), x = c.getContext('2d'), k = devicePixelRatio || 1;
+  const w = c.width = c.clientWidth * k, h = c.height = c.clientHeight * k;
+  an.getByteFrequencyData(buf);
+  if (audio.paused && Math.max(...buf) < 3) { cancelAnimationFrame(raf); raf = 0; x.clearRect(0, 0, w, h); return; }
+  x.clearRect(0, 0, w, h);
+  const n = 32, bw = w / n;
+  for (let i = 0; i < n; i++) {
+    const v = buf[i + 1] / 255, bh = Math.max(3 * k, v * h);
+    x.fillStyle = `rgba(255,255,255,${.3 + v * .55})`;
+    x.beginPath(); x.roundRect(i * bw + bw * .2, h - bh, bw * .6, bh, bw * .3); x.fill();
+  }
+}
+if (MOBILE) $('#viz').style.display = 'none';
+else audio.addEventListener('play', () => {
+  try {
+    if (!ac) { ensureGraph(); }
+    ac.resume(); if (!raf) draw();
+  } catch (_) {}
+});
+
+/* ---- v3: playlists, favorites, sharing, skins & lyrics DB ---- */
+const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {} }, JSON.parse(localStorage.ng2 || '{}'));
+if (!DB.lyrics) DB.lyrics = {};
+const persist = () => { try { localStorage.ng2 = JSON.stringify(DB); } catch (_) {} };
+let view = 'queue'; const metaCache = new Map();
+const metaOf = (k) => { if (!metaCache.has(k)) { const m = DB.lib[k]; metaCache.set(k, m ? Promise.resolve({ path: k, url: '', title: m.title, artist: m.artist, album: m.album, duration: m.duration }) : api.meta(k)); } return metaCache.get(k); };
+document.body.insertAdjacentHTML('beforeend', '<div id="menu" hidden></div><div id="toast"></div>');
+let tt; const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
+const hideMenu = () => { $('#menu').hidden = true; };
+function showMenu(x, y, items) {
+  const m = $('#menu'); m.innerHTML = '';
+  items.forEach(([label, fn]) => { const b = document.createElement('button'); b.textContent = label; b.onclick = () => { hideMenu(); fn(x, y); }; m.appendChild(b); });
+  m.hidden = false;
+  m.style.left = Math.max(8, Math.min(x, innerWidth - m.offsetWidth - 8)) + 'px';
+  m.style.top = Math.max(8, Math.min(y, innerHeight - m.offsetHeight - 8)) + 'px';
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('#menu')) hideMenu(); }, true);
+
+const isFav = (k) => DB.favs.includes(k);
+const curKey = () => (tracks[cur] || {}).path;
+const toggleFav = (k) => { if (!k) return; const i = DB.favs.indexOf(k); i < 0 ? DB.favs.push(k) : DB.favs.splice(i, 1); persist(); render(); };
+const remember = (t) => { if (!DB.lib[t.path]) { DB.lib[t.path] = { title: t.title, artist: t.artist, album: t.album, duration: t.duration }; return true; } };
+const keysOfView = () => view === 'queue' ? tracks.map((t) => t.path) : view.startsWith('ar:') ? (groups('artist').get(view.slice(3)) || []) : view.startsWith('al:') ? (groups('album').get(view.slice(3)) || []) : view === 'hist' ? histKeys() : view === 'lib' ? Object.keys(DB.lib).sort((a, b) => (DB.lib[a].title || '').localeCompare(DB.lib[b].title || '', undefined, { numeric: true })) : view === 'fav' ? DB.favs : (DB.lists[view.slice(3)] || []);
+const listName = () => view === 'fav' ? 'المفضلة' : view.slice(3);
+const EMPTY = ['اسحب الموسيقى هنا أو اضغط «ملفات»', 'لسه مفيش مفضلة. اضغط ♡ على أي أغنية.', 'القايمة فاضية. أضف أغاني من ⋯', 'مكتبتك فاضية. اضغط «مجلد» لربط فولدر الموسيقى.'];
+
+function applyFilter() {
+  const f = ($('#q').value || '').trim().toLowerCase();
+  document.querySelectorAll('.row').forEach((r) => { const m = DB.lib[r.dataset.k] || {}; r.hidden = !!f && !(((m.title || '') + ' ' + (m.artist || '')).toLowerCase().includes(f)); });
+}
+function render() {
+  if (tracks.map(remember).some(Boolean)) persist();
+  if (view.startsWith('pl:') && !DB.lists[view.slice(3)]) view = 'queue';
+  const s = $('#view');
+  s.innerHTML = `<option value="queue">قايمة التشغيل (${tracks.length})</option><option value="fav">♥ المفضلة (${DB.favs.length})</option>` + Object.keys(DB.lists).map((n) => `<option value="pl:${esc(n)}">▤ ${esc(n)} (${DB.lists[n].length})</option>`).join('');
+  s.value = view;
+  const keys = keysOfView(), ck = curKey();
+  $('#count').textContent = keys.length;
+  $('#list').innerHTML = keys.length ? keys.map((k) => {
+    const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k);
+    return `<div class="row${k === ck ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span></div><i>${m.duration ? fmt(m.duration) : ''}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? '♥' : '♡'}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`;
+  }).join('') : `<div class="empty">${EMPTY[view === 'queue' ? 0 : view === 'fav' ? 1 : view === 'lib' ? 3 : 2]}</div>`;
+  $('#fv').textContent = isFav(ck) ? '♥' : '♡'; $('#fv').classList.toggle('on', isFav(ck));
+  applyFilter(); renderSide(); renderQ();
+}
+async function startQueue(keys, startKey) {
+  const ks = keys.filter((k) => files.has(k));
+  if (!ks.length) return toast('الملف مش متاح — أضفه تاني');
+  tracks = await Promise.all(ks.map(metaOf));
+  setTrack(Math.max(0, ks.indexOf(startKey)), true);
+}
+function playFrom(k) {
+  if (!files.has(k)) return toast('الملف مش متاح — أضفه تاني');
+  if (view === 'queue') { const i = tracks.findIndex((t) => t.path === k); if (i >= 0) setTrack(i, true); }
+  else startQueue(keysOfView(), k);
+}
+function newList(k) {
+  const n = (prompt('اسم القايمة الجديدة:') || '').trim(); if (!n) return;
+  if (!DB.lists[n]) DB.lists[n] = [];
+  if (k && !DB.lists[n].includes(k)) DB.lists[n].push(k);
+  persist(); render(); toast('اتعملت قايمة «' + n + '»');
+}
+function addMenu(k, x, y) {
+  showMenu(x, y, [...Object.keys(DB.lists).map((n) => ['▤ ' + n, () => { if (!DB.lists[n].includes(k)) DB.lists[n].push(k); persist(); render(); toast('اتضافت لـ «' + n + '»'); }]), ['＋ قايمة جديدة', () => newList(k)]]);
+}
+function removeKey(k) {
+  if (view === 'queue') { const i = tracks.findIndex((t) => t.path === k); if (i === cur) return toast('مينفعش تشيل الأغنية الشغالة'); tracks.splice(i, 1); if (i < cur) cur--; save(); }
+  else if (view === 'fav') DB.favs = DB.favs.filter((x) => x !== k);
+  else DB.lists[view.slice(3)] = DB.lists[view.slice(3)].filter((x) => x !== k);
+  persist(); render();
+}
+async function shareText(title, text) {
+  try { if (navigator.share) return await navigator.share({ title, text }); await navigator.clipboard.writeText(text); toast('اتنسخت في الحافظة'); } catch (_) {}
+}
+async function shareFile(file, title) {
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) return await navigator.share({ files: [file], title }); } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; a.click(); toast('اتحمّل الملف على جهازك');
+}
+const lineOf = (k) => { const m = DB.lib[k] || {}; return (m.title || k.split('|')[0]) + (m.artist ? ' — ' + m.artist : ''); };
+const shareTrack = (k) => { const f = files.get(k); f ? shareFile(f, lineOf(k)) : shareText(lineOf(k), lineOf(k)); };
+const shareList = () => { const n = listName(); shareText(n, '♫ ' + n + ' (لحن)\n' + keysOfView().map((k, i) => (i + 1) + '. ' + lineOf(k)).join('\n')); };
+const exportList = () => { const n = listName(), d = { nagham: 1, name: n, tracks: keysOfView().map((k) => ({ key: k, ...DB.lib[k] })) }; shareFile(new File([JSON.stringify(d)], n + '.nagham.json', { type: 'application/json' }), n); };
+function importList() {
+  const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json';
+  i.onchange = async () => {
+    try {
+      const d = JSON.parse(await i.files[0].text()); if (!d.nagham) throw 0;
+      let n = d.name || 'مستوردة'; while (DB.lists[n]) n += ' ٢';
+      DB.lists[n] = d.tracks.map((t) => { const { key, ...m } = t; if (!DB.lib[key]) DB.lib[key] = m; return key; });
+      view = 'pl:' + n; persist(); render(); toast('اتستوردت «' + n + '»');
+    } catch (_) { toast('الملف ده مش قايمة لحن صالحة'); }
+  };
+  i.click();
+}
+function renameList() { const o = view.slice(3), n = (prompt('الاسم الجديد:', o) || '').trim(); if (!n || n === o || DB.lists[n]) return; DB.lists[n] = DB.lists[o]; delete DB.lists[o]; view = 'pl:' + n; persist(); render(); }
+function deleteList() { const o = view.slice(3); if (!confirm('تحذف القايمة «' + o + '»؟ (الأغاني نفسها مش هتتمسح)')) return; delete DB.lists[o]; view = 'queue'; persist(); render(); }
+
+/* ---- Lyrics & Metadata Editing Logic ---- */
+let lyricMode = 'synced';
+function openLyricModal(k) {
+  if (!k) return toast('اختر أغنية أولاً');
+  $('#lyricInput').value = DB.lyrics[k] || '';
+  $('#lyricModal').dataset.key = k;
+  $('#lyricModal').hidden = false;
+}
+$('#lyricCancel').onclick = $('#lyricModalClose').onclick = () => { $('#lyricModal').hidden = true; };
+$('#lyricSave').onclick = () => {
+  const k = $('#lyricModal').dataset.key;
+  if (!k) return;
+  DB.lyrics[k] = $('#lyricInput').value;
+  persist();
+  $('#lyricModal').hidden = true;
+  toast('تم حفظ الكلمات بنجاح');
+  if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
+};
+
+let editMode = 'song', editTarget = '';
+function openEditSongModal(k) {
+  if (!k) return;
+  editMode = 'song'; editTarget = k;
+  const m = DB.lib[k] || { title: k.split('|')[0], artist: '', album: '' };
+  $('#editMetaHeader').textContent = 'تعديل معلومات الأغنية';
+  $('#editSongFields').hidden = false;
+  $('#editArtistFields').hidden = true;
+  $('#editTitleInput').value = m.title || '';
+  $('#editArtistInput').value = m.artist || '';
+  $('#editAlbumInput').value = m.album || '';
+  $('#editMetaModal').hidden = false;
+}
+function openEditArtistModal(artistName) {
+  if (!artistName) return;
+  editMode = 'artist'; editTarget = artistName;
+  $('#editMetaHeader').textContent = 'تعديل اسم الفنان';
+  $('#editSongFields').hidden = true;
+  $('#editArtistFields').hidden = false;
+  $('#editSingleArtistInput').value = artistName;
+  $('#editMetaModal').hidden = false;
+}
+$('#editMetaClose').onclick = $('#editMetaCancel').onclick = () => { $('#editMetaModal').hidden = true; };
+$('#editMetaSave').onclick = () => {
+  if (editMode === 'song') {
+    const k = editTarget;
+    if (!DB.lib[k]) DB.lib[k] = {};
+    DB.lib[k].title = $('#editTitleInput').value.trim() || k.split('|')[0];
+    DB.lib[k].artist = $('#editArtistInput').value.trim();
+    DB.lib[k].album = $('#editAlbumInput').value.trim();
+    metaCache.delete(k);
+    tracks.forEach((t, idx) => {
+      if (t.path === k) {
+        t.title = DB.lib[k].title; t.artist = DB.lib[k].artist; t.album = DB.lib[k].album;
+        if (idx === cur) { $('#title').textContent = t.title; $('#artist').textContent = t.artist || 'فنان غير معروف'; document.title = t.title + ' – لحن'; }
+      }
+    });
+    toast('تم تعديل معلومات الأغنية');
+  } else if (editMode === 'artist') {
+    const oldName = editTarget;
+    const newName = $('#editSingleArtistInput').value.trim();
+    if (newName && newName !== oldName) {
+      Object.entries(DB.lib).forEach(([k, m]) => {
+        if (!m.artist) return;
+        const parts = artistsOf(m);
+        if (parts.includes(oldName)) {
+          m.artist = parts.map(a => a === oldName ? newName : a).join(', ');
+          metaCache.delete(k);
+        }
+      });
+      tracks.forEach((t, idx) => {
+        const m = DB.lib[t.path];
+        if (m) {
+          t.artist = m.artist;
+          if (idx === cur) $('#artist').textContent = t.artist || 'فنان غير معروف';
+        }
+      });
+      if (view === 'ar:' + oldName) view = 'ar:' + newName;
+      toast('تم تعديل اسم الفنان');
+    }
+  }
+  persist();
+  $('#editMetaModal').hidden = true;
+  render();
+};
+
+function parseLyrics(raw) {
+  if (!raw) return { type: 'plain', lines: [] };
+  const lines = [];
+  const isLrc = /\[\d{2}:\d{2}/.test(raw);
+  if (!isLrc) {
+    return { type: 'plain', text: raw, lines: raw.split('\n').map(t => ({ time: -1, text: t })) };
+  }
+  const regex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\](.*)/;
+  raw.split('\n').forEach(line => {
+    const match = line.match(regex);
+    if (match) {
+      const min = parseInt(match[1], 10);
+      const sec = parseInt(match[2], 10);
+      const ms = match[3] ? parseInt(match[3].padEnd(3, '0').slice(0,3), 10) : 0;
+      const time = min * 60 + sec + ms / 1000;
+      const text = match[4].trim();
+      lines.push({ time, text });
+    } else if (line.trim()) {
+      lines.push({ time: -1, text: line.trim() });
+    }
+  });
+  return { type: 'synced', lines: lines.sort((a,b) => a.time - b.time) };
+}
+
+function renderLyricsView() {
+  const k = curKey();
+  if (!k) return;
+  const t = DB.lib[k] || tracks[cur] || {};
+  $('#lyricTitle').textContent = t.title || '';
+  $('#lyricArtist').textContent = t.artist || '';
+  const raw = DB.lyrics[k] || '';
+  const parsed = parseLyrics(raw);
+  const container = $('#lyricsScroll');
+  
+  if (!raw.trim()) {
+    container.innerHTML = `<div class="empty">مفيش كلمات متضافة للأغنية دي.<br>اضغط «تعديل الكلمات» لإضافتها بصيغة عادية أو متزامنة.</div>`;
+    return;
+  }
+  if (lyricMode === 'plain' || parsed.type === 'plain') {
+    container.innerHTML = `<div style="white-space:pre-wrap;font-size:18px;line-height:2.2;color:var(--text);text-align:center" dir="auto">${esc(parsed.text || raw)}</div>`;
+  } else {
+    container.innerHTML = parsed.lines.map((l, i) => `<div class="l-line" data-i="${i}" data-time="${l.time}" dir="auto">${esc(l.text)}</div>`).join('');
+  }
+}
+
+function syncLyricsPlayback() {
+  const k = curKey();
+  if (!k || $('#lyricDisplayPanel').hidden || lyricMode === 'plain') return;
+  const raw = DB.lyrics[k];
+  if (!raw || !/\[\d{2}:\d{2}/.test(raw)) return;
+  const parsed = parseLyrics(raw);
+  const ct = audio.currentTime;
+  let activeIdx = -1;
+  for (let i = 0; i < parsed.lines.length; i++) {
+    if (parsed.lines[i].time <= ct) activeIdx = i;
+    else break;
+  }
+  const lines = document.querySelectorAll('.l-line');
+  lines.forEach((el, i) => {
+    const isActive = i === activeIdx;
+    el.classList.toggle('active', isActive);
+    if (isActive && !el.dataset.scrolled) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.dataset.scrolled = '1';
+    } else if (!isActive) {
+      delete el.dataset.scrolled;
+    }
+  });
+}
+
+$('#lyricsScroll').addEventListener('click', (e) => {
+  const line = e.target.closest('.l-line');
+  if (line && line.dataset.time >= 0) {
+    audio.currentTime = parseFloat(line.dataset.time);
+    if (audio.paused) audio.play().catch(()=>{});
+  }
+});
+$('#lyricBtn').onclick = () => {
+  const k = curKey();
+  if (!k) return toast('مفيش أغنية شغالة حالياً');
+  $('#lyricDisplayPanel').hidden = !$('#lyricDisplayPanel').hidden;
+  if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
+};
+$('#lyricClose').onclick = () => { $('#lyricDisplayPanel').hidden = true; };
+$('#lyricEditBtn').onclick = () => { openLyricModal(curKey()); };
+$('#lyricModeBtn').onclick = (e) => {
+  lyricMode = lyricMode === 'synced' ? 'plain' : 'synced';
+  e.currentTarget.textContent = 'طريقة العرض: ' + (lyricMode === 'synced' ? 'متزامن' : 'عادي');
+  renderLyricsView();
+};
+
+$('#list').addEventListener('click', (e) => {
+  const r = e.target.closest('.row'); if (!r) return;
+  const k = r.dataset.k, b = e.target.closest('.mini');
+  if (!b) return playFrom(k);
+  if (b.dataset.act === 'fav') return toggleFav(k);
+  const p = b.getBoundingClientRect();
+  showMenu(p.left, p.bottom + 4, [
+    ['⏭ تشغيل بعد دي', () => enqueue(k, true)],
+    ['⏬ إضافة لقايمة التشغيل', () => enqueue(k, false)],
+    ['➕ إضافة لقايمة…', (x, y) => addMenu(k, x, y)],
+    ['✏️ تعديل المعلومات', () => openEditSongModal(k)],
+    ['📝 تعديل الكلمات (ليركس)', () => openLyricModal(k)],
+    [isFav(k) ? '♡ شيل من المفضلة' : '♥ أضف للمفضلة', () => toggleFav(k)],
+    ['↗ مشاركة الأغنية', () => shareTrack(k)],
+    ['✕ إزالة من هنا', () => removeKey(k)],
+  ]);
+});
+$('#list').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.classList.contains('row')) e.target.click(); });
+$('#view').onchange = (e) => { view = e.target.value; render(); };
+$('#fv').onclick = () => toggleFav(curKey());
+$('#vm').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect(), it = [['＋ قايمة جديدة', () => newList()]];
+  if (view === 'queue') it.push(['💾 احفظ قايمة التشغيل كقايمة', () => { const n = (prompt('اسم القايمة:') || '').trim(); if (!n) return; DB.lists[n] = tracks.map((t) => t.path); view = 'pl:' + n; persist(); render(); }]);
+  else {
+    it.push(['▶ تشغيل الكل', () => startQueue(keysOfView(), keysOfView()[0])], ['↗ مشاركة القايمة (نص)', shareList], ['⇩ تصدير ملف القايمة', exportList]);
+    if (view.startsWith('pl:')) it.push(['✎ إعادة تسمية', renameList], ['🗑 حذف القايمة', deleteList]);
+  }
+  it.push(['⇧ استيراد قايمة من ملف', importList], ['⇧ استيراد M3U', importM3U], ['⇩ تصدير M3U', exportM3U]);
+  if (view.startsWith('ar:')) it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(view.slice(3))], ['🚫 ما تفصلش الاسم ده', noSplit]);
+  showMenu(p.left, p.bottom + 4, it);
+};
+
+const SKINS = {
+  nagham: ['لحن', '#12101a', '#f2eefc', '#9d97b5', '255,255,255', '#15121f', null],
+  midnight: ['منتصف الليل', '#000000', '#f2eefc', '#9d97b5', '255,255,255', '#15121f', null],
+  sunset: ['غروب', '#1a0e0b', '#fff1ea', '#c9a79a', '255,255,255', '#1a0e0b', '255,138,76'],
+  neon: ['نيون', '#06060f', '#eafcff', '#7fa3b3', '255,255,255', '#06060f', '0,229,255'],
+  forest: ['غابة', '#0b1510', '#e9f7ee', '#8fb09b', '255,255,255', '#0b1510', '74,222,128'],
+  rose: ['وردي', '#1a0d16', '#ffeef7', '#c79ab4', '255,255,255', '#1a0d16', '255,107,181'],
+  paper: ['ورقي (فاتح)', '#f3efe6', '#1c1830', '#6b6680', '0,0,0', '#f3efe6', '109,74,255'],
+};
+function applySkin(id) {
+  const s = SKINS[id] || SKINS.nagham, st = document.documentElement.style;
+  ['--bg', '--text', '--mute', '--w', '--on'].forEach((p, i) => st.setProperty(p, s[i + 1]));
+  st.setProperty('--line', `rgba(${s[4]},.09)`);
+  window.__fix = !!s[6];
+  if (s[6]) { st.setProperty('--tint', `rgb(${s[6]})`); st.setProperty('--tint-rgb', s[6]); }
+  else tintFrom($('#art').style.display === 'block' ? $('#art').src : null);
+  document.querySelector('meta[name=theme-color]').content = s[1];
+  try { localStorage.ng_skin = id; } catch (_) {}
+}
+$('#skn').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect(), cur_ = localStorage.ng_skin || 'nagham';
+  showMenu(p.left, p.top - 300, Object.entries(SKINS).map(([id, s]) => [(id === cur_ ? '● ' : '○ ') + s[0], () => applySkin(id)]));
+};
+applySkin(localStorage.ng_skin || 'nagham');
+render();
+
+/* ---- v4: more skins + equalizer ---- */
+Object.assign(SKINS, {
+  ocean: ['محيط', '#06121c', '#e8f6ff', '#86a9bd', '255,255,255', '#06121c', '56,189,248'],
+  gold: ['ذهبي', '#120e05', '#fff8e1', '#c2b27c', '255,255,255', '#120e05', '250,204,21'],
+  graphite: ['جرافيت', '#1a1a1d', '#f1f1f3', '#9a9aa5', '255,255,255', '#1a1a1d', '160,160,175'],
+  lavender: ['لافندر (فاتح)', '#efeaff', '#241a45', '#6f63a0', '0,0,0', '#efeaff', '139,92,246'],
+  mint: ['نعناع (فاتح)', '#e9f6ef', '#12281d', '#5d7f6c', '0,0,0', '#e9f6ef', '22,163,74'],
+});
+applySkin(localStorage.ng_skin || 'nagham');
+const EQB = [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
+const EQP = {
+  flat: ['مسطّح', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], bass: ['باس', [6, 5, 4, 2, 0, 0, 0, 0, 0, 0]],
+  treble: ['حدة', [0, 0, 0, 0, 0, 1, 3, 4, 5, 6]], vocal: ['صوت بشري', [-2, -2, -1, 1, 3, 4, 3, 1, 0, -1]],
+  speech: ['تلاوة / خطابة', [-3, -2, 0, 2, 4, 4, 3, 1, -1, -2]], rock: ['روك', [5, 3, 1, -1, -2, 1, 3, 4, 5, 5]],
+  classical: ['كلاسيك', [4, 3, 2, 1, -1, -1, 0, 2, 3, 4]],
+};
+const EQ = Object.assign({ on: false, preset: 'flat', gains: [...EQP.flat[1]] }, JSON.parse(localStorage.ng_eq || '{}'));
+let eqNodes = [];
+function ensureGraph() {
+  if (ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  const s = ac.createMediaElementSource(audio);
+  eqNodes = EQB.map((f, i) => { const n = ac.createBiquadFilter(); n.type = i === 0 ? 'lowshelf' : i === EQB.length - 1 ? 'highshelf' : 'peaking'; n.frequency.value = f; n.Q.value = 1.1; n.gain.value = EQ.on ? EQ.gains[i] : 0; return n; });
+  an = ac.createAnalyser(); an.fftSize = 128; an.smoothingTimeConstant = .82; buf = new Uint8Array(an.frequencyBinCount);
+  let prev = s; eqNodes.forEach((n) => { prev.connect(n); prev = n; }); prev.connect(an); an.connect(ac.destination);
+}
+const applyEQ = () => { eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; }); try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {} };
+const eqEnable = () => { EQ.on = true; ensureGraph(); ac.resume(); };
+document.body.insertAdjacentHTML('beforeend', `<div id="eqp" hidden><div class="eqc" role="dialog" aria-label="المعادل الصوتي"><div class="eqh"><b>المعادل الصوتي</b><button class="chip" id="eqon"></button><button class="chip" id="eqx" aria-label="إغلاق">✕</button></div><select id="eqpre" aria-label="إعداد جاهز"></select><div class="eqs">${EQB.map((f, i) => `<div class="eqb"><div><input type="range" min="-12" max="12" step="1" data-i="${i}" aria-label="${f} هرتز"></div><span>${f >= 1000 ? f / 1000 + 'k' : f}</span></div>`).join('')}</div><small>${MOBILE ? 'على الموبايل ممكن المعادل يوقف الصوت لما تقفل الشاشة. لو حصل كده أوقفه.' : 'اسحب الأشرطة لضبط الصوت، أو اختار إعداد جاهز.'}</small></div></div>`);
+const eqUI = () => {
+  $('#eqon').textContent = EQ.on ? 'مفعّل ✓' : 'متوقف'; $('#eqon').classList.toggle('on', EQ.on);
+  $('#eqpre').innerHTML = Object.entries(EQP).map(([id, p]) => `<option value="${id}">${p[0]}</option>`).join('') + '<option value="custom">مخصص</option>';
+  $('#eqpre').value = EQ.preset;
+  document.querySelectorAll('#eqp input').forEach((r) => { r.value = EQ.gains[+r.dataset.i]; });
+};
+$('#eqb').onclick = () => { eqUI(); $('#eqp').hidden = false; };
+$('#eqx').onclick = () => { $('#eqp').hidden = true; };
+$('#eqp').addEventListener('click', (e) => { if (e.target.id === 'eqp') $('#eqp').hidden = true; });
+$('#eqon').onclick = () => { if (EQ.on) EQ.on = false; else eqEnable(); applyEQ(); eqUI(); };
+$('#eqpre').onchange = (e) => { const p = EQP[e.target.value]; if (!p) return; EQ.preset = e.target.value; EQ.gains = [...p[1]]; eqEnable(); applyEQ(); eqUI(); };
+$('#eqp').addEventListener('input', (e) => {
+  if (e.target.dataset.i === undefined) return;
+  EQ.gains[+e.target.dataset.i] = +e.target.value; EQ.preset = 'custom'; $('#eqpre').value = 'custom';
+  if (!EQ.on) { eqEnable(); $('#eqon').textContent = 'مفعّل ✓'; $('#eqon').classList.add('on'); }
+  applyEQ();
+});
+audio.addEventListener('play', () => { if (EQ.on) { try { ensureGraph(); ac.resume(); } catch (_) {} } });
+
+/* ---- v5: layout glue + languages ---- */
+function renderSide() {
+  document.querySelectorAll('.nv[data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === view));
+  $('#pls').innerHTML = Object.keys(DB.lists).map((n) => `<button class="nv${view === 'pl:' + n ? ' on' : ''}" data-v="pl:${esc(n)}">▤ <span>${esc(n)}</span></button>`).join('');
+  $('#vt').textContent = view === 'queue' ? 'قايمة التشغيل' : view === 'lib' ? 'أغانيك' : view === 'fav' ? 'المفضلة' : view.slice(3);
+  if (window.__v8) customView();
+}
+document.querySelector('.side').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (b) { view = b.dataset.v; render(); } });
+$('#np').onclick = () => newList();
+const syncNP = () => { $('#title2').textContent = $('#title').textContent; $('#artist2').textContent = $('#artist').textContent; $('#art2').src = $('#art').src || ''; $('#art2').style.visibility = $('#art').style.display === 'block' ? 'visible' : 'hidden'; };
+new MutationObserver(syncNP).observe(document.querySelector('.np'), { childList: true, subtree: true, characterData: true, attributes: true });
+$('#thumb').onclick = document.querySelector('.info').onclick = () => { $('#npv').hidden = false; syncNP(); };
+$('#npx').onclick = () => { $('#npv').hidden = true; };
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('#npv').hidden = true; $('#lyricDisplayPanel').hidden = true; $('#lyricModal').hidden = true; $('#editMetaModal').hidden = true; } });
+
+const LANGS = { ar: ['العربية', 'rtl'], en: ['English', 'ltr'], fr: ['Français', 'ltr'], es: ['Español', 'ltr'], tr: ['Türkçe', 'ltr'], de: ['Deutsch', 'ltr'], id: ['Bahasa Indonesia', 'ltr'], ur: ['اردو', 'rtl'] }, LI = ['ar', 'en', 'fr', 'es', 'tr', 'de', 'id', 'ur'];
+let LG = localStorage.ng_lang || 'ar'; if (!LANGS[LG]) LG = 'ar';
+const ROWS = [
+ ['قايمة التشغيل', 'Queue', 'File d’attente', 'Cola'], ['المفضلة', 'Favorites', 'Favoris', 'Favoritos'], ['قوائمي', 'Playlists', 'Playlists', 'Listas'],
+ ['ملفات', 'Files', 'Fichiers', 'Archivos'], ['مجلد', 'Folder', 'Dossier', 'Carpeta'], ['ابحث في القايمة…', 'Search…', 'Rechercher…', 'Buscar…'], ['أغنية', 'tracks', 'titres', 'canciones'],
+ ['الشكل', 'Theme', 'Thème', 'Tema'], ['المعادل', 'Equalizer', 'Égaliseur', 'Ecualizador'], ['اللغة', 'Language', 'Langue', 'Idioma'],
+ ['مؤقت النوم: إيقاف', 'Sleep timer: off', 'Minuterie : off', 'Temporizador: off'], ['مؤقت النوم: {n} د', 'Sleep timer: {n} min', 'Minuterie : {n} min', 'Temporizador: {n} min'], ['السرعة {n}×', 'Speed {n}×', 'Vitesse {n}×', 'Velocidad {n}×'],
+ ['مفيش حاجة شغالة', 'Nothing playing', 'Rien en lecture', 'Nada en reproducción'], ['ضيف موسيقى من القايمة', 'Add music to get started', 'Ajoutez de la musique', 'Añade música para empezar'],
+ ['فنان غير معروف', 'Unknown artist', 'Artiste inconnu', 'Artista desconocido'], ['الملف مش متاح — أضفه تاني', 'File unavailable — add it again', 'Fichier indisponible — ajoutez-le', 'Archivo no disponible — añádelo de nuevo'],
+ ['اسحب الموسيقى هنا أو اضغط «ملفات»', 'Drop music here or press “Files”', 'Déposez la musique ici ou « Fichiers »', 'Suelta música aquí o pulsa «Archivos»'],
+ ['لسه مفيش مفضلة. اضغط ♡ على أي أغنية.', 'No favorites yet. Tap ♡ on any song.', 'Pas encore de favoris. Touchez ♡ sur un titre.', 'Aún no hay favoritos. Toca ♡ en una canción.'],
+ ['القايمة فاضية. أضف أغاني من ⋯', 'Empty playlist. Add songs from ⋯', 'Playlist vide. Ajoutez des titres via ⋯', 'Lista vacía. Añade canciones desde ⋯'],
+ ['تشغيل / إيقاف', 'Play / Pause', 'Lecture / Pause', 'Reproducir / Pausa'], ['تشغيل', 'Play', 'Lecture', 'Reproducir'], ['إيقاف', 'Pause', 'Pause', 'Pausa'], ['السابق', 'Previous', 'Précédent', 'Anterior'], ['التالي', 'Next', 'Suivant', 'Siguiente'],
+ ['عشوائي', 'Shuffle', 'Aléatoire', 'Aleatorio'], ['تكرار', 'Repeat', 'Répéter', 'Repetir'], ['مستوى الصوت', 'Volume', 'Volume', 'Volumen'], ['موضع التشغيل', 'Seek', 'Position', 'Posición'],
+ ['مفضلة', 'Favorite', 'Favori', 'Favorito'], ['المزيد', 'More', 'Plus', 'Más'], ['إغلاق', 'Close', 'Fermer', 'Cerrar'], ['قايمة جديدة', 'New playlist', 'Nouvelle playlist', 'Nueva lista'],
+ ['اتعملت قايمة «{n}»', 'Playlist “{n}” created', 'Playlist « {n} » créée', 'Lista «{n}» creada'], ['اتضافت لـ «{n}»', 'Added to “{n}”', 'Ajouté à « {n} »', 'Añadida a «{n}»'],
+ ['مينفعش تشيل الأغنية الشغالة', 'Can’t remove the playing track', 'Impossible de retirer le titre en cours', 'No se puede quitar la pista actual'],
+ ['اتنسخت في الحافظة', 'Copied to clipboard', 'Copié dans le presse-papiers', 'Copiado al portapapeles'], ['اتحمّل الملف على جهازك', 'File downloaded', 'Fichier téléchargé', 'Archivo descargado'],
+ ['اتستوردت «{n}»', 'Imported “{n}”', '« {n} » importée', '«{n}» importada'], ['الملف ده مش قايمة لحن صالحة', 'Not a valid playlist file', 'Fichier de playlist invalide', 'Archivo de lista no válido'],
+ ['اسم القايمة الجديدة:', 'New playlist name:', 'Nom de la playlist :', 'Nombre de la lista:'], ['اسم القايمة:', 'Playlist name:', 'Nom de la playlist :', 'Nombre de la lista:'], ['الاسم الجديد:', 'New name:', 'Nouveau nom :', 'Nuevo nombre:'],
+ ['تحذف القايمة «{n}»؟ (الأغاني نفسها مش هتتمسح)', 'Delete playlist “{n}”? (Songs are kept)', 'Supprimer « {n} » ? (Les titres sont conservés)', '¿Eliminar «{n}»? (Las canciones se conservan)'],
+ ['إضافة لقايمة…', 'Add to playlist…', 'Ajouter à une playlist…', 'Añadir a una lista…'], ['شيل من المفضلة', 'Remove from favorites', 'Retirer des favoris', 'Quitar de favoritos'], ['أضف للمفضلة', 'Add to favorites', 'Ajouter aux favoris', 'Añadir a favoritos'],
+ ['مشاركة الأغنية', 'Share song', 'Partager le titre', 'Compartir canción'], ['إزالة من هنا', 'Remove from here', 'Retirer d’ici', 'Quitar de aquí'], ['احفظ قايمة التشغيل كقايمة', 'Save queue as playlist', 'Enregistrer la file', 'Guardar cola como lista'],
+ ['تشغيل الكل', 'Play all', 'Tout lire', 'Reproducir todo'], ['مشاركة القايمة (نص)', 'Share playlist (text)', 'Partager (texte)', 'Compartir lista (texto)'], ['تصدير ملف القايمة', 'Export playlist file', 'Exporter la playlist', 'Exportar lista'],
+ ['إعادة تسمية', 'Rename', 'Renommer', 'Renombrar'], ['حذف القايمة', 'Delete playlist', 'Supprimer la playlist', 'Eliminar lista'], ['استيراد قايمة من ملف', 'Import playlist file', 'Importer une playlist', 'Importar lista'],
+ ['لحن', 'Lahn', 'Lahn', 'Lahn'], ['منتصف الليل', 'Midnight', 'Minuit', 'Medianoche'], ['غروب', 'Sunset', 'Coucher de soleil', 'Atardecer'], ['نيون', 'Neon', 'Néon', 'Neón'], ['غابة', 'Forest', 'Forêt', 'Bosque'], ['وردي', 'Rose', 'Rose', 'Rosa'],
+ ['ورقي (فاتح)', 'Paper (light)', 'Papier (clair)', 'Papel (claro)'], ['محيط', 'Ocean', 'Océan', 'Océano'], ['ذهبي', 'Gold', 'Or', 'Dorado'], ['جرافيت', 'Graphite', 'Graphite', 'Grafito'], ['لافندر (فاتح)', 'Lavender (light)', 'Lavande (clair)', 'Lavanda (claro)'], ['نعناع (فاتح)', 'Mint (light)', 'Menthe (clair)', 'Menta (claro)'],
+ ['المعادل الصوتي', 'Equalizer', 'Égaliseur', 'Ecualizador'], ['مسطّح', 'Flat', 'Neutre', 'Plano'], ['باس', 'Bass', 'Basses', 'Graves'], ['حدة', 'Treble', 'Aigus', 'Agudos'], ['صوت بشري', 'Vocal', 'Voix', 'Voz'], ['تلاوة / خطابة', 'Recitation / Speech', 'Récitation / Parole', 'Recitación / Voz'], ['روك', 'Rock', 'Rock', 'Rock'], ['كلاسيك', 'Classical', 'Classique', 'Clásica'], ['مخصص', 'Custom', 'Perso', 'Personalizado'],
+ ['مفعّل ✓', 'On ✓', 'Activé ✓', 'Activado ✓'], ['متوقف', 'Off', 'Désactivé', 'Desactivado'],
+ ['اسحب الأشرطة لضبط الصوت، أو اختار إعداد جاهز.', 'Drag the sliders or pick a preset.', 'Faites glisser les curseurs ou choisissez un préréglage.', 'Arrastra los controles o elige un preajuste.'],
+ ['على الموبايل ممكن المعادل يوقف الصوت لما تقفل الشاشة. لو حصل كده أوقفه.', 'On phones the equalizer may stop audio when the screen locks. If so, turn it off.', 'Sur mobile, l’égaliseur peut couper le son écran verrouillé. Si oui, désactivez-le.', 'En el móvil el ecualizador puede cortar el audio con la pantalla bloqueada. Si pasa, desactívalo.'],
+ ['سماع اليوم: {n} د', 'Listened today: {n} min', 'Écouté aujourd’hui : {n} min', 'Hoy: {n} min'], ['أغانيك', 'Your songs', 'Vos titres', 'Tus canciones'],
+ ['اسمح بالوصول لمكتبتك', 'Allow access to your library', 'Autoriser l’accès à votre bibliothèque', 'Permitir acceso a tu biblioteca'],
+ ['اتربط الفولدر — بيتم فحص الأغاني…', 'Folder linked — scanning…', 'Dossier lié — analyse…', 'Carpeta vinculada — escaneando…'],
+ ['اتحفظت الأغاني داخل التطبيق', 'Songs saved inside the app', 'Titres enregistrés dans l’application', 'Canciones guardadas en la app'],
+ ['مكتبتك فاضية. اضغط «مجلد» لربط فولدر الموسيقى.', 'Your library is empty. Press “Folder” to link your music folder.', 'Bibliothèque vide. Appuyez sur « Dossier » pour lier votre musique.', 'Biblioteca vacía. Pulsa «Carpeta» para vincular tu música.'],
+ ['تشغيل بعد دي', 'Play next', 'Lire ensuite', 'Reproducir después', 'Sıradaki olarak çal', 'Als Nächstes', 'Putar berikutnya', 'اگلا چلائیں'],
+ ['إضافة لقايمة التشغيل', 'Add to queue', 'Ajouter à la file', 'Añadir a la cola', 'Sıraya eklе', 'Zur Warteschlange', 'Tambah ke antrean', 'قطار میں شامل کریں'],
+ ['مسح القايمة', 'Clear queue', 'Vider la file', 'Vaciar cola', 'Sırayı temizle', 'Leeren', 'Kosongkan', 'قطار صاف کریں'],
+ ['قايمة التشغيل فاضية', 'The queue is empty', 'La file est vide', 'La cola está vacía', 'Sıra boş', 'Warteschlange leer', 'Antrean kosong', 'قطار خالی ہے'],
+ ['ابحث لإضافة أغنية…', 'Search to add a song…', 'Chercher un titre…', 'Busca para añadir…', 'Eklemek için ara…', 'Song suchen…', 'Cari lagu…', 'تلاش کریں…'],
+ ['هيشتغل بعد الأغنية دي', 'Will play next', 'Sera lu ensuite', 'Sonará después', 'Sıradaki olacak', 'Wird als Nächstes gespielt', 'Akan diputar berikutnya', 'اگلا چلے گا'],
+ ['اتضافت لقايمة التشغيل', 'Added to queue', 'Ajouté à la file', 'Añadida a la cola', 'Sıraya eklendi', 'Zur Warteschlange hinzugefügt', 'Ditambahkan ke antrean', 'قطار میں شامل ہو گیا'],
+ ['إيقاف المؤقت', 'Turn off timer', 'Désactiver la minuterie', 'Desactivar temporizador', 'Zamanlayıcıyı kapat', 'Timer aus', 'Matikan timer', 'ٹائمر بند کریں'],
+ ['{n} دقيقة', '{n} minutes', '{n} minutes', '{n} minutos', '{n} dakika', '{n} Minuten', '{n} menit', '{n} منٹ'],
+ ['نهاية الأغنية الحالية', 'End of current song', 'Fin du titre en cours', 'Al final de la canción', 'Şarkının sonunda', 'Am Ende des Songs', 'Akhir lagu ini', 'گانے کے اختتام پر'],
+ ['مؤقت النوم: نهاية الأغنية', 'Sleep timer: end of song', 'Minuterie : fin du titre', 'Temporizador: fin de canción', 'Uyku zamanlayıcı: şarkı sonu', 'Schlaftimer: Song-Ende', 'Timer tidur: akhir lagu', 'سلیپ ٹائمر: گانے کے آخر تک'],
+];
+const EX = new Map(), PT = [];
+ROWS.forEach((r) => { if (!r) return; r[0].includes('{n}') ? PT.push([new RegExp('^' + r[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(.+?)') + '$'), r]) : EX.set(r[0], r); });
+function trs(s) {
+  if (LG === 'ar' || !/[\u0600-\u06FF]/.test(s)) return s;
+  const m = s.match(/^([^\u0600-\u06FFA-Za-z0-9]*)([\s\S]*?)(\s*\(\d+\))?\s*$/), pre = m[1], core = m[2], suf = m[3] || '', i = LI.indexOf(LG);
+  const r = EX.get(core); if (r) return pre + (r[i] || r[1]) + suf;
+  for (const [re, row] of PT) { const x = core.match(re); if (x) return pre + (row[i] || row[1]).replace('{n}', () => x[1]) + suf; }
+  return s;
+}
+const TR = new WeakMap();
+function trText(n) {
+  const rec = TR.get(n); let o = n.nodeValue; if (rec && o === rec.t) o = rec.o;
+  const t = trs(o); TR.set(n, { o, t }); if (t !== n.nodeValue) n.nodeValue = t;
+}
+function trAttr(el, a) {
+  const v = el.getAttribute(a); if (v == null) return;
+  const st = (el.__tr = el.__tr || {}), rec = st[a]; let o = v; if (rec && v === rec.t) o = rec.o;
+  const t = trs(o); st[a] = { o, t }; if (t !== v) el.setAttribute(a, t);
+}
+const ATTRS = ['aria-label', 'placeholder', 'title'];
+function trTree(root) {
+  if (root.nodeType === 1) ATTRS.forEach((a) => trAttr(root, a));
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT); let n;
+  while ((n = w.nextNode())) n.nodeType === 3 ? trText(n) : ATTRS.forEach((a) => trAttr(n, a));
+}
+const _p = window.prompt, _c = window.confirm;
+window.prompt = (m, d) => _p(trs(m), d); window.confirm = (m) => _c(trs(m));
+function setLang(c) {
+  LG = c; try { localStorage.ng_lang = c; } catch (_) {}
+  document.documentElement.lang = c; document.documentElement.dir = LANGS[c][1]; trTree(document.body);
+}
+$('#lang').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(); showMenu(p.left, p.top - 190, LI.map((c) => [(c === LG ? '● ' : '○ ') + LANGS[c][0], () => setLang(c)])); };
+new MutationObserver((ms) => ms.forEach((m) => {
+  if (m.type === 'characterData') trText(m.target);
+  else if (m.type === 'attributes') trAttr(m.target, m.attributeName);
+  else m.addedNodes.forEach((n) => n.nodeType === 3 ? trText(n) : n.nodeType === 1 && trTree(n));
+})).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+setLang(LG);
+
+/* ---- v6: persistent library, saved settings, listening stats ---- */
+const idb = new Promise((res, rej) => { const r = indexedDB.open('nagham', 1); r.onupgradeneeded = () => ['blobs', 'h'].forEach((n) => r.result.createObjectStore(n)); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const tx = (s, m, f) => idb.then((db) => new Promise((res, rej) => { const t = db.transaction(s, m), q = f(t.objectStore(s)); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
+const idbPut = (s, k, v) => tx(s, 'readwrite', (o) => o.put(v, k));
+const idbGet = (s, k) => tx(s, 'readonly', (o) => o.get(k));
+const idbAll = async (s) => { const ks = await tx(s, 'readonly', (o) => o.getAllKeys()), vs = await tx(s, 'readonly', (o) => o.getAll()); return ks.map((k, i) => [k, vs[i]]); };
+let DIR = null, scanning = false, restored = false, fd = false;
+document.querySelector('.hero').insertAdjacentHTML('afterend', '<div style="padding:0 24px"><button class="chip pri" id="perm" hidden>اسمح بالوصول لمكتبتك</button></div>');
+async function* walk(dh, path = '') { for await (const [name, h] of dh.entries()) { if (h.kind === 'directory') yield* walk(h, path + name + '/'); else if (AUD.test(name)) yield [h, path + name]; } }
+async function scanDir(dh, quiet) {
+  if (scanning) return; scanning = true; window.__scan = true; if (!quiet) toast('اتربط الفولدر — بيتم فحص الأغاني…');
+  let n = 0;
+  try {
+    for await (const [fh] of walk(dh)) {
+      const f = await fh.getFile(), k = f.name + '|' + f.size, old = DB.lib[k]; files.set(k, f);
+      if (!old || old.mt !== f.lastModified) { const tg = await readTags(k); DB.lib[k] = { title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, year: tg.year || '', genre: tg.genre || '', duration: old ? old.duration : 0, mt: f.lastModified, src: 'dir', added: old ? old.added : Date.now() }; }
+      if (++n % 200 === 0) render();
+    }
+  } catch (e) { console.warn(e); }
+  window.__scan = false; scanning = false; persist(); render(); restoreQueue(); fillDurations();
+}
+async function importKeys(ks) {
+  for (const k of ks) {
+    const f = files.get(k), tg = await readTags(k); await idbPut('blobs', k, f);
+    DB.lib[k] = { title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, year: tg.year || '', genre: tg.genre || '', duration: (DB.lib[k] || {}).duration || 0, mt: f.lastModified, src: 'blob', added: (DB.lib[k] || {}).added || Date.now() };
+  }
+  persist(); view = 'lib'; render(); toast('اتحفظت الأغاني داخل التطبيق'); fillDurations();
+}
+async function connectFolder() {
+  if (window.showDirectoryPicker) { try { DIR = await showDirectoryPicker({ id: 'nagham-music', mode: 'read' }); await idbPut('h', 'music', DIR); view = 'lib'; scanDir(DIR); } catch (_) {} }
+  else { const ks = await api.pick('folder'); if (ks.length) importKeys(ks); }
+}
+async function fillDurations() {
+  if (fd) return; fd = true;
+  const ks = Object.keys(DB.lib).filter((k) => !DB.lib[k].duration && files.has(k)); let i = 0;
+  await Promise.all([0, 1, 2].map(async () => { while (i < ks.length) { const k = ks[i++], u = URL.createObjectURL(files.get(k)); DB.lib[k].duration = await dur(u); URL.revokeObjectURL(u); if (i % 25 === 0) { persist(); render(); } } }));
+  fd = false; persist(); render();
+}
+async function restoreQueue() {
+  if (restored) return;
+  const ks = JSON.parse(localStorage.q || '[]').filter((k) => files.has(k)); if (!ks.length) return; restored = true;
+  const last = JSON.parse(localStorage.ng_pos || 'null');
+  if (last && last.p) audio.addEventListener('loadedmetadata', () => { audio.currentTime = last.p; }, { once: true });
+  tracks = await Promise.all(ks.map(metaOf));
+  await setTrack(Math.max(0, tracks.findIndex((t) => last && t.path === last.k)), false);
+}
+$('#addf').onclick = async () => { const ks = await api.pick('files'); if (ks.length) { add(ks); importKeys(ks); } };
+$('#addd').onclick = connectFolder;
+$('#perm').onclick = async () => { if (DIR && (await DIR.requestPermission({ mode: 'read' })) === 'granted') { $('#perm').hidden = true; scanDir(DIR); } };
+
+const ST = Object.assign({ t: {}, d: {} }, JSON.parse(localStorage.ng_stats || '{}'));
+const dayKey = () => new Date().toISOString().slice(0, 10);
+const saveStats = () => { try { localStorage.ng_stats = JSON.stringify(ST); const k = curKey(); if (k) localStorage.ng_pos = JSON.stringify({ k, p: audio.currentTime }); } catch (_) {} };
+const updToday = () => { $('#today').textContent = 'سماع اليوم: ' + Math.round((ST.d[dayKey()] || 0) / 60) + ' د'; };
+let acc = 0, lastT = 0, counted = false, lastSave = 0;
+audio.addEventListener('loadedmetadata', () => { acc = 0; lastT = audio.currentTime; counted = false; });
+audio.addEventListener('timeupdate', () => {
+  const k = curKey(), t = audio.currentTime, dt = t - lastT; lastT = t;
+  if (!k || audio.paused || dt <= 0 || dt > 2 || ST.off) return;
+  acc += dt; const s = (ST.t[k] = ST.t[k] || { p: 0, s: 0, l: 0 }); s.s += dt; s.l = Date.now(); ST.d[dayKey()] = (ST.d[dayKey()] || 0) + dt;
+  if (!counted && acc >= Math.min(30, (audio.duration || 60) / 2)) { counted = true; s.p++; histAdd(k); }
+  if (Date.now() - lastSave > 5000) { lastSave = Date.now(); saveStats(); updToday(); }
+});
+['pause', 'ended'].forEach((ev) => audio.addEventListener(ev, () => { saveStats(); updToday(); }));
+addEventListener('pagehide', saveStats);
+
+(async () => {
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (_) {}
+  try {
+    (await idbAll('blobs')).forEach(([k, f]) => files.set(k, f));
+    if (Object.keys(DB.lib).length) { view = 'home'; render(); }
+    const h = await idbGet('h', 'music');
+    if (h) { DIR = h; if ((await h.queryPermission({ mode: 'read' })) === 'granted') await scanDir(h, true); else $('#perm').hidden = false; }
+    restoreQueue(); fillDurations();
+  } catch (e) { console.warn(e); }
+  updToday();
+})();
+
+/* ---- v7: queue panel, menus for speed & sleep timer, more skins ---- */
+Object.assign(SKINS, {
+  royal: ['Royal', '#0a0a1f', '#eceeff', '#8f93c9', '255,255,255', '#0a0a1f', '99,102,241'],
+  crimson: ['Crimson', '#140808', '#ffecec', '#c99a9a', '255,255,255', '#140808', '239,68,68'],
+  aurora: ['Aurora', '#07121a', '#e7fbf3', '#86b5a6', '255,255,255', '#07121a', '52,211,153'],
+  carbon: ['Carbon', '#0e0e0e', '#f4f4f5', '#9a9aa0', '255,255,255', '#0e0e0e', '244,244,245'],
+  candy: ['Candy (light)', '#fff0f6', '#3b0d26', '#9b5b78', '0,0,0', '#fff0f6', '236,72,153'],
+  sand: ['Sand (light)', '#f6efe0', '#2e2412', '#8a7752', '0,0,0', '#f6efe0', '180,120,40'],
+  arctic: ['Arctic (light)', '#eef6fb', '#0f2a3a', '#5a7d92', '0,0,0', '#eef6fb', '14,165,233'],
+});
+const setSpeed = (v) => { audio.defaultPlaybackRate = audio.playbackRate = v; $('#spd').textContent = 'السرعة ' + v + '×'; $('#spd').classList.toggle('on', v !== 1); try { localStorage.ng_spd = v; } catch (_) {} };
+$('#spd').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(); showMenu(p.left, p.top - 330, [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3].map((v) => [(audio.playbackRate === v ? '● ' : '○ ') + v + '×', () => setSpeed(v)])); };
+setSpeed(+localStorage.ng_spd || 1);
+let slEnd = false, slCur = 0;
+function slSet(m) {
+  clearTimeout(slT); slCur = m; slEnd = m === 'end'; const b = $('#slp'); b.classList.toggle('on', !!m);
+  b.textContent = m === 'end' ? 'مؤقت النوم: نهاية الأغنية' : m ? 'مؤقت النوم: ' + m + ' د' : 'مؤقت النوم: إيقاف';
+  if (m && m !== 'end') slT = setTimeout(() => { audio.pause(); slSet(0); }, m * 60000);
+}
+$('#slp').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect(), mk = (on) => (on ? '● ' : '○ ');
+  showMenu(p.left, p.top - 400, [[mk(!slCur) + 'إيقاف المؤقت', () => slSet(0)], ...[5, 10, 15, 30, 45, 60, 90, 120].map((m) => [mk(slCur === m) + m + ' دقيقة', () => slSet(m)]), [mk(slCur === 'end') + 'نهاية الأغنية الحالية', () => slSet('end')]]);
+};
+audio.addEventListener('ended', () => { if (slEnd) { audio.pause(); slSet(0); } });
+
+document.body.insertAdjacentHTML('beforeend', '<aside id="qd" hidden role="dialog" aria-label="قايمة التشغيل"><div class="qh2"><b>قايمة التشغيل</b><span id="qn" class="sub"></span><button class="chip" id="qc">مسح القايمة</button><button class="mini" id="qx" aria-label="إغلاق">✕</button></div><input id="qs" type="search" placeholder="ابحث لإضافة أغنية…" aria-label="ابحث لإضافة أغنية…"><div id="qr"></div><div id="ql"></div></aside>');
+document.querySelector('.rt').insertAdjacentHTML('afterbegin', '<button class="ib" id="qb" title="قايمة التشغيل" aria-label="قايمة التشغيل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h14M3 12h14M3 18h8M19 14v6M16 17h6"/></svg></button>');
+function renderQ() {
+  const dr = $('#qd'); if (!dr || dr.hidden) return;
+  const ck = curKey(), f = ($('#qs').value || '').trim().toLowerCase();
+  $('#qn').textContent = tracks.length;
+  $('#ql').innerHTML = tracks.length ? tracks.map((t, i) => `<div class="qr${t.path === ck ? ' cur' : ''}" data-i="${i}"><div class="t"><b dir="auto">${esc(t.title)}</b><span dir="auto">${esc(t.artist || 'فنان غير معروف')}</span></div><button class="mini" data-q="up">▲</button><button class="mini" data-q="dn">▼</button><button class="mini" data-q="rm">✕</button></div>`).join('') : '<div class="empty">قايمة التشغيل فاضية</div>';
+  $('#qr').innerHTML = f ? Object.keys(DB.lib).filter((k) => ((DB.lib[k].title || '') + ' ' + (DB.lib[k].artist || '')).toLowerCase().includes(f)).slice(0, 30).map((k) => `<div class="qr" data-k="${esc(k)}"><div class="t"><b dir="auto">${esc(DB.lib[k].title)}</b><span dir="auto">${esc(DB.lib[k].artist || '')}</span></div><button class="mini" data-q="addnow">⏭</button><button class="mini" data-q="add">＋</button></div>`).join('') : '';
+}
+async function enqueue(k, next) {
+  if (!files.has(k)) return toast('الملف مش متاح — أضفه تاني');
+  const m = { ...(await metaOf(k)), url: '' };
+  if (cur < 0 || !tracks.length) { tracks = [m]; return setTrack(0, true); }
+  tracks.splice(next ? cur + 1 : tracks.length, 0, m); save(); render(); toast(next ? 'هيشتغل بعد الأغنية دي' : 'اتضافت لقايمة التشغيل');
+}
+$('#qb').onclick = () => { $('#qd').hidden = !$('#qd').hidden; renderQ(); };
+$('#qx').onclick = () => { $('#qd').hidden = true; };
+$('#qs').addEventListener('input', renderQ);
+$('#qc').onclick = () => { tracks = tracks.filter((_, i) => i === cur); cur = tracks.length ? 0 : -1; save(); render(); };
+$('#qd').addEventListener('click', (e) => {
+  const r = e.target.closest('.qr'); if (!r) return; const b = e.target.closest('button');
+  if (r.dataset.k) { if (b) enqueue(r.dataset.k, b.dataset.q === 'addnow'); return; }
+  const i = +r.dataset.i; if (!b) return setTrack(i, true);
+  if (b.dataset.q === 'rm') { if (i === cur) return toast('مينفعش تشيل الأغنية الشغالة'); tracks.splice(i, 1); if (i < cur) cur--; }
+  else { const j = b.dataset.q === 'up' ? i - 1 : i + 1; if (j < 0 || j >= tracks.length) return; [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; if (cur === i) cur = j; else if (cur === j) cur = i; }
+  save(); render();
+});
+addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#qd').hidden = true; });
+
+/* ---- v8: artists & albums, history, home, selection, M3U, sleep wheel ---- */
+const rx = (s) => new RegExp('^' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(.+?)') + '$');
+const addRows = (lines) => lines.forEach((ln) => { const p = ln.split('|'); if (EX.has(p[0]) || PT.some((q) => q[1][0] === p[0])) return; p[0].includes('{n}') ? PT.push([rx(p[0]), p]) : EX.set(p[0], p); });
+addRows(['الرئيسية|Home', 'الفنانون|Artists', 'الألبومات|Albums', 'السجل|History', 'مؤقت النوم|Sleep timer', 'دقيقة|minutes', 'ابدأ|Start', 'حتى نهاية الأغنية|Until the song ends', 'مؤقت النوم: نهاية الأغنية|Sleep timer: end of song', 'تكرار الكل|Repeat all', 'تكرار أغنية واحدة|Repeat one', 'بدون تكرار|No repeat', 'محدد|selected', '{n} محدد|{n} selected', 'تشغيل|Play', 'تشغيل بعد دي|Play next', 'إضافة للقايمة الجاية|Add to queue', 'حذف من المكتبة|Remove from library', 'إلغاء التحديد|Clear selection', 'تحديد الكل|Select all', 'استيراد M3U|Import M3U', 'تصدير M3U|Export M3U', 'مسح السجل|Clear history', 'تمسح السجل كله؟|Clear the entire history?', 'إيقاف التسجيل|Pause recording', 'تشغيل التسجيل|Resume recording', 'ما تفصلش الاسم ده|Don’t split this name', 'لون خاص|Custom color', 'أكتر الفنانين استماعاً|Top artists', 'أكتر الأغاني استماعاً|Top songs', 'أكتر الألبومات استماعاً|Top albums', 'النهاردة|Today', 'إمبارح|Yesterday', 'الأسبوع|This week', 'الشهر|This month', 'السنة|This year', 'الكل|All time', 'د|min', 'مفيش بيانات لسه — الإحصائيات بتبدأ من أول ما تسمع|No data yet — stats start as you listen', 'السجل فاضي|History is empty', 'تشغيل الكل|Play all', 'عشوائي|Shuffle', 'تشغيل بعد دي|Play next']);
+
+var SEL = new Set(), selAnchor = null, lastView = '', HIST = JSON.parse(localStorage.ng_hist || '[]'), HP = localStorage.ng_hp || 'week';
+const SEP = /\s*(?:[,،;؛&\/]|\s(?:feat\.?|ft\.?)\s)\s*/i;
+const artistsOf = (m) => { const s = (m && m.artist) || ''; if (!s) return []; if ((DB.noSplit || []).includes(s)) return [s]; return [...new Set(s.split(SEP).map((x) => x.trim()).filter(Boolean))]; };
+function groups(kind) {
+  const g = new Map();
+  for (const [k, m] of Object.entries(DB.lib)) (kind === 'artist' ? artistsOf(m) : m.album ? [m.album] : []).forEach((n) => { if (!g.has(n)) g.set(n, []); g.get(n).push(k); });
+  return g;
+}
+function noSplit() { const n = view.slice(3), o = [...Object.values(DB.lib)].map((m) => m.artist).find((a) => a && a.includes(n)) || n; DB.noSplit = [...new Set([...(DB.noSplit || []), o])]; persist(); view = 'ar:' + o; render(); }
+const histKeys = () => [...new Set([...HIST].reverse().map((x) => x.k))];
+function histAdd(k) { HIST.push({ k, t: Date.now() }); if (HIST.length > 5000) HIST.splice(0, HIST.length - 5000); try { localStorage.ng_hist = JSON.stringify(HIST); } catch (_) {} }
+const hue = (n) => 'hsl(' + ([...n].reduce((a, c) => a + c.charCodeAt(0), 0) % 360) + ',45%,40%)';
+const rowHTML = (k, right) => { const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k); return `<div class="row${k === curKey() ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span></div><i>${right}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? '♥' : '♡'}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`; };
+const dayStr = (t) => { const a = new Date(t).toDateString(); return a === new Date().toDateString() ? 'النهاردة' : a === new Date(Date.now() - 864e5).toDateString() ? 'إمبارح' : new Date(t).toLocaleDateString(LG, { weekday: 'long', day: 'numeric', month: 'long' }); };
+const sumDays = (n) => { let t = 0; for (let i = 0; i < n; i++) t += ST.d[new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)] || 0; return Math.round(t / 60); };
+const PER = { week: ['الأسبوع', 7], month: ['الشهر', 30], year: ['السنة', 365], all: ['الكل', 1e5] };
+function tops() {
+  const s = new Map(), a = new Map(), b = new Map(), lim = Date.now() - PER[HP][1] * 864e5;
+  HIST.filter((x) => x.t > lim).forEach((x) => { s.set(x.k, (s.get(x.k) || 0) + 1); const m = DB.lib[x.k]; if (!m) return; artistsOf(m).forEach((n) => a.set(n, (a.get(n) || 0) + 1)); if (m.album) b.set(m.album, (b.get(m.album) || 0) + 1); });
+  const top = (mp, n) => [...mp.entries()].sort((x, y) => y[1] - x[1]).slice(0, n); return [top(a, 10), top(s, 5), top(b, 10)];
+}
+const gcard = (pre, n, sub) => `<button class="card" data-g="${pre}${esc(n)}"><div class="av${pre === 'ar:' ? ' rd' : ''}" data-cv="${pre}${esc(n)}" style="background:${hue(n)}">${esc([...n][0].toUpperCase())}</div><b dir="auto">${esc(n)}</b><span>${sub}</span></button>`;
+function customView() {
+  if (lastView !== view) { SEL.clear(); lastView = view; }
+  const L = $('#list'), v = view;
+  if (v === 'artists' || v === 'albums') {
+    const g = groups(v === 'artists' ? 'artist' : 'album'), ns = [...g.keys()].sort((a, b) => a.localeCompare(b));
+    $('#vt').textContent = v === 'artists' ? 'الفنانون' : 'الألبومات'; $('#count').textContent = ns.length;
+    L.innerHTML = ns.length ? `<div class="grid">${ns.map((n) => gcard(v === 'artists' ? 'ar:' : 'al:', n, g.get(n).length)).join('')}</div>` : `<div class="empty">${EMPTY[3]}</div>`;
+    if (v === 'albums') { const sg = Object.keys(DB.lib).filter((k) => !DB.lib[k].album); if (sg.length) L.insertAdjacentHTML('beforeend', '<h3>فردي</h3><div class="grid">' + sg.map((k) => `<button class="card" data-play="${esc(k)}"><div class="av" data-cvk="${esc(k)}" style="background:${hue(DB.lib[k].title || k)}">♪</div><b dir="auto">${esc(DB.lib[k].title)}</b><span dir="auto">${esc(DB.lib[k].artist || '')}</span></button>`).join('') + '</div>'); }
+  } else if (v === 'home') {
+    $('#vt').textContent = 'الرئيسية'; $('#count').textContent = Object.keys(DB.lib).length;
+    const [ta, ts, tb] = tops();
+    L.innerHTML = `<div class="stats"><div><b>${sumDays(1)}</b> <small>د</small><span>النهاردة</span></div><div><b>${sumDays(7)}</b> <small>د</small><span>الأسبوع</span></div><div><b>${sumDays(30)}</b> <small>د</small><span>الشهر</span></div></div><div class="acts"><button class="chip" data-act="hp"><span>${PER[HP][0]}</span> ▾</button></div>` + (HIST.length ? `<h3>أكتر الفنانين استماعاً</h3><div class="hs">${ta.map(([n, c]) => gcard('ar:', n, c + '×')).join('')}</div><h3>أكتر الأغاني استماعاً</h3>${ts.map(([k, c]) => rowHTML(k, c + '×')).join('')}<h3>أكتر الألبومات استماعاً</h3><div class="hs">${tb.map(([n, c]) => gcard('al:', n, c + '×')).join('')}</div>` : '<div class="empty">مفيش بيانات لسه — الإحصائيات بتبدأ من أول ما تسمع</div>');
+  } else if (v === 'hist') {
+    $('#vt').textContent = 'السجل'; $('#count').textContent = HIST.length; let day = '', out = '';
+    [...HIST].reverse().slice(0, 600).forEach((x) => { const ds = dayStr(x.t); if (ds !== day) { day = ds; out += `<h3>${ds}</h3>`; } out += rowHTML(x.k, new Date(x.t).toLocaleTimeString(LG, { hour: '2-digit', minute: '2-digit' })); });
+    L.innerHTML = out || '<div class="empty">السجل فاضي</div>';
+  } else {
+    if (v.startsWith('ar:') || v.startsWith('al:')) L.insertAdjacentHTML('afterbegin', '<div class="acts"><button class="chip pri" data-act="playall">▶ <span>تشغيل الكل</span></button><button class="chip" data-act="shuf">🔀 <span>عشوائي</span></button></div>');
+    L.querySelectorAll('.row[data-k] .t span').forEach((sp) => { const k = sp.closest('.row').dataset.k, m = DB.lib[k]; if (m && m.artist && files.has(k)) sp.innerHTML = artistsOf(m).map((a) => `<a data-g="ar:${esc(a)}">${esc(a)}</a>`).join(', '); });
+  }
+  decorate(); paintSel();
+}
+const visKeys = () => [...document.querySelectorAll('#list .row[data-k]')].filter((r) => !r.hidden).map((r) => r.dataset.k);
+function paintSel() { document.querySelectorAll('#list .row').forEach((r) => r.classList.toggle('sel', SEL.has(r.dataset.k))); $('#selbar').hidden = !SEL.size; $('#selc').textContent = SEL.size; }
+document.querySelector('.hero').insertAdjacentHTML('afterend', '<div id="selbar" hidden><span><b id="selc"></b> <span>محدد</span></span><button class="chip" id="selm">⋯</button><button class="chip" id="selx" aria-label="إغلاق">✕</button></div>');
+$('#list').addEventListener('click', (e) => {
+  const g = e.target.closest('[data-g]'); if (g) { e.stopImmediatePropagation(); view = g.dataset.g; render(); return; }
+  const pl1 = e.target.closest('[data-play]'); if (pl1) { e.stopImmediatePropagation(); startQueue([pl1.dataset.play], pl1.dataset.play); return; }
+  const a = e.target.closest('[data-act]');
+  if (a && !a.closest('.row')) {
+    e.stopImmediatePropagation(); const ks = keysOfView();
+    if (a.dataset.act === 'playall') startQueue(ks, ks[0]); else if (a.dataset.act === 'shuf') startQueue([...ks].sort(() => Math.random() - .5), null);
+    else if (a.dataset.act === 'hp') { const p = a.getBoundingClientRect(); showMenu(p.left, p.bottom + 4, Object.entries(PER).map(([id, x]) => [(id === HP ? '● ' : '○ ') + x[0], () => { HP = id; localStorage.ng_hp = id; render(); }])); }
+    return;
+  }
+  const r = e.target.closest('.row[data-k]'); if (!r || e.target.closest('.mini')) return;
+  const k = r.dataset.k;
+  if (e.shiftKey && selAnchor) { const ks = visKeys(), i = ks.indexOf(selAnchor), j = ks.indexOf(k); if (i >= 0 && j >= 0) { SEL.clear(); ks.slice(Math.min(i, j), Math.max(i, j) + 1).forEach((x) => SEL.add(x)); } }
+  else if (e.ctrlKey || e.metaKey || SEL.size) { SEL.has(k) ? SEL.delete(k) : SEL.add(k); selAnchor = k; }
+  else { selAnchor = k; return; }
+  e.stopImmediatePropagation(); paintSel();
+}, true);
+function addMenuMulti(ks, x, y) {
+  showMenu(x, y, [...Object.keys(DB.lists).map((n) => ['▤ ' + n, () => { ks.forEach((k) => DB.lists[n].includes(k) || DB.lists[n].push(k)); persist(); render(); toast('اتضافت لـ «' + n + '»'); }]), ['＋ قايمة جديدة', () => { const n = (prompt('اسم القايمة الجديدة:') || '').trim(); if (!n) return; DB.lists[n] = [...ks]; persist(); render(); }]]);
+}
+function selMenu(x, y) {
+  const ks = [...SEL], one = ks.length === 1, allFav = ks.every(isFav), m = DB.lib[ks[0]] || {};
+  const it = [];
+  if (!one) it.push([ks.length + ' محدد', () => {}]);
+  it.push(['▶ تشغيل', () => startQueue(ks, ks[0])], ['⏭ تشغيل بعد دي', async () => { for (const k of [...ks].reverse()) await enqueue(k, true); }], ['＋ إضافة للقايمة الجاية', async () => { for (const k of ks) await enqueue(k, false); }], ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti(ks, x2, y2)],
+    [allFav ? '♡ شيل من المفضلة' : '♥ أضف للمفضلة', () => { ks.forEach((k) => { const i = DB.favs.indexOf(k); if (allFav) { if (i >= 0) DB.favs.splice(i, 1); } else if (i < 0) DB.favs.push(k); }); persist(); render(); }]);
+  if (one) {
+    it.push(['✏️ تعديل المعلومات', () => openEditSongModal(ks[0])]);
+    it.push(['📝 تعديل الكلمات (ليركس)', () => openLyricModal(ks[0])]);
+    it.push(['↗ مشاركة الأغنية', () => shareTrack(ks[0])]);
+    artistsOf(m).forEach((a) => it.push(['👤 ' + a, () => { view = 'ar:' + a; render(); }]));
+    if (m.album) it.push(['💿 ' + m.album, () => { view = 'al:' + m.album; render(); }]);
+  }
+  it.push(['✕ إزالة من هنا', () => { ks.forEach(removeKey); SEL.clear(); paintSel(); }], ['🗑 حذف من المكتبة', () => { ks.forEach((k) => { delete DB.lib[k]; DB.favs = DB.favs.filter((z) => z !== k); }); SEL.clear(); persist(); render(); }], ['☑ تحديد الكل', () => { visKeys().forEach((k) => SEL.add(k)); paintSel(); }], ['✖ إلغاء التحديد', () => { SEL.clear(); paintSel(); }]);
+  showMenu(x, y, it);
+}
+$('#list').addEventListener('contextmenu', (e) => { const r = e.target.closest('.row[data-k]'); if (!r) return; e.preventDefault(); const k = r.dataset.k; if (!SEL.has(k)) { SEL.clear(); SEL.add(k); } paintSel(); selMenu(e.clientX, e.clientY); });
+$('#selm').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(); if (SEL.size) selMenu(p.left, p.bottom + 4); };
+$('#selx').onclick = () => { SEL.clear(); paintSel(); };
+
+function importM3U() { const i = document.createElement('input'); i.type = 'file'; i.accept = '.m3u,.m3u8,audio/x-mpegurl'; i.onchange = () => i.files[0] && m3uFile(i.files[0]); i.click(); }
+async function m3uFile(f) {
+  const by = new Map(); Object.keys(DB.lib).forEach((k) => by.set(k.split('|')[0].toLowerCase(), k));
+  const ks = []; let tot = 0;
+  (await f.text()).split(/\r?\n/).map((s) => s.trim()).filter((s) => s && s[0] !== '#').forEach((l) => { tot++; let b = l.split(/[\\/]/).pop(); try { b = decodeURIComponent(b); } catch (_) {} const k = by.get(b.toLowerCase()); if (k) ks.push(k); });
+  let n = f.name.replace(/\.[^.]+$/, ''); while (DB.lists[n]) n += ' ٢';
+  DB.lists[n] = ks; persist(); view = 'pl:' + n; render(); toast('اتستوردت «' + n + ' ' + ks.length + '/' + tot + '»');
+}
+function exportM3U() {
+  const n = view.includes(':') ? view.slice(3) : view === 'fav' ? 'favorites' : 'playlist';
+  const body = '#EXTM3U\n' + keysOfView().map((k) => { const m = DB.lib[k] || {}; return '#EXTINF:' + Math.round(m.duration || -1) + ',' + [m.artist, m.title].filter(Boolean).join(' - ') + '\n' + k.split('|')[0]; }).join('\n');
+  shareFile(new File([body], n + '.m3u8', { type: 'audio/x-mpegurl' }), n);
+}
+addEventListener('drop', (e) => { const f = [...e.dataTransfer.files].find((x) => /\.m3u8?$/i.test(x.name)); if (f) { e.preventDefault(); e.stopImmediatePropagation(); document.body.classList.remove('drag'); m3uFile(f); } }, true);
+const oldVm = $('#vm').onclick;
+$('#vm').onclick = (e) => {
+  if (view !== 'hist') return oldVm(e);
+  const p = e.currentTarget.getBoundingClientRect();
+  showMenu(p.left, p.bottom + 4, [['🗑 مسح السجل', () => { if (confirm('تمسح السجل كله؟')) { HIST = []; localStorage.ng_hist = '[]'; render(); } }], [ST.off ? '● تشغيل التسجيل' : '⏸ إيقاف التسجيل', () => { ST.off = !ST.off; saveStats(); }]]);
+};
+
+document.body.insertAdjacentHTML('beforeend', `<div id="slw" hidden><div class="eqc" role="dialog" aria-label="مؤقت النوم"><div class="eqh"><b>مؤقت النوم</b><button class="chip" id="slx" aria-label="إغلاق">✕</button></div><div class="wheelw"><div id="wheel">${Array.from({ length: 240 }, (_, i) => `<div>${i + 1}</div>`).join('')}</div><span>دقيقة</span></div><div class="slb"><button class="chip pri" id="slgo">ابدأ</button><button class="chip" id="slend">حتى نهاية الأغنية</button><button class="chip" id="sloff">إيقاف</button></div></div></div>`);
+const WH = $('#wheel'); let wv = 30;
+WH.addEventListener('scroll', () => { wv = Math.max(1, Math.min(240, Math.round(WH.scrollTop / 40) + 1)); [...WH.children].forEach((c, i) => c.classList.toggle('sel', i + 1 === wv)); });
+$('#slp').onclick = () => { $('#slw').hidden = false; WH.scrollTop = ((typeof slCur === 'number' && slCur > 0 ? slCur : wv) - 1) * 40; };
+const slClose = () => { $('#slw').hidden = true; };
+$('#slx').onclick = slClose; $('#slw').addEventListener('click', (e) => { if (e.target.id === 'slw') slClose(); });
+$('#slgo').onclick = () => { slSet(wv); slClose(); }; $('#slend').onclick = () => { slSet('end'); slClose(); }; $('#sloff').onclick = () => { slSet(0); slClose(); };
+audio.addEventListener('timeupdate', () => { if (slEnd && audio.duration && audio.duration - audio.currentTime < 0.45) { audio.pause(); slSet(0); } });
+$('#repeat').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(); showMenu(p.left, p.top - 130, [['بدون تكرار', 0], ['تكرار الكل', 1], ['تكرار أغنية واحدة', 2]].map(([l, v]) => [(repeat === v ? '● ' : '○ ') + l, () => { repeat = v; $('#repeat').classList.toggle('on', v > 0); $('#repeat').dataset.one = v === 2 ? '1' : '0'; }])); };
+
+const accIn = Object.assign(document.createElement('input'), { type: 'color', value: localStorage.ng_acc || '#8b7cf6' }); accIn.style.display = 'none'; document.body.appendChild(accIn);
+const hex2rgb = (x) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16)).join(',');
+SKINS.custom = ['لون خاص', '#12101a', '#f2eefc', '#9d97b5', '255,255,255', '#15121f', hex2rgb(accIn.value)];
+accIn.oninput = () => { localStorage.ng_acc = accIn.value; SKINS.custom[6] = hex2rgb(accIn.value); applySkin('custom'); };
+$('#skn').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(), cs = localStorage.ng_skin || 'nagham'; showMenu(p.left, p.top - 480, Object.entries(SKINS).map(([id, s]) => [(id === cs ? '● ' : '○ ') + s[0], () => { applySkin(id); if (id === 'custom') accIn.click(); }])); };
+applySkin(localStorage.ng_skin || 'nagham');
+
+addEventListener('keydown', (e) => {
+  const t = e.target, typing = t.matches && t.matches('input,select,textarea');
+  if ((e.ctrlKey || e.metaKey) && e.code === 'KeyA' && !typing) { e.preventDefault(); visKeys().forEach((k) => SEL.add(k)); paintSel(); return; }
+  if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+  const c = e.code;
+  if (c === 'KeyJ') audio.currentTime -= 15; else if (c === 'KeyL') audio.currentTime += 15;
+  else if (c === 'KeyM') audio.muted = !audio.muted; else if (c === 'KeyN') $('#next').click(); else if (c === 'KeyP') $('#prev').click();
+  else if (c === 'KeyS') $('#shuffle').click(); else if (c === 'KeyF') toggleFav(curKey());
+  else if (c === 'ArrowUp' || c === 'ArrowDown') { e.preventDefault(); $('#vol').value = Math.max(0, Math.min(100, audio.volume * 100 + (c === 'ArrowUp' ? 5 : -5))); $('#vol').dispatchEvent(new Event('input')); }
+  else if (c === 'Slash') { e.preventDefault(); $('#q').focus(); } else if (c === 'Escape') { SEL.clear(); paintSel(); }
+});
+
+/* ---- v9: cover art everywhere + right-click on everything ---- */
+addRows(['فردي|Singles', 'فتح|Open', 'من الأول|Restart', 'رجوع 15 ث|Back 15 s', 'تقدم 15 ث|Forward 15 s', 'كتم / إلغاء الكتم|Mute / Unmute', 'إيقاف تام|Stop', 'إيقاف مؤقت|Pause', 'عشوائي (تشغيل/إيقاف)|Shuffle on/off', 'إضافة ملفات|Add files', 'إضافة مجلد|Add folder', 'المزيد…|More…', 'تحديد الكل|Select all']);
+const thdb = new Promise((res, rej) => { const r = indexedDB.open('lahn-th', 1); r.onupgradeneeded = () => r.result.createObjectStore('t'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const thGet = (k) => thdb.then((db) => new Promise((res) => { const q = db.transaction('t').objectStore('t').get(k); q.onsuccess = () => res(q.result); q.onerror = () => res(undefined); })).catch(() => undefined);
+const thPut = (k, v) => thdb.then((db) => db.transaction('t', 'readwrite').objectStore('t').put(v, k)).catch(() => {});
+const shrink = (src) => new Promise((res) => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 96; const s = Math.min(im.width, im.height); c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 96, 96); res(c.toDataURL('image/jpeg', .72)); }; im.onerror = () => res(null); im.src = src; });
+const THQ = []; let thBusy = 0;
+function thRun() { while (thBusy < 3 && THQ.length) { const j = THQ.shift(); thBusy++; j().finally(() => { thBusy--; thRun(); }); } }
+const thJob = (f) => new Promise((res) => { THQ.push(() => f().then(res, () => res(null))); thRun(); });
+const THC = new Map();
+async function thumbOf(k) {
+  if (THC.has(k)) return THC.get(k);
+  const c = await thGet(k); if (c !== undefined) { const u = c === '-' ? null : c; THC.set(k, u); return u; }
+  if (!files.has(k) || window.__scan) return null;
+  const u = await thJob(async () => { const tg = await readTags(k, true); if (!tg.cover) return null; const o = await shrink(tg.cover); if (tagCache.get(k) !== tg) URL.revokeObjectURL(tg.cover); return o; });
+  THC.set(k, u); thPut(k, u || '-'); return u;
+}
+async function fillCover(el) {
+  let u = null;
+  if (el.dataset.cvk) u = await thumbOf(el.dataset.cvk);
+  else if (el.dataset.cv) { const g = el.dataset.cv, ks = (g.startsWith('ar:') ? groups('artist') : groups('album')).get(g.slice(3)) || []; for (const k of ks.slice(0, 12)) { u = await thumbOf(k); if (u) break; } }
+  else if (el.dataset.k) u = await thumbOf(el.dataset.k);
+  if (u && el.isConnected) { el.style.backgroundImage = `url(${u})`; el.style.backgroundSize = 'cover'; el.textContent = ''; }
+}
+const IO = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { IO.unobserve(en.target); fillCover(en.target); } }), { rootMargin: '200px' });
+function decorate() {
+  document.querySelectorAll('#list .row[data-k]').forEach((r) => { if (r.querySelector('.th')) return; r.insertAdjacentHTML('afterbegin', `<div class="th" data-k="${esc(r.dataset.k)}">♪</div>`); IO.observe(r.firstChild); });
+  document.querySelectorAll('#list .av[data-cv],#list .av[data-cvk]').forEach((el) => IO.observe(el));
+}
+
+const gKeys = (g) => (g.startsWith('ar:') ? groups('artist') : groups('album')).get(g.slice(3)) || [];
+const shuf = (ks) => [...ks].sort(() => Math.random() - .5);
+function groupMenu(g, x, y) {
+  const ks = gKeys(g), it = [['▶ تشغيل الكل', () => startQueue(ks, ks[0])], ['🔀 عشوائي', () => startQueue(shuf(ks), null)], ['⏭ تشغيل بعد دي', async () => { for (const k of [...ks].reverse()) await enqueue(k, true); }], ['＋ إضافة للقايمة الجاية', async () => { for (const k of ks) await enqueue(k, false); }], ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti(ks, x2, y2)], ['↗ فتح', () => { view = g; render(); }]];
+  if (g.startsWith('ar:')) {
+    it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(g.slice(3))]);
+    it.push(['🚫 ما تفصلش الاسم ده', () => { view = g; noSplit(); }]);
+  }
+  showMenu(x, y, it);
+}
+function navMenu(v, x, y) {
+  const lst = v.startsWith('pl:') ? DB.lists[v.slice(3)] || [] : v === 'fav' ? DB.favs : v === 'lib' ? Object.keys(DB.lib) : v === 'queue' ? tracks.map((t) => t.path) : null;
+  const it = [['↗ فتح', () => { view = v; render(); }]];
+  if (lst) it.unshift(['▶ تشغيل الكل', () => startQueue(lst, lst[0])], ['🔀 عشوائي', () => startQueue(shuf(lst), null)]);
+  if (v === 'fav' || v.startsWith('pl:')) it.push(['↗ مشاركة القايمة (نص)', () => { view = v; shareList(); }], ['⇩ تصدير M3U', () => { view = v; exportM3U(); }]);
+  if (v.startsWith('pl:')) it.push(['✎ إعادة تسمية', () => { view = v; renameList(); }], ['🗑 حذف القايمة', () => { view = v; deleteList(); }]);
+  showMenu(x, y, it);
+}
+function curMenu(x, y) { const k = curKey(); if (!k) return; SEL.clear(); SEL.add(k); selMenu(x, y); SEL.clear(); }
+function qMenu(i, x, y) {
+  const k = (tracks[i] || {}).path, m = DB.lib[k] || {}; if (!k) return;
+  const it = [
+    ['▶ تشغيل', () => setTrack(i, true)],
+    ['✏️ تعديل المعلومات', () => openEditSongModal(k)],
+    ['📝 تعديل الكلمات (ليركس)', () => openLyricModal(k)],
+    [isFav(k) ? '♡ شيل من المفضلة' : '♥ أضف للمفضلة', () => toggleFav(k)],
+    ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti([k], x2, y2)],
+    ['↗ مشاركة الأغنية', () => shareTrack(k)]
+  ];
+  artistsOf(m).forEach((a) => it.push(['👤 ' + a, () => { view = 'ar:' + a; render(); }])); if (m.album) it.push(['💿 ' + m.album, () => { view = 'al:' + m.album; render(); }]);
+  it.push(['✕ إزالة من هنا', () => { if (i === cur) return toast('مينفعش تشيل الأغنية الشغالة'); tracks.splice(i, 1); if (i < cur) cur--; save(); render(); renderQ(); }]);
+  showMenu(x, y, it);
+}
+document.addEventListener('contextmenu', (e) => {
+  if (e.defaultPrevented) return;
+  const t = e.target; if (t.closest('input:not([type=range]),textarea,select')) return;
+  e.preventDefault(); const x = e.clientX, y = e.clientY, c = (s) => t.closest(s); let el;
+  if (c('#menu')) return;
+  if ((el = c('[data-g]'))) return groupMenu(el.dataset.g, x, y);
+  if ((el = c('[data-play]'))) { SEL.clear(); SEL.add(el.dataset.play); selMenu(x, y); return SEL.clear(); }
+  if ((el = c('.nv[data-v]'))) return navMenu(el.dataset.v, x, y);
+  if ((el = c('.qr[data-i]'))) return qMenu(+el.dataset.i, x, y);
+  if (c('#thumb,.info,#fv,#npv')) return curMenu(x, y);
+  if (c('.seekrow')) return showMenu(x, y, [['⏮ من الأول', () => { audio.currentTime = 0; }], ['⏪ رجوع 15 ث', () => { audio.currentTime -= 15; }], ['⏩ تقدم 15 ث', () => { audio.currentTime += 15; }]]);
+  if (c('.vol')) return showMenu(x, y, [['🔇 كتم / إلغاء الكتم', () => { audio.muted = !audio.muted; }], ...[100, 75, 50, 25].map((v) => [v + '%', () => { audio.muted = false; $('#vol').value = v; $('#vol').dispatchEvent(new Event('input')); }])]);
+  if (c('#play')) return showMenu(x, y, [[audio.paused ? '▶ تشغيل' : '⏸ إيقاف مؤقت', () => $('#play').click()], ['⏹ إيقاف تام', () => { audio.pause(); audio.currentTime = 0; }]]);
+  if (c('#next,#prev')) return showMenu(x, y, [['⏭ التالي', () => $('#next').click()], ['⏮ السابق', () => $('#prev').click()], ['⏮ من الأول', () => { audio.currentTime = 0; }]]);
+  if (c('#shuffle')) return showMenu(x, y, [['🔀 عشوائي (تشغيل/إيقاف)', () => $('#shuffle').click()]]);
+  if ((el = c('button[id]')) && ['repeat', 'spd', 'slp', 'eqb', 'skn', 'lang', 'vm', 'qb', 'np', 'addf', 'addd', 'lyricBtn'].includes(el.id)) return el.click();
+  if (c('.hero,#vt,.top,#list,main,.sub')) return showMenu(x, y, [['＋ إضافة ملفات', () => $('#addf').click()], ['＋ إضافة مجلد', () => $('#addd').click()], ['☑ تحديد الكل', () => { visKeys().forEach((k) => SEL.add(k)); paintSel(); }], ['⋯ المزيد…', () => $('#vm').click()]]);
+  showMenu(x, y, [['🎨 الشكل', () => $('#skn').click()], ['🌐 اللغة', () => $('#lang').click()], ['🎚 المعادل', () => $('#eqb').click()], ['⏱ مؤقت النوم', () => $('#slp').click()], ['⚡ السرعة', () => $('#spd').click()]]);
+});
+
+window.__v8 = true; render();
+setLang(LG);
+</script>
+<script>
+if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
