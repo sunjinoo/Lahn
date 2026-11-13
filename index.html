@@ -16,15 +16,26 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:8px}
 .app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:minmax(0,1fr) 92px;gap:10px;height:100%;padding:10px}
 .panel{background:rgba(var(--w),.045);border:1px solid var(--line);border-radius:18px}
-.side{grid-row:1;display:flex;flex-direction:column;gap:2px;padding:14px 10px;overflow-y:auto;min-height:0}
+
+/* القائمة الجانبية والتثبيت */
+.side{grid-row:1;display:flex;flex-direction:column;padding:14px 10px;overflow:hidden;min-height:0}
+.side > * { flex-shrink: 0; }
+#pls { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; margin-top: 4px; margin-bottom: 4px; }
+#pls::-webkit-scrollbar { width: 6px; }
+#pls::-webkit-scrollbar-thumb { background: rgba(var(--w),.1); border-radius: 4px; }
+
 .brand{display:flex;align-items:center;gap:10px;padding:4px 10px 14px;font-weight:700;font-size:19px}.brand img{width:30px;height:30px;border-radius:9px}
-.nv{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:11px;text-align:start;color:var(--mute);font-size:14px}
+.nv{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:11px;text-align:start;color:var(--mute);font-size:14px;transition:all .15s}
 .nv:hover{background:rgba(var(--w),.07);color:var(--text)}.nv.on{background:rgba(var(--tint-rgb),.22);color:var(--text)}
 .sh{display:flex;align-items:center;justify-content:space-between;padding:16px 12px 4px;font-size:12px;color:var(--mute)}
-#pls{display:flex;flex-direction:column;gap:2px}.grow{flex:1;min-height:12px}
-main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-radius:18px;background:linear-gradient(rgba(var(--tint-rgb),.24),transparent 280px),rgba(var(--w),.03);border:1px solid var(--line)}
 
-/* تعديلات شريط البحث */
+/* طرق عرض القوائم */
+#pls.pl-mode-compact .nv { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+#pls.pl-mode-blocks .nv { background: rgba(var(--w),.04); border: 1px solid var(--line); margin-bottom: 4px; border-radius: 10px; padding: 10px 12px; }
+#pls.pl-mode-blocks .nv:hover { background: rgba(var(--w),.08); }
+#pls.pl-mode-blocks .nv.on { background: rgba(var(--tint-rgb),.15); border-color: var(--tint); }
+
+main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-radius:18px;background:linear-gradient(rgba(var(--tint-rgb),.24),transparent 280px),rgba(var(--w),.03);border:1px solid var(--line)}
 .top{display:flex;gap:10px;align-items:center;padding:16px 22px 0;flex-wrap:wrap}
 .search-wrap{flex:1;display:flex;position:relative;min-width:200px}
 #q{flex:1;min-width:0;padding:11px 16px 11px 40px;border-radius:999px;border:1px solid var(--line);background:rgba(var(--w),.07);color:var(--text);font:inherit;font-size:14px}
@@ -35,7 +46,6 @@ main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;over
 .adv-panel[hidden]{display:none}
 .adv-panel input{flex:1;min-width:120px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:rgba(var(--w),.05);color:var(--text);font-size:13px;font-family:inherit}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-
 .chip{padding:8px 15px;border-radius:999px;font-size:13px;background:rgba(var(--w),.09);transition:background .15s;white-space:nowrap}
 .chip:hover{background:rgba(var(--tint-rgb),.35)}.chip.on{background:rgba(var(--tint-rgb),.4)}.chip.pri{background:var(--text);color:var(--on)}
 .hero{padding:22px 24px 10px}#vt{font-size:32px;font-weight:750;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -47,7 +57,7 @@ main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;over
 .row b{display:block;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row span{display:block;font-size:12px;color:var(--mute);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row i{font-style:normal;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;direction:ltr}
-.mini{width:32px;height:32px;border-radius:50%;color:var(--mute);font-size:17px;flex:none}.mini:hover{background:rgba(var(--w),.12);color:var(--text)}
+.mini{width:32px;height:32px;border-radius:50%;color:var(--mute);font-size:17px;flex:none;display:grid;place-items:center}.mini:hover{background:rgba(var(--w),.12);color:var(--text)}
 .empty{padding:50px 24px;text-align:center;color:var(--mute);line-height:1.9;font-size:14px}
 body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
 .bar{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:1fr minmax(320px,1.5fr) 1fr;align-items:center;gap:16px;padding:10px 18px;background:rgba(var(--w),.06);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:18px}
@@ -67,6 +77,7 @@ input[type=range]{-webkit-appearance:none;appearance:none;flex:1;width:100%;heig
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--text);opacity:0;transition:opacity .15s}
 input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-webkit-slider-thumb{opacity:1}
 .rt{display:flex;align-items:center;justify-content:flex-end;direction:ltr;gap:8px}.vol{display:flex;align-items:center;gap:8px;width:130px;color:var(--mute)}.vol svg{width:18px;height:18px;flex:none}
+
 #npv{position:fixed;inset:0 0 112px 0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;background:radial-gradient(700px 500px at 50% 30%,rgba(var(--tint-rgb),.45),transparent 70%),var(--bg)}
 #npv[hidden]{display:none}#npv img{width:min(340px,40vh);aspect-ratio:1;object-fit:cover;border-radius:22px;background:rgba(var(--w),.08);box-shadow:0 30px 80px -20px rgba(var(--tint-rgb),.8)}
 #npv h2{font-size:26px;max-width:min(560px,90vw)}#npv p{color:var(--mute)}#viz{width:min(420px,86vw);height:70px}.cl{position:absolute;top:14px;inset-inline-end:14px}
@@ -80,7 +91,19 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 .eqs{display:flex;gap:4px;justify-content:space-between;direction:ltr;margin:18px 0 8px}
 .eqb{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:var(--mute)}.eqb div{height:130px;width:24px;display:grid;place-items:center}
 .eqb input{width:120px;margin:0;transform:rotate(-90deg);background:rgba(var(--w),.2)!important}.eqb input::-webkit-slider-thumb{opacity:1}.eqc small{color:var(--mute);font-size:12px}
-@media (max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto}.side{flex-direction:row;overflow-x:auto;padding:8px;gap:6px;align-items:center}.brand,.sh,.grow{display:none}.nv{width:auto;white-space:nowrap}#pls{flex-direction:row}main{grid-row:2}.bar{grid-row:3;grid-template-columns:1fr;gap:6px;padding:10px 14px}.rt{display:flex;justify-content:center}.vol{display:none}.top{padding:12px 14px 0}.adv-panel{padding:8px 14px 0}.hero{padding:12px 16px 4px}#vt{font-size:24px}#npv{inset:0 0 170px 0}#toast{bottom:180px}}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto}
+  .side{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:8px;gap:6px;align-items:center}
+  #pls{flex:none;overflow-y:hidden;flex-direction:row;margin-top:0;margin-bottom:0}
+  #pls.pl-mode-blocks .nv{margin-bottom:0;margin-inline-end:4px}
+  .brand,.sh{display:none}
+  .nv{width:auto;white-space:nowrap}
+  main{grid-row:2}
+  .bar{grid-row:3;grid-template-columns:1fr;gap:6px;padding:10px 14px}
+  .rt{display:flex;justify-content:center}.vol{display:none}
+  .top{padding:12px 14px 0}.adv-panel{padding:8px 14px 0}.hero{padding:12px 16px 4px}#vt{font-size:24px}#npv{inset:0 0 170px 0}#toast{bottom:180px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 #qd{position:fixed;top:10px;bottom:112px;inset-inline-end:10px;width:min(390px,94vw);z-index:45;display:flex;flex-direction:column;background:color-mix(in srgb,var(--bg) 92%,var(--text));border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}#qd[hidden]{display:none}
 .qh2{display:flex;align-items:center;gap:8px;padding:14px 16px}.qh2 b{flex:0 1 auto}.qh2 .sub{flex:1;margin:0}
@@ -247,8 +270,16 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   <button class="nv" data-v="albums">💿 <span>الألبومات</span></button>
   <button class="nv" data-v="fav">♥ <span>المفضلة</span></button>
   <button class="nv" data-v="hist">🕘 <span>السجل</span></button>
-  <div class="sh"><span>قوائمي</span><button class="mini" id="np" aria-label="قايمة جديدة">＋</button></div>
-  <div id="pls"></div><div class="grow"></div>
+  
+  <div class="sh">
+    <span>قوائمي</span>
+    <div style="display:flex; gap:4px; align-items:center;">
+      <button class="mini" id="plViewBtn" aria-label="شكل القوائم">▤</button>
+      <button class="mini" id="np" aria-label="قايمة جديدة">＋</button>
+    </div>
+  </div>
+  <div id="pls"></div>
+  
   <div class="sh"><span id="today"></span></div>
   <button class="nv" data-v="settings" style="margin-top:10px;color:var(--tint);border-top:1px solid var(--line);padding-top:12px;border-radius:0">⚙️ <span>الإعدادات</span></button>
 </nav>
@@ -558,13 +589,11 @@ try {
   audio.addEventListener('loadedmetadata', syncMediaState);
   audio.addEventListener('ratechange', syncMediaState);
   audio.addEventListener('seeked', syncMediaState);
- // تحديث الحالة كل ثانية (مش معتمد على timeupdate بس، عشان نضمن إنه شغال في الخلفية)
 setInterval(syncMediaState, 1000);
 }
 
 /* ---- v2 additions ---- */
 const MOBILE = /Android|iPhone|iPad/i.test(navigator.userAgent);
-// تم حذف الدالة القديمة applyFilter من هنا لتجنب التعارض
 
 let ac, an, buf, raf = 0;
 function draw() {
@@ -591,6 +620,7 @@ const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {} }, JSON.pars
 if (!DB.lyrics) DB.lyrics = {};
 const persist = () => { try { localStorage.ng2 = JSON.stringify(DB); } catch (_) {} };
 let view = 'queue'; const metaCache = new Map();
+let plMode = localStorage.ng_pl_mode || 'list';
 
 /* ==== طرق العرض (View Modes) ==== */
 const TRACK_MODES = { list: { icon: '☰', label: 'قائمة' }, compact: { icon: '≣', label: 'مضغوط' }, grid: { icon: '⊞', label: 'شبكة' }, detailed: { icon: '▤', label: 'مفصّل' } };
@@ -1016,12 +1046,27 @@ audio.addEventListener('play', () => { if (EQ.on) { try { ensureGraph(); ac.resu
 /* ---- v5: layout glue + languages ---- */
 function renderSide() {
   document.querySelectorAll('.nv[data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === view));
-  $('#pls').innerHTML = Object.keys(DB.lists).map((n) => `<button class="nv${view === 'pl:' + n ? ' on' : ''}" data-v="pl:${esc(n)}">▤ <span>${esc(n)}</span></button>`).join('');
+  const plsEl = $('#pls');
+  plsEl.innerHTML = Object.keys(DB.lists).map((n) => `<button class="nv${view === 'pl:' + n ? ' on' : ''}" data-v="pl:${esc(n)}">▤ <span>${esc(n)}</span></button>`).join('');
+  plsEl.className = 'pl-mode-' + plMode;
+  
+  const pvb = document.getElementById('plViewBtn');
+  if (pvb) pvb.textContent = plMode === 'list' ? '▤' : plMode === 'compact' ? '≣' : '⊞';
+
   $('#vt').textContent = view === 'queue' ? 'قايمة التشغيل' : view === 'lib' ? 'أغانيك' : view === 'fav' ? 'المفضلة' : view === 'settings' ? 'الإعدادات' : view.slice(3);
   if (window.__v8) customView();
 }
 document.querySelector('.side').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (b) { view = b.dataset.v; render(); } });
 $('#np').onclick = () => newList();
+$('#plViewBtn').onclick = (e) => {
+  e.stopPropagation();
+  const p = e.currentTarget.getBoundingClientRect();
+  showMenu(p.left, p.bottom + 4, [
+    [(plMode === 'list' ? '● ' : '○ ') + 'قائمة عادية', () => { plMode = 'list'; localStorage.ng_pl_mode = plMode; renderSide(); }],
+    [(plMode === 'compact' ? '● ' : '○ ') + 'عرض مضغوط', () => { plMode = 'compact'; localStorage.ng_pl_mode = plMode; renderSide(); }],
+    [(plMode === 'blocks' ? '● ' : '○ ') + 'عرض مربعات', () => { plMode = 'blocks'; localStorage.ng_pl_mode = plMode; renderSide(); }]
+  ]);
+};
 const syncNP = () => { $('#title2').textContent = $('#title').textContent; $('#artist2').textContent = $('#artist').textContent; $('#art2').src = $('#art').src || ''; $('#art2').style.visibility = $('#art').style.display === 'block' ? 'visible' : 'hidden'; };
 new MutationObserver(syncNP).observe(document.querySelector('.np'), { childList: true, subtree: true, characterData: true, attributes: true });
 $('#thumb').onclick = document.querySelector('.info').onclick = () => { $('#npv').hidden = false; syncNP(); };
@@ -1359,23 +1404,6 @@ $('#slx').onclick = slClose; $('#slw').addEventListener('click', (e) => { if (e.
 $('#slgo').onclick = () => { slSet(wv); slClose(); }; $('#slend').onclick = () => { slSet('end'); slClose(); }; $('#sloff').onclick = () => { slSet(0); slClose(); };
 audio.addEventListener('timeupdate', () => { if (slEnd && audio.duration && audio.duration - audio.currentTime < 0.45) { audio.pause(); slSet(0); } });
 $('#repeat').onclick = (e) => { const p = e.currentTarget.getBoundingClientRect(); showMenu(p.left, p.top - 130, [['بدون تكرار', 0], ['تكرار الكل', 1], ['تكرار أغنية واحدة', 2]].map(([l, v]) => [(repeat === v ? '● ' : '○ ') + l, () => { repeat = v; $('#repeat').classList.toggle('on', v > 0); $('#repeat').dataset.one = v === 2 ? '1' : '0'; }])); };
-
-// Speed & Sleep Timer
-let currentSpeed = +localStorage.ng_spd || 1;
-const setSpeed = (v) => {
-  audio.defaultPlaybackRate = audio.playbackRate = v;
-  currentSpeed = v;
-  try { localStorage.ng_spd = v; } catch (_) {}
-  if (view === 'settings') renderSettingsPage();
-};
-setSpeed(currentSpeed);
-
-let slCur = 0, slEnd = false, slT = null;
-function slSet(m) {
-  clearTimeout(slT); slCur = m; slEnd = m === 'end';
-  if (m && m !== 'end') slT = setTimeout(() => { audio.pause(); slSet(0); }, m * 60000);
-  if (view === 'settings') renderSettingsPage();
-}
 
 const accIn = Object.assign(document.createElement('input'), { type: 'color', value: localStorage.ng_acc || '#8b7cf6' }); accIn.style.display = 'none'; document.body.appendChild(accIn);
 const hex2rgb = (x) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16)).join(',');
