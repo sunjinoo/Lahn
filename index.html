@@ -171,6 +171,30 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 #list.mode-compact .card .av { width: 28px; height: 28px; font-size: 12px; flex: none; }
 #list.mode-compact .card b { max-width: none; font-size: 12px; }
 #list.mode-compact .card span { display: none; }
+/* ════════ الوضع الكلاسيكي (Old Skin) ════════ */
+body.skin-old * { border-radius: 0 !important; font-family: "Tahoma", "Arial", sans-serif !important; font-size: 13px !important; }
+body.skin-old { background: #808080 !important; }
+body.skin-old .app { padding: 2px; gap: 2px; grid-template-columns: 220px 1fr; }
+body.skin-old .panel { background: #d4d0c8; border: 2px solid; border-color: #fff #404040 #404040 #fff; }
+body.skin-old main { background: #fff; border: 2px solid; border-color: #404040 #fff #fff #404040; border-radius: 0; color: #000; }
+body.skin-old .top { background: #d4d0c8; border-bottom: 1px solid #808080; padding: 4px; }
+body.skin-old #q { border: 2px solid; border-color: #404040 #fff #fff #404040; background: #fff; color: #000; border-radius: 0; }
+body.skin-old .chip { background: #d4d0c8; border: 2px solid; border-color: #fff #404040 #404040 #fff; color: #000; border-radius: 0; padding: 4px 10px; }
+body.skin-old .chip:active { border-color: #404040 #fff #fff #404040; }
+body.skin-old .row { border-bottom: 1px dotted #ccc; border-radius: 0; padding: 4px 8px; color: #000; }
+body.skin-old .row:hover, body.skin-old .row.cur { background: #000080; color: #fff; }
+body.skin-old .row:hover b, body.skin-old .row:hover span, body.skin-old .row:hover i, body.skin-old .row.cur b { color: #fff; }
+body.skin-old .bar { background: #d4d0c8; border: 2px solid; border-color: #fff #404040 #404040 #fff; border-radius: 0; padding: 5px; }
+body.skin-old .hero { background: #d4d0c8; padding: 4px 10px; border-bottom: 1px solid #808080; }
+body.skin-old #vt { font-size: 18px !important; color: #000; }
+body.skin-old .sub { color: #404040; }
+body.skin-old .side { background: #d4d0c8; }
+body.skin-old .nv { color: #000; border-radius: 0; }
+body.skin-old .nv:hover, body.skin-old .nv.on { background: #000080; color: #fff; }
+body.skin-old #list h3 { color: #000; border-bottom: 1px solid #808080; }
+body.skin-old .th { border: 1px solid #000; border-radius: 0; }
+body.skin-old .seekrow { background: #d4d0c8; padding: 2px; border: 1px inset #fff; }
+body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 </style>
 </head>
 <body>
@@ -223,7 +247,8 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
       <button class="ib" id="prev" aria-label="السابق"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12 18 6v12z"/></svg></button>
       <button class="ib play" id="play" aria-label="تشغيل"><svg viewBox="0 0 24 24" fill="currentColor"><path id="pp" d="M8 5v14l11-7z"/></svg></button>
       <button class="ib" id="next" aria-label="التالي"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18V6l8.5 6z"/></svg></button>
-      <button class="ib" id="repeat" aria-label="تكرار"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 1 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
+<button class="ib" id="abBtn" aria-label="تكرار مقطع" title="A-B Loop" style="font-size:11px;font-weight:bold">A-B</button>     
+ <button class="ib" id="repeat" aria-label="تكرار"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 1 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
     </div>
     <div class="seekrow"><span id="tc">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل"><span id="td">0:00</span></div>
   </div>
@@ -231,7 +256,11 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
     <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
     <div class="vol"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="range" id="vol" min="0" max="100" aria-label="مستوى الصوت"></div>
   </div>
+
 </footer>
+</footer>
+<input type="file" id="restoreInput" accept=".json" hidden>
+</div>
 </div>
 
 <!-- شاشة عرض الكلمات التفاعلية -->
@@ -255,6 +284,7 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
     <p style="font-size:12px;color:var(--mute);line-height:1.6">اكتب الكلمات النصية العادية، أو استخدم صيغة التوقيت (LRC) للكلمات المتزامنة مثل:<br><code dir="ltr" style="color:var(--tint)">[00:12.50] السطر الأول هنا</code></p>
     <textarea id="lyricInput" dir="auto" placeholder="الصق أو اكتب الكلمات هنا..."></textarea>
     <div style="display:flex;gap:10px;justify-content:flex-end">
+<button class="chip" id="lyricFetchBtn" style="margin-left:auto;background:var(--tint);color:#fff">🌐 جلب تلقائي</button>
       <button class="chip" id="lyricCancel">إلغاء</button>
       <button class="chip pri" id="lyricSave">حفظ الكلمات</button>
     </div>
@@ -1421,7 +1451,141 @@ document.addEventListener('contextmenu', (e) => {
   if (c('.hero,#vt,.top,#list,main,.sub')) return showMenu(x, y, [['＋ إضافة ملفات', () => $('#addf').click()], ['＋ إضافة مجلد', () => $('#addd').click()], ['☑ تحديد الكل', () => { visKeys().forEach((k) => SEL.add(k)); paintSel(); }], ['⋯ المزيد…', () => $('#vm').click()]]);
   showMenu(x, y, [['🎨 الشكل', () => $('#skn').click()], ['🌐 اللغة', () => $('#lang').click()], ['🎚 المعادل', () => $('#eqb').click()], ['⏱ مؤقت النوم', () => $('#slp').click()], ['⚡ السرعة', () => $('#spd').click()]]);
 });
+/* ════════ المميزات الجديدة ════════ */
 
+// 1. الوضع الكلاسيكي (Old Skin)
+let isOldSkin = localStorage.ng_old_skin === '1';
+function applyOldSkin() { document.body.classList.toggle('skin-old', isOldSkin); }
+applyOldSkin();
+
+const oldSknClick = $('#skn').onclick;
+$('#skn').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect(), cs = localStorage.ng_skin || 'nagham';
+  const items = Object.entries(SKINS).map(([id, s]) => [(id === cs ? '● ' : '○ ') + s[0], () => { applySkin(id); if (id === 'custom') accIn.click(); }]);
+  items.push([(isOldSkin ? '● ' : '○ ') + 'الوضع الكلاسيكي (Old Skin)', () => { isOldSkin = !isOldSkin; localStorage.ng_old_skin = isOldSkin ? '1' : '0'; applyOldSkin(); }]);
+  showMenu(p.left, p.top - 500, items);
+};
+
+// 2. النسخ الاحتياطي والاستعادة
+function backupData() {
+  const data = { db: DB, stats: ST, history: HIST, version: '2.0' };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'lahn_backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+  toast('تم تصدير النسخة الاحتياطية');
+}
+$('#restoreInput').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (data.db) localStorage.ng2 = JSON.stringify(data.db);
+    if (data.stats) localStorage.ng_stats = JSON.stringify(data.stats);
+    if (data.history) localStorage.ng_hist = JSON.stringify(data.history);
+    toast('تمت الاستعادة بنجاح! جاري إعادة التحميل...');
+    setTimeout(() => location.reload(), 1500);
+  } catch (err) { toast('ملف غير صالح'); }
+};
+// قائمة المزيد (⋯) الشاملة مع النسخ الاحتياطي
+$('#vm').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect(), it = [['＋ قايمة جديدة', () => newList()]];
+  
+  if (view === 'queue') {
+    it.push(['💾 احفظ قايمة التشغيل كقايمة', () => { const n = (prompt('اسم القايمة:') || '').trim(); if (!n) return; DB.lists[n] = tracks.map((t) => t.path); view = 'pl:' + n; persist(); render(); }]);
+  } else if (view === 'hist') {
+    it.push(['🗑 مسح السجل', () => { if (confirm('تمسح السجل كله؟')) { HIST = []; localStorage.ng_hist = '[]'; render(); } }]);
+    it.push([ST.off ? '● تشغيل التسجيل' : '⏸ إيقاف التسجيل', () => { ST.off = !ST.off; saveStats(); }]);
+  } else {
+    it.push(['▶ تشغيل الكل', () => startQueue(keysOfView(), keysOfView()[0])], ['↗ مشاركة القايمة (نص)', shareList], ['⇩ تصدير ملف القايمة', exportList]);
+    if (view.startsWith('pl:')) it.push(['✎ إعادة تسمية', renameList], ['🗑 حذف القايمة', deleteList]);
+  }
+
+  if (view !== 'hist') {
+    it.push(['⇧ استيراد قايمة من ملف', importList], ['⇧ استيراد M3U', importM3U], ['⇩ تصدير M3U', exportM3U]);
+  }
+  
+  if (view.startsWith('ar:')) it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(view.slice(3))], ['🚫 ما تفصلش الاسم ده', noSplit]);
+
+  // الخيارات الجديدة (النسخ الاحتياطي) في آخر القائمة
+  it.push(['💾 نسخة احتياطية (تصدير)', backupData]);
+  it.push(['📂 استعادة نسخة احتياطية', () => $('#restoreInput').click()]);
+
+  showMenu(p.left, p.bottom + 4, it);
+};
+// 3. جلب الكلمات تلقائياً (lrclib.net)
+$('#lyricFetchBtn').onclick = () => {
+  const k = $('#lyricModal').dataset.key; if (!k) return;
+  const m = DB.lib[k] || {};
+  const btn = $('#lyricFetchBtn');
+  const oldText = btn.textContent;
+  btn.textContent = '⏳ جاري البحث...';
+  btn.disabled = true;
+  
+  fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(m.artist || '')}&track_name=${encodeURIComponent(m.title || '')}`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      btn.textContent = oldText; btn.disabled = false;
+      if (data && (data.syncedLyrics || data.plainLyrics)) {
+        $('#lyricInput').value = data.syncedLyrics || data.plainLyrics;
+        toast('تم جلب الكلمات تلقائياً');
+      } else {
+        toast('لم يتم العثور على كلمات');
+      }
+    })
+    .catch(() => {
+      btn.textContent = oldText; btn.disabled = false;
+      toast('فشل الاتصال بالإنترنت');
+    });
+};
+
+// 4. تكرار مقطع A-B
+let abA = null, abB = null;
+$('#abBtn').onclick = () => {
+  if (!audio.duration) return;
+  if (abA === null) { abA = audio.currentTime; toast('تم تحديد نقطة البداية A'); }
+  else if (abB === null) { abB = audio.currentTime; toast('تم تحديد نقطة النهاية B'); }
+  else { abA = null; abB = null; toast('تم إلغاء تكرار المقطع'); }
+  $('#abBtn').classList.toggle('on', abA !== null);
+};
+audio.addEventListener('timeupdate', () => {
+  if (abB !== null && abA !== null && audio.currentTime >= abB) {
+    audio.currentTime = abA;
+  }
+});
+
+// 5. السحب والإفلات في قائمة التشغيل
+let dragIdx = null;
+$('#ql').addEventListener('dragstart', (e) => {
+  const r = e.target.closest('.qr'); if (r) { dragIdx = +r.dataset.i; e.dataTransfer.effectAllowed = 'move'; r.style.opacity = '0.5'; }
+});
+$('#ql').addEventListener('dragend', (e) => { const r = e.target.closest('.qr'); if (r) r.style.opacity = '1'; });
+$('#ql').addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+$('#ql').addEventListener('drop', (e) => {
+  e.preventDefault(); const r = e.target.closest('.qr');
+  if (r && dragIdx !== null) {
+    const to = +r.dataset.i;
+    if (to !== dragIdx) {
+      const item = tracks.splice(dragIdx, 1)[0];
+      tracks.splice(to, 0, item);
+      if (cur === dragIdx) cur = to; else if (cur === to) cur = dragIdx;
+      save(); render(); renderQ();
+    }
+  }
+  dragIdx = null;
+});
+
+// 6. تشغيل Crossfade (مزج تدريجي للصوت)
+let fadeInterval;
+audio.addEventListener('play', () => {
+  clearInterval(fadeInterval);
+  const targetVol = parseFloat($('#vol').value) / 100 || 0.8;
+  audio.volume = 0;
+  fadeInterval = setInterval(() => {
+    if (audio.volume < targetVol - 0.05) audio.volume += 0.05;
+    else { audio.volume = targetVol; clearInterval(fadeInterval); }
+  }, 50);
+});
+
+window.__v8 = true; render();
 window.__v8 = true; render();
 setLang(LG);
 </script>
