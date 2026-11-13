@@ -12,13 +12,14 @@
 :root{--tint:rgb(139,124,246);--tint-rgb:139,124,246;--bg:#12101a;--text:#f2eefc;--mute:#9d97b5;--line:rgba(255,255,255,.09);--w:255,255,255;--on:#15121f}
 *{box-sizing:border-box;margin:0}html,body{height:100%}
 
-/* --- تخصيص شكل الشرايط (Scrollbars) --- */
+/* --- تخصيص شكل الشرايط --- */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(var(--w), .15); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(var(--w), .3); }
-/* لمتصفح فايرفوكس */
-* { scrollbar-width: thin; scrollbar-color: rgba(var(--w), .15) transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.3); }
+@supports (scrollbar-width: thin) {
+  #list, #pls, #qd, .hs, #qr, #ql, .lyrics-container { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+}
 
 body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",sans-serif;color:var(--text);overflow:hidden;background:radial-gradient(900px 600px at 70% -10%,rgba(var(--tint-rgb),.28),transparent 60%),var(--bg)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -26,7 +27,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:minmax(0,1fr) 92px;gap:10px;height:100%;padding:10px}
 .panel{background:rgba(var(--w),.045);border:1px solid var(--line);border-radius:18px}
 
-/* القائمة الجانبية والتثبيت */
+/* القائمة الجانبية */
 .side{grid-row:1;display:flex;flex-direction:column;padding:14px 10px;overflow:hidden;min-height:0}
 .side > * { flex-shrink: 0; }
 #pls { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; margin-top: 4px; margin-bottom: 4px; }
@@ -144,7 +145,7 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 /* --- Modals & Lyrics UI --- */
 .modal-overlay{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(0,0,0,.65);backdrop-filter:blur(8px)}
 .modal-overlay[hidden]{display:none}
-.modal-card{background:color-mix(in srgb,var(--bg) 92%,var(--text));border:1px solid var(--line);border-radius:20px;padding:24px;width:min(540px,94vw);max-height:85vh;display:flex;flex-direction:column;gap:14px;box-shadow:0 25px 60px rgba(0,0,0,.6)}
+.modal-card{background:color-mix(in srgb,var(--bg) 92%,var(--text));border:1px solid var(--line);border-radius:20px;padding:24px;width:min(540px,94vw);max-height:85vh;display:flex;flex-direction:column;gap:14px;box-shadow:0 25px 60px rgba(0,0,0,.6);overflow-y:auto}
 .modal-card input[type="text"], .modal-card textarea{width:100%;background:rgba(var(--w),.06);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px 14px;font:inherit;font-size:14px}
 .modal-card textarea{height:220px;resize:vertical;line-height:1.6}
 .field-lbl{font-size:12px;color:var(--mute);margin-bottom:4px;display:block}
@@ -373,6 +374,16 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
       <input type="text" id="editArtistInput" dir="auto">
       <label class="field-lbl" style="margin-top:10px">الألبوم</label>
       <input type="text" id="editAlbumInput" dir="auto">
+      <label class="field-lbl" style="margin-top:10px">النوع (Genre)</label>
+      <input type="text" id="editGenreInput" dir="auto">
+      <label class="field-lbl" style="margin-top:10px">سنة الإصدار</label>
+      <input type="text" id="editYearInput" dir="auto">
+      <label class="field-lbl" style="margin-top:10px">صورة الغلاف</label>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div id="editCoverPreview" style="width:60px; height:60px; border-radius:8px; background:var(--line); background-size:cover; background-position:center; flex:none;"></div>
+        <input type="file" id="editCoverFile" accept="image/*" style="flex:1; font-size:12px;">
+        <button class="chip" id="editCoverClear">مسح</button>
+      </div>
     </div>
     <div id="editArtistFields" hidden>
       <label class="field-lbl">الاسم الجديد للفنان (سيتم تحديثه في جميع أغانيه)</label>
@@ -440,12 +451,20 @@ const dur = (url) => new Promise((res) => {
   a.onerror = () => { clearTimeout(t); res(0); };
   a.src = url;
 });
+
+const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {} }, JSON.parse(localStorage.ng2 || '{}'));
+if (!DB.lyrics) DB.lyrics = {};
+if (!DB.covers) DB.covers = {};
+
 const api = {
   async meta(k) {
     const f = files.get(k), tg = await readTags(k), url = URL.createObjectURL(f);
     return { path: k, url, title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, duration: await dur(url) };
   },
-  cover: (k) => readTags(k).then((t) => t.cover),
+  cover: (k) => {
+    if (DB.covers && DB.covers[k]) return Promise.resolve(DB.covers[k]);
+    return readTags(k).then((t) => t.cover);
+  },
   pick(kind) {
     return new Promise((res) => {
       const i = document.createElement('input'); i.type = 'file'; i.multiple = true;
@@ -623,8 +642,6 @@ else audio.addEventListener('play', () => {
 });
 
 /* ---- v3: playlists, favorites, sharing, skins & lyrics DB ---- */
-const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {} }, JSON.parse(localStorage.ng2 || '{}'));
-if (!DB.lyrics) DB.lyrics = {};
 const persist = () => { try { localStorage.ng2 = JSON.stringify(DB); } catch (_) {} };
 let view = 'queue'; const metaCache = new Map();
 let plMode = localStorage.ng_pl_mode || 'list';
@@ -676,7 +693,6 @@ if (vModeBtn) {
     ]));
   };
 }
-/* ==== نهاية طرق العرض ==== */
 
 /* ==== البحث المتقدم (الفلاتر) ==== */
 let advFilters = { title: '', artist: '', album: '', genre: '' };
@@ -724,7 +740,6 @@ $('#advClear').onclick = () => {
   advFilters = { title: '', artist: '', album: '', genre: '' };
   applyFilter();
 };
-/* ==== نهاية البحث المتقدم ==== */
 
 const metaOf = (k) => { if (!metaCache.has(k)) { const m = DB.lib[k]; metaCache.set(k, m ? Promise.resolve({ path: k, url: '', title: m.title, artist: m.artist, album: m.album, duration: m.duration }) : api.meta(k)); } return metaCache.get(k); };
 document.body.insertAdjacentHTML('beforeend', '<div id="menu" hidden></div><div id="toast"></div>');
@@ -857,17 +872,24 @@ $('#lyricFetchBtn').onclick = () => {
     });
 };
 
-let editMode = 'song', editTarget = '';
+let editMode = 'song', editTarget = '', editCoverData = null;
 function openEditSongModal(k) {
   if (!k) return;
-  editMode = 'song'; editTarget = k;
-  const m = DB.lib[k] || { title: k.split('|')[0], artist: '', album: '' };
+  editMode = 'song'; editTarget = k; editCoverData = null;
+  const m = DB.lib[k] || { title: k.split('|')[0], artist: '', album: '', genre: '', year: '' };
   $('#editMetaHeader').textContent = 'تعديل معلومات الأغنية';
   $('#editSongFields').hidden = false;
   $('#editArtistFields').hidden = true;
   $('#editTitleInput').value = m.title || '';
   $('#editArtistInput').value = m.artist || '';
   $('#editAlbumInput').value = m.album || '';
+  $('#editGenreInput').value = m.genre || '';
+  $('#editYearInput').value = m.year || '';
+  
+  const curCover = DB.covers[k] || '';
+  $('#editCoverPreview').style.backgroundImage = curCover ? `url(${curCover})` : '';
+  $('#editCoverFile').value = '';
+  
   $('#editMetaModal').hidden = false;
 }
 function openEditArtistModal(artistName) {
@@ -880,6 +902,22 @@ function openEditArtistModal(artistName) {
   $('#editMetaModal').hidden = false;
 }
 $('#editMetaClose').onclick = $('#editMetaCancel').onclick = () => { $('#editMetaModal').hidden = true; };
+
+$('#editCoverFile').onchange = (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    editCoverData = reader.result;
+    $('#editCoverPreview').style.backgroundImage = `url(${editCoverData})`;
+  };
+  reader.readAsDataURL(file);
+};
+$('#editCoverClear').onclick = () => {
+  editCoverData = '';
+  $('#editCoverPreview').style.backgroundImage = '';
+  $('#editCoverFile').value = '';
+};
+
 $('#editMetaSave').onclick = () => {
   if (editMode === 'song') {
     const k = editTarget;
@@ -887,11 +925,33 @@ $('#editMetaSave').onclick = () => {
     DB.lib[k].title = $('#editTitleInput').value.trim() || k.split('|')[0];
     DB.lib[k].artist = $('#editArtistInput').value.trim();
     DB.lib[k].album = $('#editAlbumInput').value.trim();
+    DB.lib[k].genre = $('#editGenreInput').value.trim();
+    DB.lib[k].year = $('#editYearInput').value.trim();
+    
+    if (editCoverData !== null) {
+      if (editCoverData === '') {
+        delete DB.covers[k];
+      } else {
+        DB.covers[k] = editCoverData;
+      }
+    }
+    
     metaCache.delete(k);
     tracks.forEach((t, idx) => {
       if (t.path === k) {
         t.title = DB.lib[k].title; t.artist = DB.lib[k].artist; t.album = DB.lib[k].album;
-        if (idx === cur) { $('#title').textContent = t.title; $('#artist').textContent = t.artist || 'فنان غير معروف'; document.title = t.title + ' – لحن'; }
+        if (idx === cur) { 
+          $('#title').textContent = t.title; 
+          $('#artist').textContent = t.artist || 'فنان غير معروف'; 
+          document.title = t.title + ' – لحن'; 
+          if (editCoverData !== null) {
+            const newCover = editCoverData === '' ? '' : editCoverData;
+            $('#art').src = newCover || '';
+            $('#art').style.display = newCover ? 'block' : 'none';
+            $('#ph').style.display = newCover ? 'none' : 'block';
+            tintFrom(newCover);
+          }
+        }
       }
     });
     toast('تم تعديل معلومات الأغنية');
@@ -1054,26 +1114,34 @@ audio.addEventListener('play', () => { if (EQ.on) { try { ensureGraph(); ac.resu
 function renderSide() {
   document.querySelectorAll('.nv[data-v]').forEach((b) => b.classList.toggle('on', b.dataset.v === view));
   const plsEl = $('#pls');
-  plsEl.innerHTML = Object.keys(DB.lists).map((n) => `<button class="nv${view === 'pl:' + n ? ' on' : ''}" data-v="pl:${esc(n)}">▤ <span>${esc(n)}</span></button>`).join('');
-  plsEl.className = 'pl-mode-' + plMode;
+  if (plsEl) {
+    plsEl.innerHTML = Object.keys(DB.lists).map((n) => `<button class="nv${view === 'pl:' + n ? ' on' : ''}" data-v="pl:${esc(n)}">▤ <span>${esc(n)}</span></button>`).join('');
+    plsEl.className = 'pl-mode-' + plMode;
+  }
   
   const pvb = document.getElementById('plViewBtn');
   if (pvb) pvb.textContent = plMode === 'list' ? '▤' : plMode === 'compact' ? '≣' : '⊞';
 
-  $('#vt').textContent = view === 'queue' ? 'قايمة التشغيل' : view === 'lib' ? 'أغانيك' : view === 'fav' ? 'المفضلة' : view === 'settings' ? 'الإعدادات' : view.slice(3);
+  const vt = $('#vt');
+  if (vt) vt.textContent = view === 'queue' ? 'قايمة التشغيل' : view === 'lib' ? 'أغانيك' : view === 'fav' ? 'المفضلة' : view === 'settings' ? 'الإعدادات' : view.slice(3);
   if (window.__v8) customView();
 }
 document.querySelector('.side').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (b) { view = b.dataset.v; render(); } });
 $('#np').onclick = () => newList();
-$('#plViewBtn').onclick = (e) => {
-  e.stopPropagation();
-  const p = e.currentTarget.getBoundingClientRect();
-  showMenu(p.left, p.bottom + 4, [
-    [(plMode === 'list' ? '● ' : '○ ') + 'قائمة عادية', () => { plMode = 'list'; localStorage.ng_pl_mode = plMode; renderSide(); }],
-    [(plMode === 'compact' ? '● ' : '○ ') + 'عرض مضغوط', () => { plMode = 'compact'; localStorage.ng_pl_mode = plMode; renderSide(); }],
-    [(plMode === 'blocks' ? '● ' : '○ ') + 'عرض مربعات', () => { plMode = 'blocks'; localStorage.ng_pl_mode = plMode; renderSide(); }]
-  ]);
-};
+
+const plViewBtn = document.getElementById('plViewBtn');
+if (plViewBtn) {
+  plViewBtn.onclick = (e) => {
+    e.stopPropagation();
+    const p = e.currentTarget.getBoundingClientRect();
+    showMenu(p.left, p.bottom + 4, [
+      [(plMode === 'list' ? '● ' : '○ ') + 'قائمة عادية', () => { plMode = 'list'; localStorage.ng_pl_mode = plMode; renderSide(); }],
+      [(plMode === 'compact' ? '● ' : '○ ') + 'عرض مضغوط', () => { plMode = 'compact'; localStorage.ng_pl_mode = plMode; renderSide(); }],
+      [(plMode === 'blocks' ? '● ' : '○ ') + 'عرض مربعات', () => { plMode = 'blocks'; localStorage.ng_pl_mode = plMode; renderSide(); }]
+    ]);
+  };
+}
+
 const syncNP = () => { $('#title2').textContent = $('#title').textContent; $('#artist2').textContent = $('#artist').textContent; $('#art2').src = $('#art').src || ''; $('#art2').style.visibility = $('#art').style.display === 'block' ? 'visible' : 'hidden'; };
 new MutationObserver(syncNP).observe(document.querySelector('.np'), { childList: true, subtree: true, characterData: true, attributes: true });
 $('#thumb').onclick = document.querySelector('.info').onclick = () => { $('#npv').hidden = false; syncNP(); };
@@ -1728,35 +1796,42 @@ function renderSettingsPage() {
   const preSel = document.getElementById('eqpreInline');
   const inputs = L.querySelectorAll('.eq-input-inline');
   
-  const updateEqInline = () => {
-    onBtn.textContent = EQ.on ? 'مفعّل ✓' : 'متوقف';
-    onBtn.classList.toggle('on', EQ.on);
-    preSel.value = EQ.preset;
-    inputs.forEach(inp => { inp.value = EQ.gains[+inp.dataset.eqi]; });
-  };
-  updateEqInline();
-  
-  onBtn.onclick = () => {
-    if (EQ.on) EQ.on = false; else eqEnable();
-    applyEQ(); updateEqInline();
-  };
-  preSel.onchange = (e) => {
-    const p = EQP[e.target.value]; if (!p) return;
-    EQ.preset = e.target.value; EQ.gains = [...p[1]];
-    eqEnable(); applyEQ(); updateEqInline();
-  };
-  inputs.forEach(inp => {
-    inp.addEventListener('input', (e) => {
-      EQ.gains[+e.target.dataset.eqi] = +e.target.value;
-      EQ.preset = 'custom'; preSel.value = 'custom';
-      if (!EQ.on) { eqEnable(); }
+  if (onBtn && preSel) {
+    const updateEqInline = () => {
+      onBtn.textContent = EQ.on ? 'مفعّل ✓' : 'متوقف';
+      onBtn.classList.toggle('on', EQ.on);
+      preSel.value = EQ.preset;
+      inputs.forEach(inp => { inp.value = EQ.gains[+inp.dataset.eqi]; });
+    };
+    updateEqInline();
+    
+    onBtn.onclick = () => {
+      if (EQ.on) EQ.on = false; else eqEnable();
       applyEQ(); updateEqInline();
+    };
+    preSel.onchange = (e) => {
+      const p = EQP[e.target.value]; if (!p) return;
+      EQ.preset = e.target.value; EQ.gains = [...p[1]];
+      eqEnable(); applyEQ(); updateEqInline();
+    };
+    inputs.forEach(inp => {
+      inp.addEventListener('input', (e) => {
+        EQ.gains[+e.target.dataset.eqi] = +e.target.value;
+        EQ.preset = 'custom'; preSel.value = 'custom';
+        if (!EQ.on) { eqEnable(); }
+        applyEQ(); updateEqInline();
+      });
     });
-  });
+  }
   
-  document.getElementById('backupBtnSet').onclick = backupData;
-  document.getElementById('restoreBtnSet').onclick = () => $('#restoreInput').click();
-  document.getElementById('clearDataBtnSet').onclick = () => {
+  const backupBtn = document.getElementById('backupBtnSet');
+  if (backupBtn) backupBtn.onclick = backupData;
+  
+  const restoreBtn = document.getElementById('restoreBtnSet');
+  if (restoreBtn) restoreBtn.onclick = () => $('#restoreInput').click();
+  
+  const clearBtn = document.getElementById('clearDataBtnSet');
+  if (clearBtn) clearBtn.onclick = () => {
     if (confirm('متأكد إنك عايز تمسح كل البيانات؟')) { localStorage.clear(); location.reload(); }
   };
 }
