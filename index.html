@@ -11,6 +11,15 @@
 <style>
 :root{--tint:rgb(139,124,246);--tint-rgb:139,124,246;--bg:#12101a;--text:#f2eefc;--mute:#9d97b5;--line:rgba(255,255,255,.09);--w:255,255,255;--on:#15121f}
 *{box-sizing:border-box;margin:0}html,body{height:100%}
+
+/* --- تخصيص شكل الشرايط (Scrollbars) --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(var(--w), .15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--w), .3); }
+/* لمتصفح فايرفوكس */
+* { scrollbar-width: thin; scrollbar-color: rgba(var(--w), .15) transparent; }
+
 body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",sans-serif;color:var(--text);overflow:hidden;background:radial-gradient(900px 600px at 70% -10%,rgba(var(--tint-rgb),.28),transparent 60%),var(--bg)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:8px}
@@ -21,8 +30,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .side{grid-row:1;display:flex;flex-direction:column;padding:14px 10px;overflow:hidden;min-height:0}
 .side > * { flex-shrink: 0; }
 #pls { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; margin-top: 4px; margin-bottom: 4px; }
-#pls::-webkit-scrollbar { width: 6px; }
-#pls::-webkit-scrollbar-thumb { background: rgba(var(--w),.1); border-radius: 4px; }
 
 .brand{display:flex;align-items:center;gap:10px;padding:4px 10px 14px;font-weight:700;font-size:19px}.brand img{width:30px;height:30px;border-radius:9px}
 .nv{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:11px;text-align:start;color:var(--mute);font-size:14px;transition:all .15s}
@@ -50,7 +57,7 @@ main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;over
 .chip:hover{background:rgba(var(--tint-rgb),.35)}.chip.on{background:rgba(var(--tint-rgb),.4)}.chip.pri{background:var(--text);color:var(--on)}
 .hero{padding:22px 24px 10px}#vt{font-size:32px;font-weight:750;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sub{margin-top:4px;font-size:13px;color:var(--mute)}
-#list{flex:1;overflow-y:auto;padding:4px 14px 14px}#list::-webkit-scrollbar{width:8px}#list::-webkit-scrollbar-thumb{background:rgba(var(--w),.14);border-radius:8px}
+#list{flex:1;overflow-y:auto;padding:4px 14px 14px}
 .row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;cursor:pointer;border-inline-start:3px solid transparent}
 .row:hover{background:rgba(var(--w),.06)}.row.cur{background:rgba(var(--tint-rgb),.16);border-inline-start-color:var(--tint)}.row.cur b{color:var(--tint)}
 .row.off{opacity:.5}.row[hidden]{display:none}.row .t{flex:1;min-width:0}
@@ -1761,11 +1768,8 @@ setLang(LG);
 if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
-    // يبحث عن تحديث فوراً عند فتح الصفحة
     reg.update();
-    // ويبحث كل دقيقة طول ما الصفحة مفتوحة
     setInterval(() => reg.update(), 60000);
-    // ولما المستخدم يرجع للتاب تاني
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') reg.update();
     });
