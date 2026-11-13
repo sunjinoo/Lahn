@@ -299,6 +299,36 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   .settings-page { padding: 12px 14px 30px; }
   .skin-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
 }
+/* تنسيقات أزرار الرجوع والتقدم العصرية */
+.nav-btns {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.nav-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(var(--w), .05);
+  border: 1px solid var(--line);
+  color: var(--mute);
+  display: grid;
+  place-items: center;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.nav-btn:hover {
+  background: rgba(var(--tint-rgb), .2);
+  border-color: var(--tint);
+  color: var(--text);
+  transform: scale(1.05);
+}
+.nav-btn:active {
+  transform: scale(0.95);
+}
+.nav-btn svg {
+  width: 20px;
+  height: 20px;
+}
 </style>
 </head>
 <body>
@@ -327,6 +357,14 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 </nav>
 <main>
   <div class="top">
+    <div class="nav-btns">
+      <button class="nav-btn" id="navBack" title="رجوع" aria-label="رجوع">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <button class="nav-btn" id="navForward" title="تقدم" aria-label="تقدم" style="opacity:0.4; pointer-events:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+    </div>
     <div class="search-wrap">
       <input id="q" type="search" placeholder="ابحث في القايمة…" aria-label="ابحث في القايمة…">
       <button id="advBtn" class="adv-toggle" title="فلاتر البحث المتقدم" aria-label="فلاتر البحث المتقدم">🎛️</button>
@@ -1945,7 +1983,47 @@ function renderSettingsPage() {
     if (confirm('متأكد إنك عايز تمسح كل البيانات؟')) { localStorage.clear(); location.reload(); }
   };
 }
+/* ---- ميزة الرجوع والتقدم (History API) ---- */
+let currentHistoryView = null;
 
+// دالة تحديث التاريخ كل ما الصفحة تتغير
+function updateHistoryState() {
+  if (currentHistoryView !== view) {
+    if (currentHistoryView === null) {
+      // أول مرة التطبيق يفتح
+      history.replaceState({ view: view }, '', '#' + encodeURIComponent(view));
+    } else {
+      // أي تنقل جديد
+      history.pushState({ view: view }, '', '#' + encodeURIComponent(view));
+    }
+    currentHistoryView = view;
+  }
+}
+
+// دالة الرجوع والتقدم من المتصفح أو أزرار الموبايل
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.view) {
+    currentHistoryView = e.state.view;
+    view = e.state.view;
+    render(); 
+  } else {
+    // لو رجع لآخر خطوة في التاريخ
+    currentHistoryView = 'home';
+    view = 'home';
+    render();
+  }
+});
+
+// ربط الأزرار
+$('#navBack').onclick = (e) => { e.preventDefault(); history.back(); };
+$('#navForward').onclick = (e) => { e.preventDefault(); history.forward(); };
+
+// دمج التحديث مع دالة العرض الأساسية
+const originalRender = render;
+render = function() {
+  originalRender.apply(this, arguments);
+  updateHistoryState();
+};
 window.__v8 = true; render();
 setLang(LG);
 </script>
