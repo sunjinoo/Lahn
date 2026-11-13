@@ -18,7 +18,7 @@
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.3); }
 @supports (scrollbar-width: thin) {
-  #list, #pls, #qd, .hs, #qr, #ql, .lyrics-container { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+  #list, #pls, #qd, .hs, #qr, #ql, .lyrics-container, .modal-card { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
 }
 
 body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",sans-serif;color:var(--text);overflow:hidden;background:radial-gradient(900px 600px at 70% -10%,rgba(var(--tint-rgb),.28),transparent 60%),var(--bg)}
@@ -264,6 +264,40 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 @media (max-width:860px) {
   .settings-page { padding: 12px 14px 30px; }
   .skin-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+}/* ════════ صفحة الإعدادات ════════ */
+.settings-page { padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 20px; }
+.settings-section { background: rgba(var(--w), .04); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.settings-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.skin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+.skin-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background: rgba(var(--w), .04); border: 2px solid transparent; color: var(--mute); font-size: 12px; transition: all .2s; cursor: pointer; font-family: inherit; }
+.skin-item:hover { background: rgba(var(--w), .08); }
+.skin-item.on { border-color: var(--tint); color: var(--text); background: rgba(var(--tint-rgb), .15); }
+.skin-preview { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid var(--line); }
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.settings-actions { display: flex; flex-direction: column; gap: 8px; }
+.settings-action { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; background: rgba(var(--w), .04); border: 1px solid var(--line); color: var(--text); text-align: start; transition: all .15s; cursor: pointer; font-family: inherit; }
+.settings-action:hover { background: rgba(var(--w), .08); border-color: var(--tint); }
+.settings-action.danger:hover { background: rgba(239, 68, 68, .15); border-color: #ef4444; }
+.settings-action > span { font-size: 22px; flex: none; }
+.settings-action > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.settings-action b { font-size: 14px; font-weight: 600; }
+.settings-action small { font-size: 12px; color: var(--mute); }
+.about-info { display: flex; flex-direction: column; gap: 2px; }
+.about-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; background: rgba(var(--w), .03); }
+.about-row span { font-size: 13px; color: var(--mute); }
+.about-row b { font-size: 14px; font-weight: 600; color: var(--text); }
+.eq-inline-toolbar { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
+.eq-inline-toolbar select { flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(var(--w), .06); color: var(--text); font: inherit; font-size: 13px; font-family: inherit; }
+.eq-inline-toolbar select option { background: #1b1827; color: #f2eefc; }
+.eq-inline .eqs { display: flex; gap: 4px; justify-content: space-between; direction: ltr; margin: 0; }
+.eq-inline .eqb { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 11px; color: var(--mute); }
+.eq-inline .eqb > div { height: 130px; width: 24px; display: grid; place-items: center; }
+.eq-inline .eqb input { width: 120px; margin: 0; transform: rotate(-90deg); background: rgba(var(--w), .2) !important; }
+.eq-inline .eqb input::-webkit-slider-thumb { opacity: 1; }
+.eq-inline small { display: block; margin-top: 12px; color: var(--mute); font-size: 12px; }
+@media (max-width:860px) {
+  .settings-page { padding: 12px 14px 30px; }
+  .skin-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
 }
 </style>
 </head>
@@ -388,6 +422,12 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <div id="editArtistFields" hidden>
       <label class="field-lbl">الاسم الجديد للفنان (سيتم تحديثه في جميع أغانيه)</label>
       <input type="text" id="editSingleArtistInput" dir="auto">
+      <label class="field-lbl" style="margin-top:10px">صورة الفنان</label>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div id="editArtistCoverPreview" style="width:60px; height:60px; border-radius:50%; background:var(--line); background-size:cover; background-position:center; flex:none;"></div>
+        <input type="file" id="editArtistCoverFile" accept="image/*" style="flex:1; font-size:12px;">
+        <button class="chip" id="editArtistCoverClear">مسح</button>
+      </div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
       <button class="chip" id="editMetaCancel">إلغاء</button>
@@ -452,9 +492,10 @@ const dur = (url) => new Promise((res) => {
   a.src = url;
 });
 
-const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {} }, JSON.parse(localStorage.ng2 || '{}'));
+const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
 if (!DB.lyrics) DB.lyrics = {};
 if (!DB.covers) DB.covers = {};
+if (!DB.artistCovers) DB.artistCovers = {};
 
 const api = {
   async meta(k) {
@@ -777,6 +818,7 @@ function render() {
   }).join('') : `<div class="empty">${EMPTY[view === 'queue' ? 0 : view === 'fav' ? 1 : view === 'lib' ? 3 : 2]}</div>`;
   $('#fv').textContent = isFav(ck) ? '♥' : '♡'; $('#fv').classList.toggle('on', isFav(ck));
   applyFilter(); renderSide(); renderQ(); applyModeClass();
+  if (view === 'settings') renderSettingsPage();
 }
 async function startQueue(keys, startKey) {
   const ks = keys.filter((k) => files.has(k));
@@ -872,10 +914,10 @@ $('#lyricFetchBtn').onclick = () => {
     });
 };
 
-let editMode = 'song', editTarget = '', editCoverData = null;
+let editMode = 'song', editTarget = '', editCoverData = null, editArtistCoverData = null;
 function openEditSongModal(k) {
   if (!k) return;
-  editMode = 'song'; editTarget = k; editCoverData = null;
+  editMode = 'song'; editTarget = k; editCoverData = null; editArtistCoverData = null;
   const m = DB.lib[k] || { title: k.split('|')[0], artist: '', album: '', genre: '', year: '' };
   $('#editMetaHeader').textContent = 'تعديل معلومات الأغنية';
   $('#editSongFields').hidden = false;
@@ -894,11 +936,16 @@ function openEditSongModal(k) {
 }
 function openEditArtistModal(artistName) {
   if (!artistName) return;
-  editMode = 'artist'; editTarget = artistName;
-  $('#editMetaHeader').textContent = 'تعديل اسم الفنان';
+  editMode = 'artist'; editTarget = artistName; editCoverData = null; editArtistCoverData = null;
+  $('#editMetaHeader').textContent = 'تعديل اسم وصورة الفنان';
   $('#editSongFields').hidden = true;
   $('#editArtistFields').hidden = false;
   $('#editSingleArtistInput').value = artistName;
+  
+  const curArtistCover = DB.artistCovers[artistName] || '';
+  $('#editArtistCoverPreview').style.backgroundImage = curArtistCover ? `url(${curArtistCover})` : '';
+  $('#editArtistCoverFile').value = '';
+  
   $('#editMetaModal').hidden = false;
 }
 $('#editMetaClose').onclick = $('#editMetaCancel').onclick = () => { $('#editMetaModal').hidden = true; };
@@ -916,6 +963,21 @@ $('#editCoverClear').onclick = () => {
   editCoverData = '';
   $('#editCoverPreview').style.backgroundImage = '';
   $('#editCoverFile').value = '';
+};
+
+$('#editArtistCoverFile').onchange = (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    editArtistCoverData = reader.result;
+    $('#editArtistCoverPreview').style.backgroundImage = `url(${editArtistCoverData})`;
+  };
+  reader.readAsDataURL(file);
+};
+$('#editArtistCoverClear').onclick = () => {
+  editArtistCoverData = '';
+  $('#editArtistCoverPreview').style.backgroundImage = '';
+  $('#editArtistCoverFile').value = '';
 };
 
 $('#editMetaSave').onclick = () => {
@@ -967,6 +1029,24 @@ $('#editMetaSave').onclick = () => {
       tracks.forEach((t, idx) => { const m = DB.lib[t.path]; if (m) { t.artist = m.artist; if (idx === cur) $('#artist').textContent = t.artist || 'فنان غير معروف'; } });
       if (view === 'ar:' + oldName) view = 'ar:' + newName;
       toast('تم تعديل اسم الفنان');
+    }
+    
+    if (editArtistCoverData !== null) {
+      if (editArtistCoverData === '') {
+        delete DB.artistCovers[oldName];
+      } else {
+        DB.artistCovers[oldName] = editArtistCoverData;
+      }
+      // Re-render covers for the artist cards
+      document.querySelectorAll(`.av[data-cv="ar:${esc(oldName)}"]`).forEach(el => {
+        if (editArtistCoverData === '') {
+          el.style.backgroundImage = '';
+          el.textContent = oldName[0].toUpperCase();
+        } else {
+          el.style.backgroundImage = `url(${editArtistCoverData})`;
+          el.textContent = '';
+        }
+      });
     }
   }
   persist();
@@ -1124,7 +1204,10 @@ function renderSide() {
 
   const vt = $('#vt');
   if (vt) vt.textContent = view === 'queue' ? 'قايمة التشغيل' : view === 'lib' ? 'أغانيك' : view === 'fav' ? 'المفضلة' : view === 'settings' ? 'الإعدادات' : view.slice(3);
-  if (window.__v8) customView();
+  if (window.__v8) {
+    if (view === 'settings') renderSettingsPage();
+    else customView();
+  }
 }
 document.querySelector('.side').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (b) { view = b.dataset.v; render(); } });
 $('#np').onclick = () => newList();
@@ -1393,7 +1476,6 @@ const gcard = (pre, n, sub) => `<button class="card" data-g="${pre}${esc(n)}"><d
 function customView() {
   if (lastView !== view) { SEL.clear(); lastView = view; }
   const L = $('#list'), v = view;
-  if (v === 'settings') { renderSettingsPage(); return; }
   if (v === 'artists' || v === 'albums') {
     const g = groups(v === 'artists' ? 'artist' : 'album'), ns = [...g.keys()].sort((a, b) => a.localeCompare(b));
     $('#vt').textContent = v === 'artists' ? 'الفنانون' : 'الألبومات'; $('#count').textContent = ns.length;
@@ -1518,7 +1600,15 @@ async function thumbOf(k) {
 async function fillCover(el) {
   let u = null;
   if (el.dataset.cvk) u = await thumbOf(el.dataset.cvk);
-  else if (el.dataset.cv) { const g = el.dataset.cv, ks = (g.startsWith('ar:') ? groups('artist') : groups('album')).get(g.slice(3)) || []; for (const k of ks.slice(0, 12)) { u = await thumbOf(k); if (u) break; } }
+  else if (el.dataset.cv) { 
+    const g = el.dataset.cv;
+    if (g.startsWith('ar:') && DB.artistCovers && DB.artistCovers[g.slice(3)]) {
+      u = DB.artistCovers[g.slice(3)];
+    } else {
+      const ks = (g.startsWith('ar:') ? groups('artist') : groups('album')).get(g.slice(3)) || []; 
+      for (const k of ks.slice(0, 12)) { u = await thumbOf(k); if (u) break; } 
+    }
+  }
   else if (el.dataset.k) u = await thumbOf(el.dataset.k);
   if (u && el.isConnected) { el.style.backgroundImage = `url(${u})`; el.style.backgroundSize = 'cover'; el.textContent = ''; }
 }
@@ -1532,7 +1622,7 @@ const gKeys = (g) => (g.startsWith('ar:') ? groups('artist') : groups('album')).
 const shuf = (ks) => [...ks].sort(() => Math.random() - .5);
 function groupMenu(g, x, y) {
   const ks = gKeys(g), it = [['▶ تشغيل الكل', () => startQueue(ks, ks[0])], ['🔀 عشوائي', () => startQueue(shuf(ks), null)], ['⏭ تشغيل بعد دي', async () => { for (const k of [...ks].reverse()) await enqueue(k, true); }], ['＋ إضافة للقايمة الجاية', async () => { for (const k of ks) await enqueue(k, false); }], ['➕ إضافة لقايمة…', (x2, y2) => addMenuMulti(ks, x2, y2)], ['↗ فتح', () => { view = g; render(); }]];
-  if (g.startsWith('ar:')) { it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(g.slice(3))]); it.push(['🚫 ما تفصلش الاسم ده', () => { view = g; noSplit(); }]); }
+  if (g.startsWith('ar:')) { it.push(['✏️ تعديل اسم وصورة الفنان', () => openEditArtistModal(g.slice(3))]); it.push(['🚫 ما تفصلش الاسم ده', () => { view = g; noSplit(); }]); }
   showMenu(x, y, it);
 }
 function navMenu(v, x, y) {
@@ -1615,7 +1705,7 @@ $('#vm').onclick = (e) => {
     it.push(['⇧ استيراد قايمة من ملف', importList], ['⇧ استيراد M3U', importM3U], ['⇩ تصدير M3U', exportM3U]);
   }
   
-  if (view.startsWith('ar:')) it.push(['✏️ تعديل اسم الفنان', () => openEditArtistModal(view.slice(3))], ['🚫 ما تفصلش الاسم ده', noSplit]);
+  if (view.startsWith('ar:')) it.push(['✏️ تعديل اسم وصورة الفنان', () => openEditArtistModal(view.slice(3))], ['🚫 ما تفصلش الاسم ده', noSplit]);
 
   it.push(['💾 نسخة احتياطية (تصدير)', backupData]);
   it.push(['📂 استعادة نسخة احتياطية', () => $('#restoreInput').click()]);
@@ -1651,6 +1741,26 @@ audio.addEventListener('play', () => {
 });
 
 /* ════════ صفحة الإعدادات ════════ */
+var slT = null, slEnd = false, slCur = 0;
+function slSet(m) {
+  clearTimeout(slT); slT = null; slEnd = m === 'end'; slCur = m || 0;
+  if (m > 0) slT = setTimeout(() => { audio.pause(); slSet(0); }, m * 60000);
+  const b = document.getElementById('slp');
+  if (b) { b.textContent = !m ? 'مؤقت النوم: إيقاف' : m === 'end' ? 'مؤقت النوم: نهاية الأغنية' : 'مؤقت النوم: ' + m + ' د'; b.classList.toggle('on', !!m); }
+  if (view === 'settings') renderSettingsPage();
+}
+async function add(paths) {
+  paths = paths.filter((p) => !tracks.some((t) => t.path === p));
+  for (let k = 0; k < paths.length; k += 20) { tracks.push(...await Promise.all(paths.slice(k, k + 20).map(api.meta))); render(); }
+  save();
+  if (cur < 0 && tracks.length) setTrack(0, true);
+}
+function setSpeed(v) {
+  audio.defaultPlaybackRate = audio.playbackRate = v;
+  const b = document.getElementById('spd');
+  if (b) { b.textContent = 'السرعة ' + v + '×'; b.classList.toggle('on', v !== 1); }
+  if (view === 'settings') renderSettingsPage();
+}
 function renderSettingsPage() {
   const L = $('#list');
   const curSkin = localStorage.ng_skin || 'nagham';
@@ -1694,7 +1804,7 @@ function renderSettingsPage() {
           <div style="font-size:13px; color:var(--mute); margin-bottom:8px;">سرعة التشغيل</div>
           <div class="chip-grid">
             ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3].map(v => 
-              `<button class="chip ${currentSpeed === v ? 'pri' : ''}" data-speed="${v}">${v}×</button>`
+              `<button class="chip ${audio.playbackRate === v ? 'pri' : ''}" data-speed="${v}">${v}×</button>`
             ).join('')}
           </div>
         </div>
