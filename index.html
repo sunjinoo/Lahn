@@ -426,6 +426,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   <div class="lyrics-container" id="lyricsScroll"></div>
   <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
     <button class="chip" id="lyricModeBtn">طريقة العرض: متزامن</button>
+<button class="chip" id="lyricShareBtn" style="display:flex;align-items:center;gap:6px;background:var(--tint);color:#fff;">📸 مشاركة كصورة</button>
     <button class="chip pri" id="lyricEditBtn" style="display:flex;align-items:center;gap:6px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       تعديل الكلمات
@@ -470,21 +471,23 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
       <label class="field-lbl" style="margin-top:10px">سنة الإصدار</label>
       <input type="text" id="editYearInput" dir="auto">
       <label class="field-lbl" style="margin-top:10px">صورة الغلاف</label>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <div id="editCoverPreview" style="width:60px; height:60px; border-radius:8px; background:var(--line); background-size:cover; background-position:center; flex:none;"></div>
-        <input type="file" id="editCoverFile" accept="image/*" style="flex:1; font-size:12px;">
-        <button class="chip" id="editCoverClear">مسح</button>
-      </div>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+  <div id="editCoverPreview" style="width:60px; height:60px; border-radius:8px; background:var(--line); background-size:cover; background-position:center; flex:none;"></div>
+  <input type="file" id="editCoverFile" accept="image/*" style="flex:1; min-width:120px; font-size:12px;">
+  <button class="chip" id="editCoverFetch" style="background:var(--tint); color:#fff;">🌐 جلب</button>
+  <button class="chip" id="editCoverClear">مسح</button>
+</div>
     </div>
     <div id="editArtistFields" hidden>
       <label class="field-lbl">الاسم الجديد للفنان (سيتم تحديثه في جميع أغانيه)</label>
       <input type="text" id="editSingleArtistInput" dir="auto">
       <label class="field-lbl" style="margin-top:10px">صورة الفنان</label>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <div id="editArtistCoverPreview" style="width:60px; height:60px; border-radius:50%; background:var(--line); background-size:cover; background-position:center; flex:none;"></div>
-        <input type="file" id="editArtistCoverFile" accept="image/*" style="flex:1; font-size:12px;">
-        <button class="chip" id="editArtistCoverClear">مسح</button>
-      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+  <div id="editArtistCoverPreview" style="width:60px; height:60px; border-radius:50%; background:var(--line); background-size:cover; background-position:center; flex:none;"></div>
+  <input type="file" id="editArtistCoverFile" accept="image/*" style="flex:1; min-width:120px; font-size:12px;">
+  <button class="chip" id="editArtistCoverFetch" style="background:var(--tint); color:#fff;">🌐 جلب</button>
+  <button class="chip" id="editArtistCoverClear">مسح</button>
+</div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
       <button class="chip" id="editMetaCancel">إلغاء</button>
@@ -844,7 +847,12 @@ const svgIcons = {
   palette: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,
   music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
   folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
-  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
+  arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+  sort: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>`,
+  shuffle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>`,
+  scissors: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`,
+  camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`
 };
 
 function applyModeClass() {
@@ -969,11 +977,17 @@ const keysOfView = () => {
   else if (view.startsWith('ar:')) ks = (groups('artist').get(view.slice(3)) || []);
   else if (view.startsWith('al:')) ks = (groups('album').get(view.slice(3)) || []);
   else if (view === 'hist') ks = histKeys();
-  else if (view === 'lib') ks = Object.keys(DB.lib).sort((a, b) => (DB.lib[a].title || '').localeCompare(DB.lib[b].title || '', undefined, { numeric: true }));
+  else if (view === 'lib') ks = Object.keys(DB.lib);
   else if (view === 'fav') ks = [...DB.favs];
   else ks = (DB.lists[view.slice(3)] || []);
   
-  return sortKeys(ks);
+  if (sortBy === 'title') return ks.sort((a, b) => (DB.lib[a]?.title || '').localeCompare(DB.lib[b]?.title || ''));
+  if (sortBy === 'artist') return ks.sort((a, b) => (DB.lib[a]?.artist || '').localeCompare(DB.lib[b]?.artist || ''));
+  if (sortBy === 'date') return ks.sort((a, b) => (DB.lib[b]?.added || 0) - (DB.lib[a]?.added || 0));
+  if (sortBy === 'duration') return ks.sort((a, b) => (DB.lib[b]?.duration || 0) - (DB.lib[a]?.duration || 0));
+  
+  // الترتيب الافتراضي
+  return ks.sort((a, b) => (DB.lib[a]?.title || '').localeCompare(DB.lib[b]?.title || '', undefined, { numeric: true }));
 };
 
 const listName = () => view === 'fav' ? 'المفضلة' : view.slice(3);
@@ -1308,6 +1322,7 @@ $('#list').addEventListener('click', (e) => {
     [svgIcons.plus + ' إضافة لقايمة…', (x, y) => addMenu(k, x, y)],
     [svgIcons.edit + ' تعديل المعلومات', () => openEditSongModal(k)],
     [svgIcons.lyrics + ' تعديل الكلمات (ليركس)', () => openLyricModal(k)],
+    [svgIcons.scissors + ' قص نغمة رنين', () => openTrimModal(k)],
     [isFav(k) ? svgIcons.heart + ' شيل من المفضلة' : svgIcons.heartFill + ' أضف للمفضلة', () => toggleFav(k)],
     [svgIcons.share + ' مشاركة الأغنية', () => shareTrack(k)],
     [svgIcons.x + ' إزالة من هنا', () => removeKey(k)],
@@ -1366,12 +1381,23 @@ const EQP = {
   speech: ['تلاوة / خطابة', [-3, -2, 0, 2, 4, 4, 3, 1, -1, -2]], rock: ['روك', [5, 3, 1, -1, -2, 1, 3, 4, 5, 5]],
   classical: ['كلاسيك', [4, 3, 2, 1, -1, -1, 0, 2, 3, 4]],
 };
+Object.assign(EQP, JSON.parse(localStorage.ng_eq_custom || '{}'));
 const EQ = Object.assign({ on: false, preset: 'flat', gains: [...EQP.flat[1]] }, JSON.parse(localStorage.ng_eq || '{}'));
 let eqNodes = [];
+let compressorNode = null;
 function ensureGraph() {
   if (ac) return;
   ac = new (window.AudioContext || window.webkitAudioContext)();
   const s = ac.createMediaElementSource(audio);
+  
+  // إعداد الـ Compressor
+  compressorNode = ac.createDynamicsCompressor();
+  compressorNode.threshold.value = -24;
+  compressorNode.knee.value = 30;
+  compressorNode.ratio.value = 12;
+  compressorNode.attack.value = 0.003;
+  compressorNode.release.value = 0.25;
+
   eqNodes = EQB.map((f, i) => { const n = ac.createBiquadFilter(); n.type = i === 0 ? 'lowshelf' : i === EQB.length - 1 ? 'highshelf' : 'peaking'; n.frequency.value = f; n.Q.value = 1.1; n.gain.value = EQ.on ? EQ.gains[i] : 0; return n; });
   an = ac.createAnalyser(); an.fftSize = 128; an.smoothingTimeConstant = .82; buf = new Uint8Array(an.frequencyBinCount);
   
@@ -1386,7 +1412,12 @@ function ensureGraph() {
     pannerOsc.start();
   } catch (e) { panner = null; }
   
-  let prev = s; eqNodes.forEach((n) => { prev.connect(n); prev = n; });
+  let prev = s;
+  
+  // تمرير الصوت على الـ Compressor لو مفعل
+  if (localStorage.ng_norm === '1') { prev.connect(compressorNode); prev = compressorNode; }
+  
+  eqNodes.forEach((n) => { prev.connect(n); prev = n; });
   if (panner) { prev.connect(panner); panner.connect(an); } else { prev.connect(an); }
   an.connect(ac.destination);
 }
@@ -1541,6 +1572,31 @@ const ROWS = [
  ['مسح كل البيانات', 'Clear all data', 'Effacer toutes les données', 'Borrar todos los datos'],
  ['إعادة ضبط التطبيق من جديد', 'Reset the app from scratch', 'Réinitialiser l’application', 'Restablecer la aplicación'],
  ['الوضع الكلاسيكي', 'Classic mode', 'Mode classique', 'Modo clásico'],
+['الشكل والمظهر', 'Appearance', 'Apparence', 'Apariencia'],
+['شكل الفيجوالايزر', 'Visualizer', 'Visualiseur', 'Visualizador'],
+['السرعة ومؤقت النوم', 'Speed & Sleep Timer', 'Vitesse & Minuterie', 'Velocidad y Temporizador'],
+['المعادل الصوتي', 'Equalizer', 'Égaliseur', 'Ecualizador'],
+['البيانات', 'Data', 'Données', 'Datos'],
+['حول التطبيق', 'About', 'À propos', 'Acerca de'],
+['سرعة التشغيل', 'Playback speed', 'Vitesse de lecture', 'Velocidad de reproducción'],
+['مؤقت النوم', 'Sleep timer', 'Minuteur', 'Temporizador'],
+['تصدير نسخة احتياطية', 'Export backup', 'Exporter la sauvegarde', 'Exportar copia'],
+['احفظ كل بياناتك في ملف JSON', 'Save all your data in JSON', 'Sauvegardez vos données en JSON', 'Guarda todos tus datos en JSON'],
+['استعادة نسخة احتياطية', 'Restore backup', 'Restaurer la sauvegarde', 'Restaurar copia'],
+['استرجع بياناتك من ملف سابق', 'Restore from a previous file', 'Restaurer à partir d\'un fichier', 'Restaurar desde un archivo'],
+['مسح كل البيانات', 'Clear all data', 'Effacer toutes les données', 'Borrar todos los datos'],
+['إعادة ضبط التطبيق من جديد', 'Reset the app from scratch', 'Réinitialiser l\'application', 'Restablecer la aplicación'],
+['الإصدار', 'Version', 'Version', 'Versión'],
+['عدد الأغاني', 'Number of tracks', 'Nombre de titres', 'Número de pistas'],
+['عدد القوائم', 'Number of playlists', 'Nombre de playlists', 'Número de listas'],
+['عدد المفضلة', 'Number of favorites', 'Nombre de favoris', 'Número de favoritos'],
+['عدد الكلمات المحفوظة', 'Saved lyrics', 'Paroles enregistrées', 'Letras guardadas'],
+['انتظر نهاية المقطع الحالي', 'Wait for current track', 'Attendre la fin de la piste', 'Esperar al final de la pista'],
+['مخصص', 'Custom', 'Perso', 'Personalizado'],
+['مفعّل ✓', 'On ✓', 'Activé ✓', 'Activado ✓'],
+['متوقف', 'Off', 'Désactivé', 'Desactivado'],
+['نهاية الأغنية', 'End of song', 'Fin de la chanson', 'Fin de la canción'],
+['دقيقة', 'min', 'min', 'min'],
  ['طريقة العرض: متزامن', 'View mode: Synced', 'Affichage : Synchro', 'Vista: Sincronizada'],
  ['طريقة العرض: عادي', 'View mode: Plain', 'Affichage : Normal', 'Vista: Normal'],
  ['انتظر نهاية المقطع الحالي', 'Wait for current track', 'Attendre la fin de la piste', 'Esperar al final de la pista'],
@@ -2145,7 +2201,7 @@ function renderSettingsPage() {
       </section>
 
       <section class="settings-section">
-        <h3>${svgIcons.globe} اللغة</h3>
+     <h3>${svgIcons.globe} اللغة</h3>
         <div class="chip-grid">
           ${Object.entries(LANGS).map(([code, info]) => {
             const cur = LG === code;
@@ -2155,7 +2211,7 @@ function renderSettingsPage() {
       </section>
       
       <section class="settings-section">
-        <h3>${svgIcons.sliders} شكل الفيجوالايزر</h3>
+       <h3>${svgIcons.music} شكل الفيجوالايزر</h3>
         <div class="chip-grid">
           <button class="chip ${vizStyle === 'bars' ? 'pri' : ''}" data-viz="bars">أعمدة</button>
           <button class="chip ${vizStyle === 'circle' ? 'pri' : ''}" data-viz="circle">دايرة</button>
@@ -2164,7 +2220,7 @@ function renderSettingsPage() {
       </section>
       
       <section class="settings-section">
-        <h3>${svgIcons.zap} السرعة ومؤقت النوم</h3>
+  <h3>${svgIcons.zap} السرعة ومؤقت النوم</h3>
         <div style="margin-bottom: 20px;">
           <div style="font-size:13px; color:var(--mute); margin-bottom:8px;">سرعة التشغيل</div>
           <div class="chip-grid">
@@ -2184,7 +2240,15 @@ function renderSettingsPage() {
           </div>
         </div>
       </section>
-      
+      <section class="settings-section">
+  <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
+  <div class="chip-grid">
+    <button class="chip ${localStorage.ng_norm === '1' ? 'pri' : ''}" id="normBtn">
+      ${localStorage.ng_norm === '1' ? 'مفعّل ✓' : 'متوقف'}
+    </button>
+  </div>
+  <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيخلي كل الأغاني بنفس مستوى الصوت (مفيد جداً لو الأغاني بتحملها من النت).</small>
+</section>
       <section class="settings-section">
         <h3>${svgIcons.sliders} المعادل الصوتي</h3>
         <div class="eq-inline">
@@ -2194,6 +2258,8 @@ function renderSettingsPage() {
               <option value="custom">مخصص</option>
             </select>
             <button id="eqonInline" class="chip"></button>
+<input type="text" id="eqCustomName" placeholder="اسم الإعداد..." style="width:100px; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:12px;">
+<button class="chip" id="eqSaveCustom" style="padding:6px 10px; background:var(--tint); color:#fff;">حفظ</button>
           </div>
           <div class="eqs">
             ${EQB.map((f, i) => `
@@ -2272,6 +2338,20 @@ function renderSettingsPage() {
   });
   
   const onBtn = document.getElementById('eqonInline');
+const saveBtn = document.getElementById('eqSaveCustom');
+if (saveBtn) {
+  saveBtn.onclick = () => {
+    const name = document.getElementById('eqCustomName').value.trim();
+    if (!name) return toast('اكتب اسم للإعداد الأول');
+    if (EQP[name]) return toast('الاسم ده موجود بالفعل');
+    EQP[name] = [name, [...EQ.gains]];
+    const customObj = {};
+    Object.keys(EQP).forEach(k => { if (!['flat','bass','treble','vocal','speech','rock','classical'].includes(k)) customObj[k] = EQP[k]; });
+    localStorage.ng_eq_custom = JSON.stringify(customObj);
+    toast('تم حفظ الإعداد: ' + name);
+    renderSettingsPage();
+  };
+}
   const preSel = document.getElementById('eqpreInline');
   const inputs = L.querySelectorAll('.eq-input-inline');
   
@@ -2313,6 +2393,14 @@ function renderSettingsPage() {
   if (clearBtn) clearBtn.onclick = () => {
     if (confirm('متأكد إنك عايز تمسح كل البيانات؟')) { localStorage.clear(); location.reload(); }
   };
+  const normBtn = document.getElementById('normBtn');
+  if (normBtn) {
+    normBtn.onclick = () => {
+      const isOn = localStorage.ng_norm === '1';
+      if (isOn) { delete localStorage.ng_norm; } else { localStorage.ng_norm = '1'; }
+      location.reload(); // بنعمل ريلود عشان نطبق التغيير
+    };
+  }
 }
 /* ---- ميزة الرجوع والتقدم (History API) ---- */
 let currentHistoryView = null;
@@ -2353,48 +2441,146 @@ $('#navForward').onclick = (e) => { e.preventDefault(); history.forward(); };
 $('#pipBtn').onclick = async () => {
   if (!('documentPictureInPicture' in window)) return toast('متصفحك لا يدعم هذه الميزة (تتطلب Chrome أو Edge حديث)');
   if (location.protocol === 'file:') return toast('هذه الميزة لا تعمل عند فتح الملف مباشرة. يرجى استخدام سيرفر محلي (localhost)');
+  
   try {
-    const pipWindow = await documentPictureInPicture.requestWindow({ width: 320, height: 120 });
+    const pipWindow = await documentPictureInPicture.requestWindow({ width: 340, height: 120 });
+    
+    // ستايل النافذة الجديد
     const style = pipWindow.document.createElement('style');
     style.textContent = `
-      body { margin: 0; display: flex; align-items: center; justify-content: center; background: #12101a; color: #f2eefc; font-family: sans-serif; height: 100vh; overflow: hidden; direction: rtl; }
-      .pip-container { display: flex; gap: 10px; align-items: center; width: 100%; padding: 12px; box-sizing: border-box; }
-      .pip-cover { width: 70px; height: 70px; border-radius: 12px; background-size: cover; background-position: center; background-color: #333; flex: none; }
-      .pip-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
-      .pip-title { font-weight: bold; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
-      .pip-artist { font-size: 13px; color: #9d97b5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .pip-btn { background: none; border: 0; color: white; cursor: pointer; font-size: 24px; padding: 5px; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { 
+        margin: 0; display: flex; align-items: center; justify-content: center; 
+        background: #12101a; color: #f2eefc; 
+        font-family: "Segoe UI", system-ui, sans-serif; 
+        height: 100vh; overflow: hidden; direction: rtl; 
+        user-select: none; position: relative;
+      }
+      /* الخلفية المموهة */
+      .pip-bg { 
+        position: absolute; inset: -20px; 
+        background-size: cover; background-position: center; 
+        filter: blur(25px) brightness(0.3); z-index: 0; 
+        transition: background-image 0.5s ease;
+      }
+      .pip-container {
+        position: relative; z-index: 1;
+        display: flex; gap: 14px; align-items: center;
+        width: 100%; height: 100%; padding: 12px 16px;
+      }
+      .pip-cover-wrap {
+        width: 76px; height: 76px; flex: none;
+        border-radius: 12px; overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        background: rgba(255,255,255,0.1);
+      }
+      .pip-cover { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .pip-content {
+        flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;
+      }
+      .pip-info { display: flex; flex-direction: column; gap: 2px; }
+      .pip-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+      .pip-artist { font-size: 12px; color: #a39bb8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      
+      /* شريط التقدم */
+      .pip-progress { width: 100%; height: 3px; background: rgba(255,255,255,0.15); border-radius: 3px; margin: 6px 0; overflow: hidden; }
+      .pip-progress-bar { height: 100%; width: 0%; background: #fff; border-radius: 3px; transition: width 0.2s linear; }
+      
+      /* أزرار التحكم */
+      .pip-controls { display: flex; align-items: center; gap: 12px; }
+      .pip-btn { 
+        background: none; border: 0; color: #a39bb8; cursor: pointer; 
+        font-size: 18px; display: grid; place-items: center; 
+        transition: color 0.2s, transform 0.1s;
+      }
+      .pip-btn:hover { color: #fff; }
+      .pip-btn:active { transform: scale(0.9); }
+      .pip-btn.main { 
+        width: 36px; height: 36px; border-radius: 50%; 
+        background: #fff; color: #12101a; font-size: 20px;
+      }
+      .pip-btn.main:hover { background: #e0e0e0; color: #12101a; transform: scale(1.05); }
     `;
     pipWindow.document.head.append(style);
+    
+    // هيكل النافذة
     pipWindow.document.body.innerHTML = `
+      <div class="pip-bg" id="pipBg"></div>
       <div class="pip-container">
-        <div class="pip-cover" id="pipCover"></div>
-        <div class="pip-info">
-          <div class="pip-title" id="pipTitle"></div>
-          <div class="pip-artist" id="pipArtist"></div>
+        <div class="pip-cover-wrap">
+          <img class="pip-cover" id="pipCover" alt="">
         </div>
-        <button class="pip-btn" id="pipToggle">⏸</button>
+        <div class="pip-content">
+          <div class="pip-info">
+            <div class="pip-title" id="pipTitle">مفيش حاجة شغالة</div>
+            <div class="pip-artist" id="pipArtist">فنان غير معروف</div>
+          </div>
+          <div class="pip-progress">
+            <div class="pip-progress-bar" id="pipProgress"></div>
+          </div>
+          <div class="pip-controls">
+            <button class="pip-btn" id="pipPrev" title="السابق">⏮</button>
+            <button class="pip-btn main" id="pipToggle" title="تشغيل/إيقاف">▶</button>
+            <button class="pip-btn" id="pipNext" title="التالي">⏭</button>
+          </div>
+        </div>
       </div>
     `;
+
+    // تحديث البيانات جوه النافذة
     const updatePip = () => {
-      pipWindow.document.getElementById('pipCover').style.backgroundImage = `url(${DB.covers[curKey()] || $('#art').src || ''})`;
+      const coverSrc = DB.covers[curKey()] || $('#art').src || '';
+      
+      // تحديث الخلفية والغلاف
+      if (coverSrc) {
+        pipWindow.document.getElementById('pipBg').style.backgroundImage = `url(${coverSrc})`;
+        pipWindow.document.getElementById('pipCover').src = coverSrc;
+        pipWindow.document.getElementById('pipCover').style.display = 'block';
+      } else {
+        pipWindow.document.getElementById('pipBg').style.backgroundImage = 'none';
+        pipWindow.document.getElementById('pipCover').style.display = 'none';
+      }
+      
+      // تحديث النصوص
       pipWindow.document.getElementById('pipTitle').textContent = $('#title').textContent;
       pipWindow.document.getElementById('pipArtist').textContent = $('#artist').textContent;
-      pipWindow.document.getElementById('pipToggle').textContent = audio.paused ? '▶' : '⏸';
+      
+      // تحديث زر التشغيل
+      const btn = pipWindow.document.getElementById('pipToggle');
+      btn.textContent = audio.paused ? '▶' : '⏸';
+      
+      // تحديث شريط التقدم
+      if (audio.duration) {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        pipWindow.document.getElementById('pipProgress').style.width = pct + '%';
+      }
     };
+
+    // تشغيل التحديث أول مرة
     updatePip();
-    const pipInterval = setInterval(() => { if (pipWindow.closed) { clearInterval(pipInterval); return; } updatePip(); }, 500);
+    
+    // تحديث مستمر كل نص ثانية
+    const pipInterval = setInterval(() => { 
+      if (pipWindow.closed) { clearInterval(pipInterval); return; } 
+      updatePip(); 
+    }, 500);
+
+    // ربط الأزرار
     pipWindow.document.getElementById('pipToggle').onclick = () => toggle();
-  } catch (e) { toast('فشل فتح النافذة: ' + e.message); }
-};
-const originalRender = render;
+    pipWindow.document.getElementById('pipPrev').onclick = () => $('#prev').click();
+    pipWindow.document.getElementById('pipNext').onclick = () => $('#next').click();
+    
+  } catch (e) { 
+    toast('فشل فتح النافذة: ' + e.message); 
+  }
+};const originalRender = render;
 render = function() {
   originalRender.apply(this, arguments);
   updateHistoryState();
 };
 window.__v8 = true; render();
 setLang(LG);
-$('#8dBtn').onclick = () => {
+document.getElementById('8dBtn').onclick = () => {
   if (cur < 0) return toast('شغّل أغنية الأول عشان تقدر تستخدم الصوت 8D');
   try {
     if (!ac) ensureGraph();
@@ -2402,7 +2588,7 @@ $('#8dBtn').onclick = () => {
   } catch (e) { return toast('المعالج غير متاح في متصفحك'); }
   if (!panner) return toast('هذه الميزة غير مدعومة في متصفحك');
   is8D = !is8D;
-  $('#8dBtn').classList.toggle('on', is8D);
+  document.getElementById('8dBtn').classList.toggle('on', is8D);
   if (is8D) {
     pannerGain.gain.value = 0.8; 
     toast('تم تفعيل صوت 8D');
@@ -2412,16 +2598,177 @@ $('#8dBtn').onclick = () => {
     toast('تم إيقاف صوت 8D');
   }
 };
-document.getElementById('sortBtn').onclick = (e) => {
-  const p = e.currentTarget.getBoundingClientRect();
-  showMenu(p.left, p.bottom + 4, [
-    [(sortBy === 'default' ? '● ' : '○ ') + 'افتراضي', () => { sortBy = 'default'; localStorage.ng_sort = sortBy; render(); }],
-    [(sortBy === 'title' ? '● ' : '○ ') + 'الاسم', () => { sortBy = 'title'; localStorage.ng_sort = sortBy; render(); }],
-    [(sortBy === 'artist' ? '● ' : '○ ') + 'الفنان', () => { sortBy = 'artist'; localStorage.ng_sort = sortBy; render(); }],
-    [(sortBy === 'date' ? '● ' : '○ ') + 'تاريخ الإضافة', () => { sortBy = 'date'; localStorage.ng_sort = sortBy; render(); }],
-    [(sortBy === 'duration' ? '● ' : '○ ') + 'المدة', () => { sortBy = 'duration'; localStorage.ng_sort = sortBy; render(); }]
-  ]);
+// تأمين زرار الترتيب
+const sortBtnEl = document.getElementById('sortBtn');
+if (sortBtnEl) {
+  sortBtnEl.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // بيمنع المتصفح إنه يلغي القائمة
+    const p = e.currentTarget.getBoundingClientRect();
+    showMenu(p.left, p.bottom + 4, [
+      [(sortBy === 'default' ? '● ' : '○ ') + 'افتراضي', () => { sortBy = 'default'; localStorage.ng_sort = sortBy; render(); }],
+      [(sortBy === 'title' ? '● ' : '○ ') + 'الاسم', () => { sortBy = 'title'; localStorage.ng_sort = sortBy; render(); }],
+      [(sortBy === 'artist' ? '● ' : '○ ') + 'الفنان', () => { sortBy = 'artist'; localStorage.ng_sort = sortBy; render(); }],
+      [(sortBy === 'date' ? '● ' : '○ ') + 'تاريخ الإضافة', () => { sortBy = 'date'; localStorage.ng_sort = sortBy; render(); }],
+      [(sortBy === 'duration' ? '● ' : '○ ') + 'المدة', () => { sortBy = 'duration'; localStorage.ng_sort = sortBy; render(); }]
+    ]);
+  });
+}
+// جلب صورة الغلاف تلقائياً
+document.getElementById('editCoverFetch').onclick = async () => {
+  const title = document.getElementById('editTitleInput').value.trim();
+  const album = document.getElementById('editAlbumInput').value.trim();
+  const artist = document.getElementById('editArtistInput').value.trim();
+  
+  if (!title && !album) return toast('اكتب اسم الأغنية أو الألبوم الأول');
+  
+  const btn = document.getElementById('editCoverFetch');
+  const oldTxt = btn.textContent;
+  btn.textContent = '⏳...';
+  btn.disabled = true;
+  
+  // بنجرب نجيب صورة الألبوم الأول، لو مفيش بنجيب صورة الفنان
+  let url = await fetchAlbumCover(album || title);
+  if (!url && artist) url = await fetchArtistCover(artist);
+  
+  btn.textContent = oldTxt;
+  btn.disabled = false;
+  
+  if (url) {
+    editCoverData = url;
+    document.getElementById('editCoverPreview').style.backgroundImage = `url(${url})`;
+    toast('تم جلب الصورة بنجاح');
+  } else {
+    toast('مفيش صورة متاحة للاسم ده');
+  }
 };
+
+// جلب صورة الفنان تلقائياً
+document.getElementById('editArtistCoverFetch').onclick = async () => {
+  const artistName = document.getElementById('editSingleArtistInput').value.trim();
+  if (!artistName) return toast('اكتب اسم الفنان الأول');
+  
+  const btn = document.getElementById('editArtistCoverFetch');
+  const oldTxt = btn.textContent;
+  btn.textContent = '⏳...';
+  btn.disabled = true;
+  
+  const url = await fetchArtistCover(artistName);
+  
+  btn.textContent = oldTxt;
+  btn.disabled = false;
+  
+  if (url) {
+    editArtistCoverData = url;
+    document.getElementById('editArtistCoverPreview').style.backgroundImage = `url(${url})`;
+    toast('تم جلب صورة الفنان');
+  } else {
+    toast('مفيش صورة متاحة للفنان ده');
+  }
+};
+document.getElementById('lyricShareBtn').onclick = async () => {
+  const k = curKey(); if (!k) return;
+  const t = DB.lib[k] || tracks[cur] || {};
+  const coverUrl = DB.covers[k] || $('#art').src;
+  
+  if (!coverUrl) return toast('مفيش صورة غلاف عشان نعمل الصورة');
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1080; canvas.height = 1080;
+
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    // 1. الخلفية المموهة
+    ctx.filter = 'blur(40px) brightness(0.4)';
+    ctx.drawImage(img, -100, -100, canvas.width + 200, canvas.height + 200);
+    ctx.filter = 'none';
+
+    // 2. الغلاف
+    const pad = 80;
+    const coverSize = 400;
+    const coverX = (canvas.width - coverSize) / 2;
+    const coverY = 120;
+    
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 30;
+    ctx.beginPath();
+    ctx.roundRect(coverX, coverY, coverSize, coverSize, 24);
+    ctx.clip();
+    ctx.drawImage(img, coverX, coverY, coverSize, coverSize);
+    ctx.restore();
+
+    // 3. النصوص (الاسم والفنان)
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.direction = 'rtl';
+    ctx.font = 'bold 50px "Segoe UI", sans-serif';
+    ctx.fillText(t.title || 'أغنية بدون اسم', canvas.width / 2, coverY + coverSize + 80);
+    
+    ctx.fillStyle = '#ccc';
+    ctx.font = '36px "Segoe UI", sans-serif';
+    ctx.fillText(t.artist || 'فنان غير معروف', canvas.width / 2, coverY + coverSize + 140);
+
+    // 4. الكلمات
+    const raw = DB.lyrics[k] || '';
+    const parsed = parseLyrics(raw);
+    const lines = parsed.lines.slice(0, 4).map(l => l.text); // أول 4 سطور
+    
+    if (lines.length) {
+      ctx.fillStyle = '#fff';
+      ctx.font = 'italic 34px "Segoe UI", sans-serif';
+      ctx.direction = 'rtl';
+      lines.forEach((line, i) => {
+        ctx.fillText(line, canvas.width / 2, coverY + coverSize + 240 + (i * 60));
+      });
+    }
+
+    // 5. اللوجو والعلامة المائية
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '24px "Segoe UI", sans-serif';
+    ctx.fillText('لحن - Lahn App', canvas.width / 2, canvas.height - 50);
+
+    // تنزيل الصورة
+    const a = document.createElement('a');
+    a.download = `${t.title || 'lyrics'}.jpg`;
+    a.href = canvas.toDataURL('image/jpeg', 0.9);
+    a.click();
+    toast('تم تنزيل الصورة!');
+  };
+  img.src = coverUrl;
+};
+let touchStartX = 0, touchStartY = 0;
+const swipeArea = document.getElementById('npv'); // منطقة شاشة التشغيل الكبيرة
+
+swipeArea.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+swipeArea.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].screenX;
+  const touchEndY = e.changedTouches[0].screenY;
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  // لو السحب أفقي (يمين أو شمال)
+  if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+    if (deltaX > 0) {
+      // سحب لليمين (الأغنية السابقة)
+      $('#prev').click();
+    } else {
+      // سحب لشمال (الأغنية التالية)
+      $('#next').click();
+    }
+  }
+  
+  // لو السحب عمودي لتحت (لقفل الشاشة)
+  if (deltaY > 80 && Math.abs(deltaY) > Math.abs(deltaX)) {
+    $('#npv').hidden = true;
+  }
+}, { passive: true });
 </script>
 <script>
 if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
@@ -2434,6 +2781,36 @@ if ('serviceWorker' in navigator) {
     });
   }).catch(() => {});
 }
+window.addEventListener('keydown', (e) => {
+  if (e.key === '?' && !e.target.matches('input,textarea')) {
+    e.preventDefault();
+    document.getElementById('shortcutsModal').hidden = false;
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('shortcutsModal').hidden = true;
+  }
+});
+document.getElementById('closeShortcuts').onclick = () => {
+  document.getElementById('shortcutsModal').hidden = true;
+};
 </script>
+<div id="shortcutsModal" class="modal-overlay" hidden>
+  <div class="modal-card" style="text-align:center;">
+    <div class="eqh" style="justify-content:center;"><b>اختصارات الكيبورد ⌨️</b></div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:start; font-size:14px; margin-top:15px; line-height:2;">
+      <div><b style="color:var(--tint)">Space</b> : تشغيل / إيقاف</div>
+      <div><b style="color:var(--tint)">N</b> : الأغنية التالية</div>
+      <div><b style="color:var(--tint)">P</b> : الأغنية السابقة</div>
+      <div><b style="color:var(--tint)">J</b> : رجوع 15 ثانية</div>
+      <div><b style="color:var(--tint)">L</b> : تقدم 15 ثانية</div>
+      <div><b style="color:var(--tint)">M</b> : كتم الصوت</div>
+      <div><b style="color:var(--tint)">F</b> : إضافة للمفضلة</div>
+      <div><b style="color:var(--tint)">S</b> : عشوائي (تشغيل/إيقاف)</div>
+      <div><b style="color:var(--tint)">⬆ / ⬇</b> : التحكم في الصوت</div>
+      <div><b style="color:var(--tint)">/</b> : البحث</div>
+    </div>
+    <button class="chip pri" id="closeShortcuts" style="margin:20px auto 0;">تمام</button>
+  </div>
+</div>
 </body>
 </html>
