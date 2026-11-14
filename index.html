@@ -290,13 +290,13 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 <div class="app">
 <nav class="side panel">
   <div class="brand"><img src="icon-192.png" alt=""><span>لحن</span></div>
-  <button class="nv" data-v="queue">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-    <span>قايمة التشغيل</span>
-  </button>
   <button class="nv" data-v="home">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>الرئيسية</span>
+  </button>
+  <button class="nv" data-v="queue">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+    <span>قايمة التشغيل</span>
   </button>
   <button class="nv" data-v="lib">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
@@ -548,7 +548,9 @@ const dur = (url) => new Promise((res) => {
   a.src = url;
 });
 
-const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
+const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, albumCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
+if (!DB.artistCovers) DB.artistCovers = {};
+if (!DB.albumCovers) DB.albumCovers = {};
 if (!DB.lyrics) DB.lyrics = {};
 if (!DB.covers) DB.covers = {};
 if (!DB.artistCovers) DB.artistCovers = {};
@@ -718,7 +720,7 @@ setInterval(syncMediaState, 1000);
 /* ---- v2 additions ---- */
 const MOBILE = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
-let ac, an, buf, raf = 0, panner;
+let ac, an, buf, raf = 0, panner, is8D = false, pannerOsc = null, pannerGain = null;
 function draw() {
   raf = requestAnimationFrame(draw);
   const c = $('#viz'), x = c.getContext('2d'), k = devicePixelRatio || 1;
@@ -887,8 +889,16 @@ document.addEventListener('click', (e) => { if (!e.target.closest('#menu')) hide
 const isFav = (k) => DB.favs.includes(k);
 const curKey = () => (tracks[cur] || {}).path;
 const toggleFav = (k) => { if (!k) return; const i = DB.favs.indexOf(k); i < 0 ? DB.favs.push(k) : DB.favs.splice(i, 1); persist(); render(); };
-const remember = (t) => { if (!DB.lib[t.path]) { DB.lib[t.path] = { title: t.title, artist: t.artist, album: t.album, duration: t.duration }; return true; } };
-const keysOfView = () => view === 'queue' ? tracks.map((t) => t.path) : view.startsWith('ar:') ? (groups('artist').get(view.slice(3)) || []) : view.startsWith('al:') ? (groups('album').get(view.slice(3)) || []) : view === 'hist' ? histKeys() : view === 'lib' ? Object.keys(DB.lib).sort((a, b) => (DB.lib[a].title || '').localeCompare(DB.lib[b].title || '', undefined, { numeric: true })) : view === 'fav' ? DB.favs : (DB.lists[view.slice(3)] || []);
+const remember = (t) => { if (!DB.lib[t.path]) { DB.lib[t.path] = { title: t.title, artist: t.artist, album: t.album, duration: t.duration, added: Date.now() }; return true; } };
+const keysOfView = () => 
+  view === 'queue' ? tracks.map((t) => t.path) : 
+  view === 'recent' ? Object.keys(DB.lib).sort((a, b) => (DB.lib[b].added || 0) - (DB.lib[a].added || 0)) :
+  view === 'mostplayed' ? Object.keys(DB.lib).filter(k => ST.t[k] && ST.t[k].p > 0).sort((a, b) => (ST.t[b].p || 0) - (ST.t[a].p || 0)) :
+  view.startsWith('ar:') ? (groups('artist').get(view.slice(3)) || []) : 
+  view.startsWith('al:') ? (groups('album').get(view.slice(3)) || []) : 
+  view === 'hist' ? histKeys() : 
+  view === 'lib' ? Object.keys(DB.lib).sort((a, b) => (DB.lib[a].title || '').localeCompare(DB.lib[b].title || '', undefined, { numeric: true })) : 
+  view === 'fav' ? DB.favs : (DB.lists[view.slice(3)] || []);
 const listName = () => view === 'fav' ? 'المفضلة' : view.slice(3);
 const EMPTY = ['اسحب الموسيقى هنا أو اضغط «ملفات»', 'لسه مفيش مفضلة. اضغط ♡ على أي أغنية.', 'القايمة فاضية. أضف أغاني من ⋯', 'مكتبتك فاضية. اضغط «مجلد» لربط فولدر الموسيقى.'];
 
@@ -1275,10 +1285,23 @@ function ensureGraph() {
   const s = ac.createMediaElementSource(audio);
   eqNodes = EQB.map((f, i) => { const n = ac.createBiquadFilter(); n.type = i === 0 ? 'lowshelf' : i === EQB.length - 1 ? 'highshelf' : 'peaking'; n.frequency.value = f; n.Q.value = 1.1; n.gain.value = EQ.on ? EQ.gains[i] : 0; return n; });
   an = ac.createAnalyser(); an.fftSize = 128; an.smoothingTimeConstant = .82; buf = new Uint8Array(an.frequencyBinCount);
-  panner = ac.createStereoPanner();
-  let prev = s; eqNodes.forEach((n) => { prev.connect(n); prev = n; }); prev.connect(panner); panner.connect(an); an.connect(ac.destination);
-}
-const applyEQ = () => { eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; }); try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {} };
+  
+  try { 
+    panner = ac.createStereoPanner(); 
+    // إعداد مذبذب الصوت (مسؤول عن لف الصوت يمين وشمال)
+    pannerOsc = ac.createOscillator();
+    pannerOsc.frequency.value = 0.15; // سرعة دوران الصوت
+    pannerGain = ac.createGain();
+    pannerGain.gain.value = 0; // متوقف افتراضياً
+    pannerOsc.connect(pannerGain);
+    pannerGain.connect(panner.pan);
+    pannerOsc.start();
+  } catch (e) { panner = null; }
+  
+  let prev = s; eqNodes.forEach((n) => { prev.connect(n); prev = n; });
+  if (panner) { prev.connect(panner); panner.connect(an); } else { prev.connect(an); }
+  an.connect(ac.destination);
+}const applyEQ = () => { eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; }); try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {} };
 const eqEnable = () => { EQ.on = true; ensureGraph(); ac.resume(); };
 audio.addEventListener('play', () => { if (EQ.on) { try { ensureGraph(); ac.resume(); } catch (_) {} } });
 
@@ -1434,6 +1457,22 @@ async function scanDir(dh, quiet) {
     }
   } catch (e) { console.warn(e); }
   window.__scan = false; scanning = false; persist(); render(); restoreQueue(); fillDurations();
+}
+async function fetchArtistCover(name) {
+  try {
+    const res = await fetch(`https://api.deezer.com/search/artist?q=${encodeURIComponent(name)}&limit=1`);
+    const data = await res.json();
+    if (data.data && data.data.length > 0) return data.data[0].picture_big || data.data[0].picture_medium;
+  } catch (e) {}
+  return null;
+}
+async function fetchAlbumCover(name) {
+  try {
+    const res = await fetch(`https://api.deezer.com/search/album?q=${encodeURIComponent(name)}&limit=1`);
+    const data = await res.json();
+    if (data.data && data.data.length > 0) return data.data[0].cover_big || data.data[0].cover_medium;
+  } catch (e) {}
+  return null;
 }
 async function importKeys(ks) {
   for (const k of ks) {
@@ -1709,17 +1748,25 @@ async function fillCover(el) {
   if (el.dataset.cvk) u = await thumbOf(el.dataset.cvk);
   else if (el.dataset.cv) { 
     const g = el.dataset.cv;
-    if (g.startsWith('ar:') && DB.artistCovers && DB.artistCovers[g.slice(3)]) {
-      u = DB.artistCovers[g.slice(3)];
+    const isAr = g.startsWith('ar:');
+    const name = g.slice(3);
+    const cache = isAr ? DB.artistCovers : DB.albumCovers;
+    
+    if (cache[name]) {
+      u = cache[name];
     } else {
-      const ks = (g.startsWith('ar:') ? groups('artist') : groups('album')).get(g.slice(3)) || []; 
+      const ks = (isAr ? groups('artist') : groups('album')).get(name) || []; 
       for (const k of ks.slice(0, 12)) { u = await thumbOf(k); if (u) break; } 
+      
+      if (!u) {
+        u = isAr ? await fetchArtistCover(name) : await fetchAlbumCover(name);
+        if (u) { cache[name] = u; persist(); }
+      }
     }
   }
   else if (el.dataset.k) u = await thumbOf(el.dataset.k);
   if (u && el.isConnected) { el.style.backgroundImage = `url(${u})`; el.style.backgroundSize = 'cover'; el.textContent = ''; }
-}
-const IO = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { IO.unobserve(en.target); fillCover(en.target); } }), { rootMargin: '200px' });
+}const IO = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { IO.unobserve(en.target); fillCover(en.target); } }), { rootMargin: '200px' });
 function decorate() {
   document.querySelectorAll('#list .row[data-k]').forEach((r) => { if (r.querySelector('.th')) return; r.insertAdjacentHTML('afterbegin', `<div class="th" data-k="${esc(r.dataset.k)}">♪</div>`); IO.observe(r.firstChild); });
   document.querySelectorAll('#list .av[data-cv],#list .av[data-cvk]').forEach((el) => IO.observe(el));
@@ -1814,9 +1861,7 @@ $('#vm').onclick = (e) => {
   
   if (view.startsWith('ar:')) it.push([svgIcons.edit + ' تعديل اسم وصورة الفنان', () => openEditArtistModal(view.slice(3))], [svgIcons.x + ' ما تفصلش الاسم ده', noSplit]);
 
-  it.push([svgIcons.upload + ' نسخة احتياطية (تصدير)', backupData]);
-  it.push([svgIcons.download + ' استعادة نسخة احتياطية', () => $('#restoreInput').click()]);
-
+ 
   showMenu(p.left, p.bottom + 4, it);
 };
 
@@ -2088,6 +2133,43 @@ $('#navBack').onclick = (e) => { e.preventDefault(); history.back(); };
 $('#navForward').onclick = (e) => { e.preventDefault(); history.forward(); };
 
 // دمج التحديث مع دالة العرض الأساسية
+$('#pipBtn').onclick = async () => {
+  if (!('documentPictureInPicture' in window)) return toast('متصفحك لا يدعم هذه الميزة (تتطلب Chrome أو Edge حديث)');
+  if (location.protocol === 'file:') return toast('هذه الميزة لا تعمل عند فتح الملف مباشرة. يرجى استخدام سيرفر محلي (localhost)');
+  try {
+    const pipWindow = await documentPictureInPicture.requestWindow({ width: 320, height: 120 });
+    const style = pipWindow.document.createElement('style');
+    style.textContent = `
+      body { margin: 0; display: flex; align-items: center; justify-content: center; background: #12101a; color: #f2eefc; font-family: sans-serif; height: 100vh; overflow: hidden; direction: rtl; }
+      .pip-container { display: flex; gap: 10px; align-items: center; width: 100%; padding: 12px; box-sizing: border-box; }
+      .pip-cover { width: 70px; height: 70px; border-radius: 12px; background-size: cover; background-position: center; background-color: #333; flex: none; }
+      .pip-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+      .pip-title { font-weight: bold; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+      .pip-artist { font-size: 13px; color: #9d97b5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pip-btn { background: none; border: 0; color: white; cursor: pointer; font-size: 24px; padding: 5px; }
+    `;
+    pipWindow.document.head.append(style);
+    pipWindow.document.body.innerHTML = `
+      <div class="pip-container">
+        <div class="pip-cover" id="pipCover"></div>
+        <div class="pip-info">
+          <div class="pip-title" id="pipTitle"></div>
+          <div class="pip-artist" id="pipArtist"></div>
+        </div>
+        <button class="pip-btn" id="pipToggle">⏸</button>
+      </div>
+    `;
+    const updatePip = () => {
+      pipWindow.document.getElementById('pipCover').style.backgroundImage = `url(${DB.covers[curKey()] || $('#art').src || ''})`;
+      pipWindow.document.getElementById('pipTitle').textContent = $('#title').textContent;
+      pipWindow.document.getElementById('pipArtist').textContent = $('#artist').textContent;
+      pipWindow.document.getElementById('pipToggle').textContent = audio.paused ? '▶' : '⏸';
+    };
+    updatePip();
+    const pipInterval = setInterval(() => { if (pipWindow.closed) { clearInterval(pipInterval); return; } updatePip(); }, 500);
+    pipWindow.document.getElementById('pipToggle').onclick = () => toggle();
+  } catch (e) { toast('فشل فتح النافذة: ' + e.message); }
+};
 const originalRender = render;
 render = function() {
   originalRender.apply(this, arguments);
@@ -2095,6 +2177,24 @@ render = function() {
 };
 window.__v8 = true; render();
 setLang(LG);
+$('#8dBtn').onclick = () => {
+  if (cur < 0) return toast('شغّل أغنية الأول عشان تقدر تستخدم الصوت 8D');
+  try {
+    if (!ac) ensureGraph();
+    if (ac.state === 'suspended') ac.resume();
+  } catch (e) { return toast('المعالج غير متاح في متصفحك'); }
+  if (!panner) return toast('هذه الميزة غير مدعومة في متصفحك');
+  is8D = !is8D;
+  $('#8dBtn').classList.toggle('on', is8D);
+  if (is8D) {
+    pannerGain.gain.value = 0.8; 
+    toast('تم تفعيل صوت 8D');
+  } else {
+    pannerGain.gain.value = 0; 
+    panner.pan.value = 0;
+    toast('تم إيقاف صوت 8D');
+  }
+};
 </script>
 <script>
 if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
