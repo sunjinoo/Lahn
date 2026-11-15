@@ -2294,7 +2294,7 @@ function renderSettingsPage() {
         </div>
       </section>
       
-      <section class="settings-section">
+       <section class="settings-section">
         <h3>${svgIcons.info} حول التطبيق</h3>
         <div class="about-info">
           <div class="about-row"><span>الإصدار</span><b>2.0</b></div>
@@ -2304,6 +2304,11 @@ function renderSettingsPage() {
           <div class="about-row"><span>عدد الكلمات المحفوظة</span><b>${lyricCount}</b></div>
         </div>
       </section>
+      
+      <!-- سطر الحقوق المحفوظة -->
+      <div style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
+        © ${new Date().getFullYear()} Lahn App. All rights reserved.
+      </div>
     </div>
   `;
   
