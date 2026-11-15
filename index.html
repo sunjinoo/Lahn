@@ -285,6 +285,17 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 .nav-btn:hover { background: rgba(var(--tint-rgb), .2); border-color: var(--tint); color: var(--text); transform: scale(1.05); }
 .nav-btn:active { transform: scale(0.95); }
 .nav-btn svg { width: 20px; height: 20px; }
+/* ════════ نافذة القرآن ════════ */
+.quran-list{flex:1;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:4px;min-height:180px;max-height:45vh}
+.quran-item{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+.quran-item:hover{background:rgba(var(--w),.06)}
+.quran-item.on{background:rgba(var(--tint-rgb),.22)}
+.quran-preview{padding:12px 14px;background:rgba(var(--w),.04);border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:12px;min-height:20px}
+#quranModal .modal-card{width:min(900px,94vw);max-height:90vh;padding:20px}
+@media(max-width:860px){
+  #quranModal .modal-card>div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+  .quran-list{max-height:30vh}
+}
 </style>
 </head>
 <body>
@@ -364,6 +375,9 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
       </button>
     </div>
+<button class="chip" id="globeBtn" aria-label="بحث بالإنترنت" title="بحث بالإنترنت">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+</button>
     <button class="chip pri" id="addf">ملفات</button>
     <button class="chip" id="addd">مجلد</button>
     <button class="chip" id="sortBtn" aria-label="ترتيب" title="ترتيب">⇅</button>
@@ -590,13 +604,45 @@ async function dropFiles(dt) {
   return out;
 }
 const audio = new Audio();
+const remoteAudio = new Audio();
 let tracks = [], cur = -1, shuffle = false, repeat = 0;
+
+/* ════════ نظام تشغيل موحد: محلي + بعيد (القرآن) ════════ */
+let activeIsRemote = false;
+let _isProxied = false;
+
+function proxyToRemote() {
+  if (_isProxied) return;
+  _isProxied = true;
+  Object.defineProperty(audio, 'currentTime', { get: () => remoteAudio.currentTime, set: (v) => { remoteAudio.currentTime = v; }, configurable: true });
+  Object.defineProperty(audio, 'duration', { get: () => remoteAudio.duration, configurable: true });
+  Object.defineProperty(audio, 'paused', { get: () => remoteAudio.paused, configurable: true });
+  Object.defineProperty(audio, 'ended', { get: () => remoteAudio.ended, configurable: true });
+  audio.play = () => remoteAudio.play();
+  audio.pause = () => remoteAudio.pause();
+}
+function unproxyFromRemote() {
+  if (!_isProxied) return;
+  _isProxied = false;
+  delete audio.currentTime;
+  delete audio.duration;
+  delete audio.paused;
+  delete audio.ended;
+  delete audio.play;
+  delete audio.pause;
+}
+['play','pause','ended','loadedmetadata','timeupdate','durationchange','seeking','seeked','waiting','canplay','error','ratechange'].forEach((evt) => {
+  remoteAudio.addEventListener(evt, () => {
+    if (activeIsRemote) audio.dispatchEvent(new Event(evt));
+  });
+});
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (s) => { if (!isFinite(s) || s < 0) s = 0; return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
 const fill = (el) => el.style.setProperty('--p', (el.value / el.max * 100) + '%');
 const save = () => { try { localStorage.q = JSON.stringify(tracks.map((t) => t.path)); localStorage.i = cur; } catch (_) {} };
 
 audio.volume = +(localStorage.vol ?? 0.8);
+remoteAudio.volume = audio.volume;
 $('#vol').value = audio.volume * 100; fill($('#vol'));
 
 function setTint(rgb) { if (window.__fix) return;
@@ -624,9 +670,20 @@ function tintFrom(src) {
 async function setTrack(i, autoplay) {
   cur = i; const t = tracks[i];
   const m = DB.lib[t.path] || t;
-  audio.src = t.url || (t.url = URL.createObjectURL(files.get(t.path)));
-  if (autoplay) audio.play().catch(() => {});
-  $('#title').textContent = m.title || t.title; $('#artist').textContent = (m.artist || t.artist) || 'فنان غير معروف';
+  const isRemote = !!(t.isRemote || (m && m.isRemote));
+  if (activeIsRemote) remoteAudio.pause(); else audio.pause();
+  if (isRemote !== activeIsRemote) {
+    activeIsRemote = isRemote;
+    if (isRemote) proxyToRemote(); else unproxyFromRemote();
+  }
+  if (isRemote) {
+    remoteAudio.src = t.url;
+    remoteAudio.volume = audio.volume;
+    if (autoplay) remoteAudio.play().catch(() => {});
+  } else {
+    audio.src = t.url || (t.url = URL.createObjectURL(files.get(t.path)));
+    if (autoplay) audio.play().catch(() => {});
+  }  $('#title').textContent = m.title || t.title; $('#artist').textContent = (m.artist || t.artist) || 'فنان غير معروف';
   document.title = (m.title || t.title) + ' – لحن';
   render(); save();
   const row = $('.row.cur'); if (row) row.scrollIntoView({ block: 'nearest' });
@@ -655,11 +712,13 @@ function step(dir, auto) {
 
 const fadeOutAndPause = () => {
   clearInterval(window.fadeInterval);
-  let vol = audio.volume;
+  clearInterval(fadeInterval);
+  const a = activeIsRemote ? remoteAudio : audio;
+  let vol = a.volume;
   const targetVol = vol;
   const fo = setInterval(() => {
-    if (vol > 0.05) { vol -= 0.05; audio.volume = vol; }
-    else { clearInterval(fo); audio.pause(); audio.volume = targetVol; }
+    if (vol > 0.05) { vol -= 0.05; a.volume = vol; }
+    else { clearInterval(fo); a.pause(); a.volume = targetVol; }
   }, 30);
 };
 
@@ -689,7 +748,7 @@ audio.addEventListener('timeupdate', () => {
 let seeking = false;
 $('#seek').addEventListener('input', (e) => { seeking = true; fill(e.target); $('#tc').textContent = fmt(e.target.value / 1000 * audio.duration); });
 $('#seek').addEventListener('change', (e) => { if (audio.duration) audio.currentTime = e.target.value / 1000 * audio.duration; seeking = false; });
-$('#vol').addEventListener('input', (e) => { audio.volume = e.target.value / 100; localStorage.vol = audio.volume; fill(e.target); });
+$('#vol').addEventListener('input', (e) => { audio.volume = e.target.value / 100; remoteAudio.volume = audio.volume; localStorage.vol = audio.volume; fill(e.target); });
 
 $('#play').onclick = toggle; $('#next').onclick = () => step(1, false); $('#prev').onclick = () => {
   if (audio.currentTime > 3) audio.currentTime = 0; else step(-1, false);
@@ -942,7 +1001,19 @@ $('#advClear').onclick = () => {
   applyFilter();
 };
 
-const metaOf = (k) => { if (!metaCache.has(k)) { const m = DB.lib[k]; metaCache.set(k, m ? Promise.resolve({ path: k, url: '', title: m.title, artist: m.artist, album: m.album, duration: m.duration }) : api.meta(k)); } return metaCache.get(k); };
+const metaOf = (k) => {
+  if (!metaCache.has(k)) {
+    const m = DB.lib[k];
+    if (m && m.url) {
+      metaCache.set(k, Promise.resolve({ path: k, url: m.url, title: m.title, artist: m.artist, album: m.album, duration: m.duration || 0, isRemote: true }));
+    } else if (m) {
+      metaCache.set(k, Promise.resolve({ path: k, url: '', title: m.title, artist: m.artist, album: m.album, duration: m.duration }));
+    } else {
+      metaCache.set(k, api.meta(k));
+    }
+  }
+  return metaCache.get(k);
+};
 document.body.insertAdjacentHTML('beforeend', '<div id="menu" hidden></div><div id="toast"></div>');
 let tt; const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
 const hideMenu = () => { $('#menu').hidden = true; };
@@ -1005,7 +1076,7 @@ function render() {
   if (subEl) subEl.style.display = view === 'settings' ? 'none' : '';
 
   if (view !== 'settings') $('#list').innerHTML = keys.length ? keys.map((k) => {
-    const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k);
+    const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k) || !!(m && m.url);
     const album = m.album ? `<span class="album" dir="auto">${svgIcons.disc} ${esc(m.album)}</span>` : '';
     return `<div class="row${k === ck ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" draggable="true" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span>${album}</div><i>${m.duration ? fmt(m.duration) : ''}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? svgIcons.heartFill : svgIcons.heart}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`;
   }).join('') : `<div class="empty">${EMPTY[view === 'queue' ? 0 : view === 'fav' ? 1 : view === 'lib' ? 3 : 2]}</div>`;
@@ -1014,14 +1085,13 @@ function render() {
   if (view === 'settings') renderSettingsPage();
 }
 async function startQueue(keys, startKey) {
-  const ks = keys.filter((k) => files.has(k));
+  const ks = keys.filter((k) => files.has(k) || (DB.lib[k] && DB.lib[k].url));
   if (!ks.length) return toast('الملف مش متاح — أضفه تاني');
   tracks = await Promise.all(ks.map(metaOf));
   setTrack(Math.max(0, ks.indexOf(startKey)), true);
 }
 function playFrom(k) {
-  if (!files.has(k)) return toast('الملف مش متاح — أضفه تاني');
-  if (view === 'queue') { const i = tracks.findIndex((t) => t.path === k); if (i >= 0) setTrack(i, true); }
+  if (!files.has(k) && !(DB.lib[k] && DB.lib[k].url)) return toast('الملف مش متاح — أضفه تاني');  if (view === 'queue') { const i = tracks.findIndex((t) => t.path === k); if (i >= 0) setTrack(i, true); }
   else startQueue(keysOfView(), k);
 }
 function newList(k) {
@@ -1713,7 +1783,7 @@ async function fillDurations() {
 }
 async function restoreQueue() {
   if (restored) return;
-  const ks = JSON.parse(localStorage.q || '[]').filter((k) => files.has(k)); if (!ks.length) return; restored = true;
+  const ks = JSON.parse(localStorage.q || '[]').filter((k) => files.has(k) || (DB.lib[k] && DB.lib[k].url)); if (!ks.length) return; restored = true;
   const last = JSON.parse(localStorage.ng_pos || 'null');
   if (last && last.p) audio.addEventListener('loadedmetadata', () => { audio.currentTime = last.p; }, { once: true });
   tracks = await Promise.all(ks.map(metaOf));
@@ -1773,8 +1843,7 @@ function renderQ() {
   $('#qr').innerHTML = f ? Object.keys(DB.lib).filter((k) => ((DB.lib[k].title || '') + ' ' + (DB.lib[k].artist || '')).toLowerCase().includes(f)).slice(0, 30).map((k) => `<div class="qr" data-k="${esc(k)}"><div class="t"><b dir="auto">${esc(DB.lib[k].title)}</b><span dir="auto">${esc(DB.lib[k].artist || '')}</span></div><button class="mini" data-q="addnow">⏭</button><button class="mini" data-q="add">＋</button></div>`).join('') : '';
 }
 async function enqueue(k, next) {
-  if (!files.has(k)) return toast('الملف مش متاح — أضفه تاني');
-  const m = { ...(await metaOf(k)), url: '' };
+  if (!files.has(k) && !(DB.lib[k] && DB.lib[k].url)) return toast('الملف مش متاح — أضفه تاني');  const m = { ...(await metaOf(k)), url: '' };
   if (cur < 0 || !tracks.length) { tracks = [m]; return setTrack(0, true); }
   tracks.splice(next ? cur + 1 : tracks.length, 0, m); save(); render(); toast(next ? 'هيشتغل بعد الأغنية دي' : 'اتضافت لقايمة التشغيل');
 }
@@ -1829,7 +1898,7 @@ function noSplit() { const n = view.slice(3), o = [...Object.values(DB.lib)].map
 const histKeys = () => [...new Set([...HIST].reverse().map((x) => x.k))];
 function histAdd(k) { HIST.push({ k, t: Date.now() }); if (HIST.length > 5000) HIST.splice(0, HIST.length - 5000); try { localStorage.ng_hist = JSON.stringify(HIST); } catch (_) {} }
 const hue = (n) => 'hsl(' + ([...n].reduce((a, c) => a + c.charCodeAt(0), 0) % 360) + ',45%,40%)';
-const rowHTML = (k, right) => { const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k); return `<div class="row${k === curKey() ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span></div><i>${right}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? svgIcons.heartFill : svgIcons.heart}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`; };
+const rowHTML = (k, right) => { const m = DB.lib[k] || { title: k.split('|')[0], artist: '' }, on = files.has(k) || !!(m && m.url); return `<div class="row${k === curKey() ? ' cur' : ''}${on ? '' : ' off'}" data-k="${esc(k)}" role="button" tabindex="0"><div class="t"><b dir="auto">${esc(m.title)}</b><span dir="auto">${on ? esc(m.artist || 'فنان غير معروف') : 'الملف مش متاح — أضفه تاني'}</span></div><i>${right}</i><button class="mini" data-act="fav" aria-label="مفضلة">${isFav(k) ? svgIcons.heartFill : svgIcons.heart}</button><button class="mini" data-act="more" aria-label="المزيد">⋯</button></div>`; };
 const dayStr = (t) => { const a = new Date(t).toDateString(); return a === new Date().toDateString() ? 'النهاردة' : a === new Date(Date.now() - 864e5).toDateString() ? 'إمبارح' : new Date(t).toLocaleDateString(LG, { weekday: 'long', day: 'numeric', month: 'long' }); };
 const sumDays = (n) => { let t = 0; for (let i = 0; i < n; i++) t += ST.d[new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)] || 0; return Math.round(t / 60); };
 const PER = { week: ['الأسبوع', 7], month: ['الشهر', 30], year: ['السنة', 365], all: ['الكل', 1e5] };
@@ -2127,11 +2196,12 @@ audio.addEventListener('timeupdate', () => {
 let fadeInterval;
 audio.addEventListener('play', () => {
   clearInterval(fadeInterval);
+  const a = activeIsRemote ? remoteAudio : audio;
   const targetVol = parseFloat($('#vol').value) / 100 || 0.8;
-  audio.volume = 0;
+  a.volume = 0;
   fadeInterval = setInterval(() => {
-    if (audio.volume < targetVol - 0.05) audio.volume += 0.05;
-    else { audio.volume = targetVol; clearInterval(fadeInterval); }
+    if (a.volume < targetVol - 0.05) a.volume += 0.05;
+    else { a.volume = targetVol; clearInterval(fadeInterval); }
   }, 50);
 });
 
@@ -2165,6 +2235,7 @@ async function add(paths) {
 }
 function setSpeed(v) {
   audio.defaultPlaybackRate = audio.playbackRate = v;
+  remoteAudio.defaultPlaybackRate = remoteAudio.playbackRate = v;
   if ('preservesPitch' in audio) audio.preservesPitch = true;
   else if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = true;
   else if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = true;
@@ -2793,7 +2864,156 @@ window.addEventListener('keydown', (e) => {
 document.getElementById('closeShortcuts').onclick = () => {
   document.getElementById('shortcutsModal').hidden = true;
 };
+/* ════════ القرآن الكريم ════════ */
+const QURAN = { reciters: [], surahs: [], selectedReciter: null, selectedSurah: null, loaded: false };
+
+async function loadQuranData() {
+  if (QURAN.loaded) return;
+  const [recRes, surRes] = await Promise.all([
+    fetch('https://www.mp3quran.net/api/v3/reciters?language=ar'),
+    fetch('https://www.mp3quran.net/api/v3/suwar')
+  ]);
+  const recData = await recRes.json();
+  const surData = await surRes.json();
+  QURAN.reciters = recData.reciters || [];
+  QURAN.surahs = surData.suwar || [];
+  QURAN.loaded = true;
+}
+
+function renderQuranReciters(filter = '') {
+  const el = document.getElementById('quranReciters');
+  const f = filter.trim().toLowerCase();
+  const items = QURAN.reciters.filter((r) => !f || r.name.toLowerCase().includes(f));
+  el.innerHTML = items.map((r) => `<div class="quran-item${QURAN.selectedReciter && QURAN.selectedReciter.id === r.id ? ' on' : ''}" data-reciter="${r.id}">${r.name}</div>`).join('');
+}
+
+function renderQuranSurahs(filter = '') {
+  const el = document.getElementById('quranSurahs');
+  if (!QURAN.selectedReciter) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);font-size:13px;">اختر الشيخ الأول</div>'; return; }
+  const moshaf = QURAN.selectedReciter.moshaf[0];
+  const avail = new Set((moshaf.surah_list || '').split(',').map((s) => +s.trim()));
+  const f = filter.trim().toLowerCase();
+  const items = QURAN.surahs.filter((s) => (!avail.size || avail.has(s.id)) && (!f || s.name.toLowerCase().includes(f)));
+  el.innerHTML = items.map((s) => `<div class="quran-item${QURAN.selectedSurah && QURAN.selectedSurah.id === s.id ? ' on' : ''}" data-surah="${s.id}">${s.name}</div>`).join('');
+}
+
+function updateQuranPreview() {
+  const el = document.getElementById('quranPreview');
+  const playBtn = document.getElementById('quranPlay');
+  const dlBtn = document.getElementById('quranDownload');
+  if (!QURAN.selectedReciter || !QURAN.selectedSurah) {
+    el.textContent = 'اختر الشيخ والسورة';
+    playBtn.disabled = true; dlBtn.disabled = true;
+    return;
+  }
+  el.textContent = QURAN.selectedReciter.name + ' — ' + QURAN.selectedSurah.name;
+  playBtn.disabled = false; dlBtn.disabled = false;
+}
+
+function buildQuranUrl() {
+  if (!QURAN.selectedReciter || !QURAN.selectedSurah) return null;
+  const moshaf = QURAN.selectedReciter.moshaf[0];
+  return moshaf.server + String(QURAN.selectedSurah.id).padStart(3, '0') + '.mp3';
+}
+
+function playQuran() {
+  const url = buildQuranUrl();
+  if (!url) return;
+  const key = 'quran:' + QURAN.selectedReciter.id + ':' + QURAN.selectedSurah.id;
+  const title = QURAN.selectedSurah.name;
+  const artist = QURAN.selectedReciter.name;
+  DB.lib[key] = { title, artist, album: 'القرآن الكريم', duration: 0, url, isRemote: true, added: Date.now() };
+  persist();
+  if (!tracks.some((t) => t.path === key)) {
+    tracks.push({ path: key, url, title, artist, album: 'القرآن الكريم', duration: 0, isRemote: true });
+  }
+  setTrack(tracks.findIndex((t) => t.path === key), true);
+  document.getElementById('quranModal').hidden = true;
+  toast('جاري تشغيل: ' + title + ' — ' + artist);
+}
+
+function downloadQuran() {
+  const url = buildQuranUrl();
+  if (!url) return;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = QURAN.selectedSurah.name + ' - ' + QURAN.selectedReciter.name + '.mp3';
+  a.target = '_blank';
+  a.click();
+  toast('جاري التحميل...');
+}
+
+async function openQuranModal() {
+  const modal = document.getElementById('quranModal');
+  modal.hidden = false;
+  if (!QURAN.loaded) {
+    document.getElementById('quranReciters').innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">جاري التحميل...</div>';
+    try { await loadQuranData(); }
+    catch (e) {
+      document.getElementById('quranReciters').innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">فشل تحميل البيانات. تأكد من الإنترنت.</div>';
+      return;
+    }
+  }
+  renderQuranReciters();
+  renderQuranSurahs();
+  updateQuranPreview();
+}
+
+document.getElementById('quranClose').onclick = () => { document.getElementById('quranModal').hidden = true; };
+document.getElementById('quranReciterSearch').oninput = (e) => renderQuranReciters(e.target.value);
+document.getElementById('quranSurahSearch').oninput = (e) => renderQuranSurahs(e.target.value);
+document.getElementById('quranPlay').onclick = playQuran;
+document.getElementById('quranDownload').onclick = downloadQuran;
+document.getElementById('quranReciters').onclick = (e) => {
+  const item = e.target.closest('[data-reciter]');
+  if (!item) return;
+  const r = QURAN.reciters.find((x) => x.id === +item.dataset.reciter);
+  if (r) {
+    QURAN.selectedReciter = r;
+    QURAN.selectedSurah = null;
+    renderQuranReciters(document.getElementById('quranReciterSearch').value);
+    renderQuranSurahs('');
+    updateQuranPreview();
+  }
+};
+document.getElementById('quranSurahs').onclick = (e) => {
+  const item = e.target.closest('[data-surah]');
+  if (!item) return;
+  const s = QURAN.surahs.find((x) => x.id === +item.dataset.surah);
+  if (s) {
+    QURAN.selectedSurah = s;
+    renderQuranSurahs(document.getElementById('quranSurahSearch').value);
+    updateQuranPreview();
+  }
+};
+
+document.getElementById('globeBtn').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect();
+  showMenu(p.left, p.bottom + 4, [
+    ['🌐 قرآن', () => openQuranModal()]
+  ]);
+};
 </script>
+<div id="quranModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="eqh"><b>القرآن الكريم</b><button class="chip" id="quranClose">إغلاق</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0;margin:14px 0;">
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <input id="quranReciterSearch" type="text" placeholder="ابحث عن شيخ..." dir="auto" style="margin-bottom:8px;">
+        <div id="quranReciters" class="quran-list"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <input id="quranSurahSearch" type="text" placeholder="ابحث عن سورة..." dir="auto" style="margin-bottom:8px;">
+        <div id="quranSurahs" class="quran-list"></div>
+      </div>
+    </div>
+    <div id="quranPreview" class="quran-preview" dir="auto">اختر الشيخ والسورة</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="chip" id="quranDownload" disabled>تحميل</button>
+      <button class="chip pri" id="quranPlay" disabled>تشغيل</button>
+    </div>
+  </div>
+</div>
 <div id="shortcutsModal" class="modal-overlay" hidden>
   <div class="modal-card" style="text-align:center;">
     <div class="eqh" style="justify-content:center;"><b>اختصارات الكيبورد ⌨️</b></div>
@@ -2810,6 +3030,27 @@ document.getElementById('closeShortcuts').onclick = () => {
       <div><b style="color:var(--tint)">/</b> : البحث</div>
     </div>
     <button class="chip pri" id="closeShortcuts" style="margin:20px auto 0;">تمام</button>
+  </div>
+</div>
+<!-- نافذة القرآن -->
+<div id="quranModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="eqh"><b>القرآن الكريم</b><button class="chip" id="quranClose">إغلاق</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0;margin:14px 0;">
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <input id="quranReciterSearch" type="text" placeholder="ابحث عن شيخ..." dir="auto" style="margin-bottom:8px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);">
+        <div id="quranReciters" class="quran-list"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <input id="quranSurahSearch" type="text" placeholder="ابحث عن سورة..." dir="auto" style="margin-bottom:8px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);">
+        <div id="quranSurahs" class="quran-list"></div>
+      </div>
+    </div>
+    <div id="quranPreview" class="quran-preview" dir="auto">اختر الشيخ والسورة</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="chip" id="quranDownload" disabled>تحميل</button>
+      <button class="chip pri" id="quranPlay" disabled>تشغيل</button>
+    </div>
   </div>
 </div>
 </body>
