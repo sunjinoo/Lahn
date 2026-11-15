@@ -302,6 +302,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 </style>
 </head>
 <body>
+
 <div class="app">
 <nav class="side panel">
   <div class="brand"><img src="icon-192.png" alt=""><span>لحن</span></div>
@@ -426,7 +427,9 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   <div class="rt">
     <button class="ib" id="pipBtn" title="صورة داخل صورة" aria-label="صورة داخل صورة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="12" y="12" width="9" height="9"></rect></svg></button>
     <button class="ib" id="8dBtn" title="صوت 8D" aria-label="صوت 8D" style="font-size:12px;font-weight:bold;width:30px">8D</button>
-    <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
+   <button class="ib" id="ncBtn" title="Nightcore" style="font-size:11px;font-weight:bold;width:30px">NC</button>
+<button class="ib" id="slBtn" title="Slowed + Reverb" style="font-size:11px;font-weight:bold;width:30px">S+R</button>
+ <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
     <div class="vol"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="range" id="vol" min="0" max="100" aria-label="مستوى الصوت"></div>
   </div>
 </footer>
@@ -742,6 +745,8 @@ else if (m && m.cover) cover = m.cover;
 else if (isRemote) cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
   if (tracks[cur] !== t) return;
   $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
+if (cover) $('#dynamicBg').style.backgroundImage = `url(${cover})`;
+else $('#dynamicBg').style.backgroundImage = 'none';
   tintFrom(cover);
   
   if ('mediaSession' in navigator) {
@@ -1011,7 +1016,8 @@ function applyFilter() {
     const m = DB.lib[r.dataset.k] || {};
     const title = (m.title || '').toLowerCase(), artist = (m.artist || '').toLowerCase();
     const album = (m.album || '').toLowerCase(), genre = (m.genre || '').toLowerCase();
-    const matchGeneral = !f || (title + ' ' + artist).includes(f);
+    const lyrics = (DB.lyrics[r.dataset.k] || '').toLowerCase();
+const matchGeneral = !f || (title + ' ' + artist + ' ' + lyrics).includes(f);
     const matchTitle = !ft || title.includes(ft), matchArtist = !fa || artist.includes(fa);
     const matchAlbum = !fb || album.includes(fb), matchGenre = !fg || genre.includes(fg);
     r.hidden = !(matchGeneral && matchTitle && matchArtist && matchAlbum && matchGenre);
@@ -1423,12 +1429,27 @@ function ensureGraph() {
     pannerOsc.frequency.value = 0.15; pannerGain = ac.createGain();
     pannerGain.gain.value = 0; pannerOsc.connect(pannerGain);
     pannerGain.connect(panner.pan); pannerOsc.start();
-  } catch (e) { panner = null; }
+  }
+ catch (e) { panner = null; }
+  let delayNode, feedbackNode, wetGain;
+if (!delayNode) {
+  delayNode = ac.createDelay();
+  delayNode.delayTime.value = 0.4;
+  feedbackNode = ac.createGain();
+  feedbackNode.gain.value = 0.3;
+  wetGain = ac.createGain();
+  wetGain.gain.value = 0; // متوقف في الأول
   
+  delayNode.connect(feedbackNode);
+  feedbackNode.connect(delayNode);
+  delayNode.connect(wetGain);
+  wetGain.connect(an);
+}
   let prev = s;
   if (localStorage.ng_norm === '1') { prev.connect(compressorNode); prev = compressorNode; }
   eqNodes.forEach((n) => { prev.connect(n); prev = n; });
-  if (panner) { prev.connect(panner); panner.connect(an); } else { prev.connect(an); }
+  if (panner) { prev.connect(panner); panner.connect(an); panner.connect(delayNode); } 
+else { prev.connect(an); prev.connect(delayNode); }
   an.connect(ac.destination);
 }
 const applyEQ = () => { eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; }); try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {} };
@@ -2765,6 +2786,47 @@ window.addEventListener('keydown', (e) => {
 });
 document.getElementById('closeShortcuts').onclick = () => {
   document.getElementById('shortcutsModal').hidden = true;
+};
+/* --- Nightcore & Slowed + Reverb --- */
+let isNC = false, isSL = false;
+
+document.getElementById('ncBtn').onclick = () => {
+  if (cur < 0) return toast('شغل أغنية الأول');
+  isNC = !isNC; isSL = false;
+  document.getElementById('ncBtn').classList.toggle('on', isNC);
+  document.getElementById('slBtn').classList.remove('on');
+  
+  if (isNC) {
+    audio.playbackRate = 1.25;
+    audio.preservesPitch = false;
+    if (wetGain) wetGain.gain.value = 0;
+    toast('Nightcore مقعل');
+  } else {
+    audio.playbackRate = 1;
+    audio.preservesPitch = true;
+    toast('Nightcore مقفول');
+  }
+};
+
+document.getElementById('slBtn').onclick = () => {
+  if (cur < 0) return toast('شغل أغنية الأول');
+  isSL = !isSL; isNC = false;
+  document.getElementById('slBtn').classList.toggle('on', isSL);
+  document.getElementById('ncBtn').classList.remove('on');
+  
+  if (isSL) {
+    if (!ac) ensureGraph();
+    ac.resume();
+    audio.playbackRate = 0.8;
+    audio.preservesPitch = false;
+    if (wetGain) wetGain.gain.value = 0.4;
+    toast('Slowed + Reverb مقعل');
+  } else {
+    audio.playbackRate = 1;
+    audio.preservesPitch = true;
+    if (wetGain) wetGain.gain.value = 0;
+    toast('Slowed + Reverb مقفول');
+  }
 };
 </script>
 </body>
