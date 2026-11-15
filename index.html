@@ -550,6 +550,17 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <div id="osResults" class="quran-list" style="max-height:50vh;min-height:200px;"></div>
   </div>
 </div>
+<!-- نافذة لوحة الصوت 3D -->
+<div id="audioPadModal" class="modal-overlay" hidden>
+  <div class="modal-card" style="text-align:center;">
+    <div class="eqh"><b>🎧 لوحة الصوت 3D</b><button class="chip" id="padClose">إغلاق</button></div>
+    <p style="font-size:12px;color:var(--mute);margin-bottom:15px;">اسحب النقطة عشان تحرك الصوت يمين وشمال</p>
+    <div id="padArea" style="width:250px; height:250px; border-radius:50%; background:radial-gradient(circle, rgba(var(--tint-rgb), 0.15) 0%, transparent 70%); border:2px solid var(--tint); margin:0 auto; position:relative; cursor:crosshair; overflow:hidden; touch-action:none;">
+      <div id="padDot" style="width:24px; height:24px; background:var(--text); border-radius:50%; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; box-shadow:0 0 15px var(--tint);"></div>
+    </div>
+    <button class="chip pri" id="padReset" style="margin-top:20px;">إعادة ضبط الصوت (المنتصف)</button>
+  </div>
+</div>
 <div id="shortcutsModal" class="modal-overlay" hidden>
   <div class="modal-card" style="text-align:center;">
     <div class="eqh" style="justify-content:center;"><b>اختصارات الكيبورد ⌨️</b></div>
@@ -578,6 +589,12 @@ if ('serviceWorker' in navigator) {
 }
 
 const $ = (s) => document.querySelector(s);
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('input, textarea, select')) {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) active.blur();
+  }
+});
 const AUD = /\.(mp3|flac|m4a|aac|ogg|opus|wav)$/i;
 const files = new Map(), tagCache = new Map();
 const rel = (f) => f.webkitRelativePath || f.name;
@@ -701,6 +718,38 @@ audio.volume = +(localStorage.vol ?? 0.8);
 remoteAudio.volume = audio.volume;
 $('#vol').value = audio.volume * 100; fill($('#vol'));
 
+function setTint(rgb) {
+  if (window.__fix) return;
+  const m = Math.max(...rgb), k = m < 150 ? 150 / (m || 1) : 1;
+  const [r, g, b] = rgb.map((v) => Math.min(255, Math.round(v * k)));
+  const s = document.documentElement.style;
+  s.setProperty('--tint', `rgb(${r},${g},${b})`);
+  s.setProperty('--tint-rgb', `${r},${g},${b}`);
+  try { localStorage.ng_tint = `${r},${g},${b}`; } catch(_) {}
+}
+
+function tintFrom(src) {
+  if (!src) return setTint([139, 124, 246]);
+  const im = new Image();
+  im.crossOrigin = 'anonymous';
+  im.onload = () => {
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 24;
+      const x = c.getContext('2d'); x.drawImage(im, 0, 0, 24, 24);
+      const d = x.getImageData(0, 0, 24, 24).data; let r = 0, g = 0, b = 0, w = 0;
+      for (let k = 0; k < d.length; k += 4) {
+        const mx = Math.max(d[k], d[k + 1], d[k + 2]), mn = Math.min(d[k], d[k + 1], d[k + 2]), s = (mx - mn) / (mx || 1);
+        const wt = .1 + s * s * (mx / 255); r += d[k] * wt; g += d[k + 1] * wt; b += d[k + 2] * wt; w += wt;
+      }
+      setTint([r / w, g / w, b / w]);
+    } catch (e) {
+      setTint([139, 124, 246]);
+    }
+  };
+  im.onerror = () => setTint([139, 124, 246]);
+  im.src = src;
+}
+
 async function setTrack(i, autoplay) {
   cur = i; const t = tracks[i];
   const m = DB.lib[t.path] || t;
@@ -711,8 +760,6 @@ async function setTrack(i, autoplay) {
     if (isRemote) proxyToRemote(); else unproxyFromRemote();
   }
   if (isRemote) {
-  if (masterDryGain) masterDryGain.gain.value = 1;
-  if (ac && ac.state === 'suspended') ac.resume();
     remoteAudio.src = t.url;
     remoteAudio.volume = audio.volume;
     if (autoplay) remoteAudio.play().catch(() => {});
@@ -721,7 +768,11 @@ async function setTrack(i, autoplay) {
     if (autoplay) audio.play().catch(() => {});
   }
   
-  $('#title').textContent = m.title || t.title; $('#artist').textContent = (m.artist || t.artist) || 'فنان غير معروف';
+  if (masterDryGain) masterDryGain.gain.value = 1;
+  if (ac && ac.state === 'suspended') ac.resume();
+  
+  $('#title').textContent = m.title || t.title; 
+  $('#artist').textContent = (m.artist || t.artist) || 'فنان غير معروف';
   document.title = (m.title || t.title) + ' – لحن';
   render(); save();
   const row = $('.row.cur'); if (row) row.scrollIntoView({ block: 'nearest' });
@@ -735,8 +786,15 @@ async function setTrack(i, autoplay) {
     else if (m.album === 'راديو') cover = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=500&auto=format&fit=crop';
     else cover = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500&auto=format&fit=crop';
   }
+  
   if (tracks[cur] !== t) return;
-  $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
+  
+  $('#art').src = cover || ''; 
+  $('#art').style.display = cover ? 'block' : 'none'; 
+  $('#ph').style.display = cover ? 'none' : 'block';
+  
+  const curSkin = localStorage.ng_skin || 'nagham';
+  if (SKINS[curSkin] && !SKINS[curSkin][6] && cover) tintFrom(cover);
   
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: m.title || t.title, artist: m.artist || t.artist, album: m.album || t.album, artwork: cover ? [{ src: cover }] : [] });
@@ -744,6 +802,7 @@ async function setTrack(i, autoplay) {
   }
   if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
 }
+
 
 function step(dir, auto) {
   if (!tracks.length) return;
@@ -1423,9 +1482,12 @@ function applySkin(id) {
   window.__fix = !!s[6];
   if (s[6]) { st.setProperty('--tint', `rgb(${s[6]})`); st.setProperty('--tint-rgb', s[6]); }
   else {
-    st.setProperty('--tint', `rgb(139,124,246)`); // لون بنفسجي ثابت
-    st.setProperty('--tint-rgb', `139,124,246`);
+    // بنجيب اللون المحفوظ، ولو مفيش بنحط البنفسجي
+    const savedTint = localStorage.ng_tint || '139,124,246';
+    st.setProperty('--tint', `rgb(${savedTint})`);
+    st.setProperty('--tint-rgb', savedTint);
   }
+  
   document.querySelector('meta[name=theme-color]').content = s[1];
   try { localStorage.ng_skin = id; } catch (_) {}
 }
@@ -1994,6 +2056,12 @@ SKINS.custom = ['لون خاص', '#12101a', '#f2eefc', '#9d97b5', '255,255,255',
 accIn.oninput = () => { localStorage.ng_acc = accIn.value; SKINS.custom[6] = hex2rgb(accIn.value); applySkin('custom'); };
 applySkin(localStorage.ng_skin || 'nagham');
 
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('input, textarea, select')) {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) active.blur();
+  }
+});
 addEventListener('keydown', (e) => {
   const t = e.target, typing = t.matches && t.matches('input,select,textarea');
   if ((e.ctrlKey || e.metaKey) && e.code === 'KeyA' && !typing) { e.preventDefault(); visKeys().forEach((k) => SEL.add(k)); paintSel(); return; }
@@ -2710,7 +2778,13 @@ document.getElementById('audioFxBtn').onclick = (e) => {
     [(is8D ? '● ' : '○ ') + 'صوت 8D', () => document.getElementById('8dBtn').click()],
     [(isNC ? '● ' : '○ ') + 'Nightcore', () => document.getElementById('ncBtn').click()],
     [(isSL ? '● ' : '○ ') + 'Slowed + Reverb', () => document.getElementById('slBtn').click()],
-    [(isKaraoke ? '● ' : '○ ') + 'كاريوكي (إزالة الغناء)', () => document.getElementById('vocalBtn').click()]
+    [(isKaraoke ? '● ' : '○ ') + 'كاريوكي (إزالة الغناء)', () => document.getElementById('vocalBtn').click()],
+    ['🎧 لوحة الصوت 3D', () => { 
+      if (cur < 0) return toast('شغل أغنية الأول'); 
+      if (!ac) ensureGraph(); 
+      ac.resume(); 
+      document.getElementById('audioPadModal').hidden = false; 
+    }]
   ]);
 };
 
@@ -3056,6 +3130,58 @@ window.addEventListener('keydown', (e) => {
 });
 document.getElementById('closeShortcuts').onclick = () => {
   document.getElementById('shortcutsModal').hidden = true;
+};
+/* ════════ لوحة الصوت 3D ════════ */
+const padArea = document.getElementById('padArea');
+const padDot = document.getElementById('padDot');
+const padModal = document.getElementById('audioPadModal');
+
+document.getElementById('padClose').onclick = () => padModal.hidden = true;
+
+let isDragging = false;
+
+function movePad(e) {
+  if (!isDragging || !padArea) return;
+  const rect = padArea.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  let x = clientX - rect.left;
+  let y = clientY - rect.top;
+  const cx = rect.width / 2, cy = rect.height / 2;
+  const dx = x - cx, dy = y - cy;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const max = cx - 12; // نصف قطر الدايرة
+  
+  if (dist > max) {
+    x = cx + (dx / dist) * max;
+    y = cy + (dy / dist) * max;
+  }
+  
+  padDot.style.left = x + 'px';
+  padDot.style.top = y + 'px';
+  
+  // تحريك الصوت (يمين وشمال)
+  if (!ac) ensureGraph();
+  if (panner) {
+    const panValue = (x - cx) / max; // من -1 لـ 1
+    panner.pan.value = panValue;
+  }
+}
+
+padArea.addEventListener('mousedown', (e) => { isDragging = true; movePad(e); });
+padArea.addEventListener('touchstart', (e) => { isDragging = true; movePad(e); }, {passive: true});
+
+addEventListener('mousemove', movePad);
+addEventListener('touchmove', movePad, {passive: true});
+
+addEventListener('mouseup', () => isDragging = false);
+addEventListener('touchend', () => isDragging = false);
+
+document.getElementById('padReset').onclick = () => {
+  if (panner) panner.pan.value = 0;
+  padDot.style.left = '50%';
+  padDot.style.top = '50%';
 };
 </script>
 </body>
