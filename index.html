@@ -750,7 +750,12 @@ async function setTrack(i, autoplay) {
  let cover = null;
 if (!isRemote) cover = await api.cover(t.path);
 else if (m && m.cover) cover = m.cover; 
-else if (isRemote) cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
+else if (isRemote) {
+  if (m.album === 'القرآن الكريم') cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
+  else if (m.album === 'بودكاست') cover = 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=500&auto=format&fit=crop';
+  else if (m.album === 'راديو') cover = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=500&auto=format&fit=crop';
+  else cover = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500&auto=format&fit=crop';
+}
   if (tracks[cur] !== t) return;
   $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
 if (cover) $('#dynamicBg').style.backgroundImage = `url(${cover})`;
@@ -1973,7 +1978,8 @@ const THC = new Map();
 async function thumbOf(k) {
   if (THC.has(k)) return THC.get(k);
   const c = await thGet(k); if (c !== undefined) { const u = c === '-' ? null : c; THC.set(k, u); return u; }
-  if (DB.lib[k] && DB.lib[k].isRemote) return 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
+if (DB.lib[k] && DB.lib[k].cover) return DB.lib[k].cover;
+if (DB.lib[k] && DB.lib[k].isRemote) return null;
 if (!files.has(k) || window.__scan) return null;
   const u = await thJob(async () => { const tg = await readTags(k, true); if (!tg.cover) return null; const o = await shrink(tg.cover); if (tagCache.get(k) !== tg) URL.revokeObjectURL(tg.cover); return o; });
   THC.set(k, u); thPut(k, u || '-'); return u;
@@ -2294,7 +2300,7 @@ function renderSettingsPage() {
         </div>
       </section>
       
-       <section class="settings-section">
+      <section class="settings-section">
         <h3>${svgIcons.info} حول التطبيق</h3>
         <div class="about-info">
           <div class="about-row"><span>الإصدار</span><b>2.0</b></div>
@@ -2304,11 +2310,6 @@ function renderSettingsPage() {
           <div class="about-row"><span>عدد الكلمات المحفوظة</span><b>${lyricCount}</b></div>
         </div>
       </section>
-      
-      <!-- سطر الحقوق المحفوظة -->
-      <div style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
-        © ${new Date().getFullYear()} Lahn App. All rights reserved.
-      </div>
     </div>
   `;
   
@@ -2857,6 +2858,65 @@ window.openOnlineSearch = (mode) => {
   document.getElementById('osInput').focus();
 };
 
+document.getElementById('osClose').onclick = () => { document.getElementById('onlineSearchModal').hidden = true; };
+
+document.getElementById('osInput').addEventListener('input', async (e) => {
+  const q = e.target.value.trim();
+  const resEl = document.getElementById('osResults');
+  if (!q) { resEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">اكتب حاجة فوق عشان تبحث...</div>'; return; }
+  
+  resEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">⏳ جاري البحث...</div>';
+  
+  try {
+    let items = [];
+    if (currentOSMode === 'radio') {
+      const r = await fetch(`https://de1.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(q)}&limit=20`);
+      const data = await r.json();
+      items = data.map(x => ({ title: x.name, sub: x.country || 'راديو', url: x.url_resolved, isRadio: true, cover: x.favicon || 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=500&auto=format&fit=crop' }));
+    } 
+    else if (currentOSMode === 'audius') {
+      const r = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(q)}&app_name=LAHN`);
+      const data = await r.json();
+      items = data.data.map(x => ({ title: x.title, sub: x.user.name, url: `https://discoveryprovider.audius.co/v1/tracks/${x.id}/stream?app_name=LAHN`, isRadio: false, cover: (x.artwork && (x.artwork['480x480'] || x.artwork['150x150'])) || 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500&auto=format&fit=crop' }));
+    } 
+    else if (currentOSMode === 'podcast') {
+      const r = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=podcastEpisode&limit=20`);
+      const data = await r.json();
+      items = data.results.map(x => ({ title: x.trackName, sub: x.collectionName, url: x.previewUrl, isRadio: false, cover: x.artworkUrl600 || x.artworkUrl100 || 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=500&auto=format&fit=crop' }));
+    }
+    
+    if (!items.length) { resEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">مفيش نتائج.</div>'; return; }
+    
+    resEl.innerHTML = items.map((item, i) => `
+      <div class="quran-item" data-os-url="${esc(item.url)}" data-os-title="${esc(item.title)}" data-os-sub="${esc(item.sub)}" data-os-radio="${item.isRadio}" data-os-cover="${esc(item.cover)}" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-bottom:1px solid var(--line);">
+        <b style="font-size:14px;color:var(--text);">${esc(item.title)}</b>
+        <span style="font-size:12px;color:var(--mute);">${esc(item.sub)}</span>
+      </div>
+    `).join('');
+    
+  } catch (err) {
+    resEl.innerHTML = '<div style="padding:20px;text-align:center;color:#ef4444;">فشل الاتصال، تأكد من الإنترنت.</div>';
+  }
+});
+
+document.getElementById('osResults').addEventListener('click', (e) => {
+  const item = e.target.closest('.quran-item'); if (!item) return;
+  const url = item.dataset.osUrl, title = item.dataset.osTitle, sub = item.dataset.osSub, isRadio = item.dataset.osRadio === 'true', cover = item.dataset.osCover;
+  
+  if (!url) return toast('الرابط غير متاح');
+  
+  const albumType = isRadio ? 'راديو' : (currentOSMode === 'audius' ? 'أغاني أونلاين' : 'بودكاست');
+  const key = 'online:' + Date.now();
+  DB.lib[key] = { title, artist: sub, album: albumType, duration: 0, url, isRemote: true, added: Date.now(), cover: cover };
+  persist();
+  
+  if (!tracks.some((t) => t.path === key)) {
+    tracks.push({ path: key, url, title, artist: sub, album: albumType, duration: 0, isRemote: true, cover: cover });
+  }
+  setTrack(tracks.findIndex((t) => t.path === key), true);
+  document.getElementById('onlineSearchModal').hidden = true;
+  toast('جاري التشغيل: ' + title);
+});
 document.getElementById('osClose').onclick = () => { document.getElementById('onlineSearchModal').hidden = true; };
 
 document.getElementById('osInput').addEventListener('input', async (e) => {
