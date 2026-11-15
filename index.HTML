@@ -2646,33 +2646,36 @@ async function openQuranModal() {
   updateQuranPreview();
 }
 
-document.getElementById('quranClose').onclick = () => { document.getElementById('quranModal').hidden = true; };
-document.getElementById('quranReciterSearch').oninput = (e) => renderQuranReciters(e.target.value);
-document.getElementById('quranSurahSearch').oninput = (e) => renderQuranSurahs(e.target.value);
-document.getElementById('quranPlay').onclick = playQuran;
-document.getElementById('quranDownload').onclick = downloadQuran;
-document.getElementById('quranReciters').onclick = (e) => {
-  const item = e.target.closest('[data-reciter]');
-  if (!item) return;
-  const r = QURAN.reciters.find((x) => x.id === +item.dataset.reciter);
-  if (r) {
-    QURAN.selectedReciter = r;
-    QURAN.selectedSurah = null;
-    renderQuranReciters(document.getElementById('quranReciterSearch').value);
-    renderQuranSurahs('');
-    updateQuranPreview();
-  }
-};
-document.getElementById('quranSurahs').onclick = (e) => {
-  const item = e.target.closest('[data-surah]');
-  if (!item) return;
-  const s = QURAN.surahs.find((x) => x.id === +item.dataset.surah);
-  if (s) {
-    QURAN.selectedSurah = s;
-    renderQuranSurahs(document.getElementById('quranSurahSearch').value);
-    updateQuranPreview();
-  }
-};
+const quranCloseBtn = document.getElementById('quranClose');
+if (quranCloseBtn) {
+  quranCloseBtn.onclick = () => { document.getElementById('quranModal').hidden = true; };
+  document.getElementById('quranReciterSearch').oninput = (e) => renderQuranReciters(e.target.value);
+  document.getElementById('quranSurahSearch').oninput = (e) => renderQuranSurahs(e.target.value);
+  document.getElementById('quranPlay').onclick = playQuran;
+  document.getElementById('quranDownload').onclick = downloadQuran;
+  document.getElementById('quranReciters').onclick = (e) => {
+    const item = e.target.closest('[data-reciter]');
+    if (!item) return;
+    const r = QURAN.reciters.find((x) => x.id === +item.dataset.reciter);
+    if (r) {
+      QURAN.selectedReciter = r;
+      QURAN.selectedSurah = null;
+      renderQuranReciters(document.getElementById('quranReciterSearch').value);
+      renderQuranSurahs('');
+      updateQuranPreview();
+    }
+  };
+  document.getElementById('quranSurahs').onclick = (e) => {
+    const item = e.target.closest('[data-surah]');
+    if (!item) return;
+    const s = QURAN.surahs.find((x) => x.id === +item.dataset.surah);
+    if (s) {
+      QURAN.selectedSurah = s;
+      renderQuranSurahs(document.getElementById('quranSurahSearch').value);
+      updateQuranPreview();
+    }
+  };
+}
 
 const globeBtn = document.getElementById('globeBtn');
 if (globeBtn) {
