@@ -730,8 +730,10 @@ async function setTrack(i, autoplay) {
   render(); save();
   const row = $('.row.cur'); if (row) row.scrollIntoView({ block: 'nearest' });
   
-  let cover = null;
-  if (!isRemote) cover = await api.cover(t.path);
+ let cover = null;
+if (!isRemote) cover = await api.cover(t.path);
+else if (m && m.cover) cover = m.cover; 
+else if (isRemote) cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
   if (tracks[cur] !== t) return;
   $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
   tintFrom(cover);
@@ -1936,7 +1938,8 @@ const THC = new Map();
 async function thumbOf(k) {
   if (THC.has(k)) return THC.get(k);
   const c = await thGet(k); if (c !== undefined) { const u = c === '-' ? null : c; THC.set(k, u); return u; }
-  if (!files.has(k) || window.__scan) return null;
+  if (DB.lib[k] && DB.lib[k].isRemote) return 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
+if (!files.has(k) || window.__scan) return null;
   const u = await thJob(async () => { const tg = await readTags(k, true); if (!tg.cover) return null; const o = await shrink(tg.cover); if (tagCache.get(k) !== tg) URL.revokeObjectURL(tg.cover); return o; });
   THC.set(k, u); thPut(k, u || '-'); return u;
 }
@@ -2651,16 +2654,21 @@ function playQuran() {
   const key = 'quran:' + QURAN.selectedReciter.id + ':' + QURAN.selectedSurah.id;
   const title = QURAN.selectedSurah.name;
   const artist = QURAN.selectedReciter.name;
-  DB.lib[key] = { title, artist, album: 'القرآن الكريم', duration: 0, url, isRemote: true, added: Date.now() };
+  
+  // الصورة الافتراضية للقرآن
+  const coverUrl = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
+
+  DB.lib[key] = { title, artist, album: 'القرآن الكريم', duration: 0, url, isRemote: true, added: Date.now(), cover: coverUrl };
   persist();
+  
   if (!tracks.some((t) => t.path === key)) {
-    tracks.push({ path: key, url, title, artist, album: 'القرآن الكريم', duration: 0, isRemote: true });
+    tracks.push({ path: key, url, title, artist, album: 'القرآن الكريم', duration: 0, isRemote: true, cover: coverUrl });
   }
+  
   setTrack(tracks.findIndex((t) => t.path === key), true);
   document.getElementById('quranModal').hidden = true;
   toast('جاري تشغيل: ' + title + ' — ' + artist);
 }
-
 function downloadQuran() {
   const url = buildQuranUrl();
   if (!url) return;
