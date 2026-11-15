@@ -426,12 +426,22 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <div class="seekrow"><span id="tc">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل"><span id="td">0:00</span></div>
   </div>
   <div class="rt">
-    <button class="ib" id="pipBtn" title="صورة داخل صورة" aria-label="صورة داخل صورة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="12" y="12" width="9" height="9"></rect></svg></button>
-    <button class="ib" id="8dBtn" title="صوت 8D" aria-label="صوت 8D" style="font-size:12px;font-weight:bold;width:30px">8D</button>
-   <button class="ib" id="ncBtn" title="Nightcore" style="font-size:11px;font-weight:bold;width:30px">NC</button>
-<button class="ib" id="slBtn" title="Slowed + Reverb" style="font-size:11px;font-weight:bold;width:30px">S+R</button>
-<button class="ib" id="vocalBtn" title="Karaoke (Vocal Remover)" style="font-size:11px;font-weight:bold;width:30px">K</button>
- <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
+       <button class="ib" id="pipBtn" title="صورة داخل صورة" aria-label="صورة داخل صورة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="12" y="12" width="9" height="9"></rect></svg></button>
+    
+    <!-- زرار المؤثرات الصوتية الجديد -->
+    <button class="ib" id="audioFxBtn" title="مؤثرات صوتية" aria-label="مؤثرات صوتية">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-6h6m2 8h6"/></svg>
+    </button>
+
+    <!-- الأزرار القديمة مخفية عشان الكود يشتغل -->
+    <div style="display:none;">
+      <button class="ib" id="8dBtn"></button>
+      <button class="ib" id="ncBtn"></button>
+      <button class="ib" id="slBtn"></button>
+      <button class="ib" id="vocalBtn"></button>
+    </div>
+
+    <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
     <div class="vol"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="range" id="vol" min="0" max="100" aria-label="مستوى الصوت"></div>
   </div>
 </footer>
@@ -2618,7 +2628,7 @@ window.__v8 = true; render();
 setLang(LG);
 
 document.getElementById('8dBtn').onclick = () => {
-  if (cur < 0) return toast('شغّل أغنية الأول عشان تقدر تستخدم الصوت 8D');
+  if (cur < 0) return toast('شغل أغنية الأول عشان تقدر تستخدم الصوت 8D');
   try {
     if (!ac) ensureGraph();
     if (ac.state === 'suspended') ac.resume();
@@ -2634,8 +2644,8 @@ document.getElementById('8dBtn').onclick = () => {
     panner.pan.value = 0;
     toast('تم إيقاف صوت 8D');
   }
+  updateFxBtnState();
 };
-
 const sortBtnEl = document.getElementById('sortBtn');
 if (sortBtnEl) {
   sortBtnEl.addEventListener('click', (e) => {
@@ -2920,6 +2930,7 @@ document.getElementById('ncBtn').onclick = () => {
     audio.preservesPitch = true;
     toast('Nightcore مقفول');
   }
+  updateFxBtnState();
 };
 
 document.getElementById('slBtn').onclick = () => {
@@ -2941,6 +2952,7 @@ document.getElementById('slBtn').onclick = () => {
     if (wetGain) wetGain.gain.value = 0;
     toast('Slowed + Reverb مقفول');
   }
+  updateFxBtnState();
 };
 /* ════════ البحث الأونلاين (راديو / أغاني / بودكاست) ════════ */
 let currentOSMode = 'radio';
@@ -3081,15 +3093,15 @@ document.getElementById('vocalBtn').onclick = () => {
   document.getElementById('vocalBtn').classList.toggle('on', isKaraoke);
   
   if (isKaraoke) {
-    // بنعتمد على الكاريوكي بدل الصوت العادي
     if (typeof vocalWet !== 'undefined') vocalWet.gain.value = 1;
     if (typeof delayNode !== 'undefined') wetGain.gain.value = 0; 
-    audio.volume = 1; // تأكد إن الصوت واصل
+    audio.volume = 1;
     toast('مود الكاريوكي مقعل');
   } else {
     if (typeof vocalWet !== 'undefined') vocalWet.gain.value = 0;
     toast('مود الكاريوكي مقفول');
   }
+  updateFxBtnState();
 };
 document.getElementById('editFileRealBtn').onclick = async () => {
   const k = editTarget;
@@ -3201,6 +3213,24 @@ document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () 
   }
   btn.textContent = 'تنزيل من السحابة ⬇️';
 });
+document.getElementById('audioFxBtn').onclick = (e) => {
+  if (cur < 0) return toast('شغل أغنية الأول عشان تقدر تستخدم المؤثرات');
+  const p = e.currentTarget.getBoundingClientRect();
+  
+  // بنفتح القايمة لفوق عشان الزرار ده تحت خالص
+  showMenu(p.left - 60, p.top - 200, [
+    [(is8D ? '● ' : '○ ') + 'صوت 8D', () => document.getElementById('8dBtn').click()],
+    [(isNC ? '● ' : '○ ') + 'Nightcore', () => document.getElementById('ncBtn').click()],
+    [(isSL ? '● ' : '○ ') + 'Slowed + Reverb', () => document.getElementById('slBtn').click()],
+    [(isKaraoke ? '● ' : '○ ') + 'كاريوكي (إزالة الغناء)', () => document.getElementById('vocalBtn').click()]
+  ]);
+};
+
+// عشان الزرار الجديد ينور لو أي تأثير منهم شغال
+function updateFxBtnState() {
+  const isAnyActive = is8D || isNC || isSL || isKaraoke;
+  document.getElementById('audioFxBtn').classList.toggle('on', isAnyActive);
+}
 </script>
 </body>
 </html>
