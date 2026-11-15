@@ -13,7 +13,9 @@
 :root{--tint:rgb(139,124,246);--tint-rgb:139,124,246;--bg:#12101a;--text:#f2eefc;--mute:#9d97b5;--line:rgba(255,255,255,.09);--w:255,255,255;--on:#15121f}
 *{box-sizing:border-box;margin:0}html,body{height:100%}
 
-/* --- تخصيص شكل الشرايط --- */
+button * { pointer-events: none; }
+button svg { pointer-events: none; }
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
@@ -28,7 +30,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:minmax(0,1fr) 92px;gap:10px;height:100%;padding:10px}
 .panel{background:rgba(var(--w),.045);border:1px solid var(--line);border-radius:18px}
 
-/* القائمة الجانبية */
 .side{grid-row:1;display:flex;flex-direction:column;padding:14px 10px;overflow:hidden;min-height:0}
 .side > * { flex-shrink: 0; }
 #pls { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; margin-top: 4px; margin-bottom: 4px; }
@@ -40,7 +41,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .nv.drag-over { background: rgba(var(--tint-rgb), 0.4) !important; border: 1px dashed var(--tint); }
 .sh{display:flex;align-items:center;justify-content:space-between;padding:16px 12px 4px;font-size:12px;color:var(--mute)}
 
-/* طرق عرض القوائم */
 #pls.pl-mode-compact .nv { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
 #pls.pl-mode-blocks .nv { background: rgba(var(--w),.04); border: 1px solid var(--line); margin-bottom: 4px; border-radius: 10px; padding: 10px 12px; }
 #pls.pl-mode-blocks .nv:hover { background: rgba(var(--w),.08); }
@@ -108,7 +108,6 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 .eqb{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:var(--mute)}.eqb div{height:130px;width:24px;display:grid;place-items:center}
 .eqb input{width:120px;margin:0;transform:rotate(-90deg);background:rgba(var(--w),.2)!important}.eqb input::-webkit-slider-thumb{opacity:1}.eqc small{color:var(--mute);font-size:12px}
 
-/* سجل البحث */
 .search-history { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; margin-top: 8px; padding: 6px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .search-history[hidden] { display: none; }
 .search-history div { padding: 8px 12px; font-size: 13px; cursor: pointer; border-radius: 6px; color: var(--mute); }
@@ -156,8 +155,6 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 .row .th{width:46px;height:46px;border-radius:9px;flex:none;background:rgba(var(--w),.09) center/cover no-repeat;display:grid;place-items:center;font-size:18px;color:var(--mute)}
 .av[data-cv],.av[data-cvk]{background-position:center;background-repeat:no-repeat}
 
-/* --- Modals & Lyrics UI --- */
-/* ════════ نافذة القرآن ════════ */
 .quran-list{flex:1;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:4px;min-height:180px;max-height:45vh}
 .quran-item{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px}
 .quran-item:hover{background:rgba(var(--w),.06)}
@@ -184,7 +181,6 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 .l-line.active{color:var(--text);font-size:25px;transform:scale(1.04);text-shadow:0 0 24px rgba(var(--tint-rgb),.85)}
 @media (max-width:860px){#lyricDisplayPanel{inset:0 0 170px 0}}
 
-/* ════════ طرق العرض (View Modes) ════════ */
 #list .row .t .album { display: none; }
 
 #list.mode-compact { padding: 2px 10px; }
@@ -229,7 +225,6 @@ input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-
 #list.mode-compact .card b { max-width: none; font-size: 12px; }
 #list.mode-compact .card span { display: none; }
 
-/* ════════ الوضع الكلاسيكي (Old Skin) ════════ */
 body.skin-old * { border-radius: 0 !important; font-family: "Tahoma", "Arial", sans-serif !important; font-size: 13px !important; }
 body.skin-old { background: #808080 !important; }
 body.skin-old .app { padding: 2px; gap: 2px; grid-template-columns: 220px 1fr; }
@@ -254,7 +249,6 @@ body.skin-old .th { border: 1px solid #000; border-radius: 0; }
 body.skin-old .seekrow { background: #d4d0c8; padding: 2px; border: 1px inset #fff; }
 body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 
-/* ════════ صفحة الإعدادات ════════ */
 .settings-page { padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 20px; }
 .settings-section { background: rgba(var(--w), .04); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
 .settings-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
@@ -294,7 +288,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   .skin-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
 }
 
-/* تنسيقات أزرار الرجوع والتقدم العصرية */
 .nav-btns { display: flex; gap: 4px; align-items: center; }
 .nav-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(var(--w), .05); border: 1px solid var(--line); color: var(--mute); display: grid; place-items: center; transition: all 0.2s cubic-bezier(0.2, 0, 0, 1); }
 .nav-btn:hover { background: rgba(var(--tint-rgb), .2); border-color: var(--tint); color: var(--text); transform: scale(1.05); }
@@ -377,7 +370,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
       <input id="q" type="search" placeholder="ابحث في القايمة…" aria-label="ابحث في القايمة…">
       <div id="searchHistory" class="search-history" hidden></div>
       
-      <!-- زرار البحث بالإنترنت (الكرة الأرضية) جوه الشريط -->
       <button id="globeBtn" class="adv-toggle" style="display: none;" title="بحث بالإنترنت" aria-label="بحث بالإنترنت">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
       </button>
@@ -428,12 +420,10 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   <div class="rt">
        <button class="ib" id="pipBtn" title="صورة داخل صورة" aria-label="صورة داخل صورة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="12" y="12" width="9" height="9"></rect></svg></button>
     
-    <!-- زرار المؤثرات الصوتية الجديد -->
     <button class="ib" id="audioFxBtn" title="مؤثرات صوتية" aria-label="مؤثرات صوتية">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-6h6m2 8h6"/></svg>
     </button>
 
-    <!-- الأزرار القديمة مخفية عشان الكود يشتغل -->
     <div style="display:none;">
       <button class="ib" id="8dBtn"></button>
       <button class="ib" id="ncBtn"></button>
@@ -449,7 +439,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 
 <input type="file" id="restoreInput" accept=".json" hidden>
 
-<!-- شاشة عرض الكلمات التفاعلية -->
 <div id="lyricDisplayPanel" hidden>
   <button class="mini cl" id="lyricClose" aria-label="إغلاق">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -469,7 +458,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   </div>
 </div>
 
-<!-- نافذة إضافة / تعديل الكلمات -->
 <div id="lyricModal" class="modal-overlay" hidden>
   <div class="modal-card">
     <div class="eqh"><b>إضافة / تعديل الكلمات (ليركس)</b><button class="chip" id="lyricModalClose" aria-label="إغلاق">
@@ -488,7 +476,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   </div>
 </div>
 
-<!-- نافذة تعديل معلومات الأغنية أو الفنان -->
 <div id="editMetaModal" class="modal-overlay" hidden>
   <div class="modal-card">
     <div class="eqh"><b id="editMetaHeader">تعديل المعلومات</b><button class="chip" id="editMetaClose" aria-label="إغلاق">
@@ -536,7 +523,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 </button><img id="art2" alt=""><h2 id="title2" dir="auto"></h2><p id="artist2" dir="auto"></p><canvas id="viz"></canvas></div>
 
-<!-- نافذة القرآن -->
 <div id="quranModal" class="modal-overlay" hidden>
   <div class="modal-card">
     <div class="eqh"><b>القرآن الكريم</b><button class="chip" id="quranClose">إغلاق</button></div>
@@ -557,7 +543,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     </div>
   </div>
 </div>
-<!-- نافذة البحث الأونلاين (راديو / أغاني / بودكاست) -->
 <div id="onlineSearchModal" class="modal-overlay" hidden>
   <div class="modal-card">
     <div class="eqh"><b id="osTitle">بحث</b><button class="chip" id="osClose">إغلاق</button></div>
@@ -565,7 +550,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <div id="osResults" class="quran-list" style="max-height:50vh;min-height:200px;"></div>
   </div>
 </div>
-<!-- نافذة اختصارات الكيبورد (اللي كانت ناقصة) -->
 <div id="shortcutsModal" class="modal-overlay" hidden>
   <div class="modal-card" style="text-align:center;">
     <div class="eqh" style="justify-content:center;"><b>اختصارات الكيبورد ⌨️</b></div>
@@ -583,8 +567,16 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     </div>
     <button class="chip pri" id="closeShortcuts" style="margin:20px auto 0;">تمام</button>
   </div>
-</div>
-<script>
+</div><script>
+// منع الكاش القديم من التدخل
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
+
 const $ = (s) => document.querySelector(s);
 const AUD = /\.(mp3|flac|m4a|aac|ogg|opus|wav)$/i;
 const files = new Map(), tagCache = new Map();
@@ -709,34 +701,6 @@ audio.volume = +(localStorage.vol ?? 0.8);
 remoteAudio.volume = audio.volume;
 $('#vol').value = audio.volume * 100; fill($('#vol'));
 
-function setTint(rgb) { if (window.__fix) return;
-  const m = Math.max(...rgb), k = m < 150 ? 150 / (m || 1) : 1;
-  const [r, g, b] = rgb.map((v) => Math.min(255, Math.round(v * k)));
-  const s = document.documentElement.style;
-  s.setProperty('--tint', `rgb(${r},${g},${b})`); s.setProperty('--tint-rgb', `${r},${g},${b}`);
-}
-function tintFrom(src) {
-  if (!src) return setTint([139, 124, 246]);
-  const im = new Image();
-  im.crossOrigin = 'anonymous'; // السطر ده بيحل مشكلة الـ CORS
-  im.onload = () => {
-    try {
-      const c = document.createElement('canvas'); c.width = c.height = 24;
-      const x = c.getContext('2d'); x.drawImage(im, 0, 0, 24, 24);
-      const d = x.getImageData(0, 0, 24, 24).data; let r = 0, g = 0, b = 0, w = 0;
-      for (let k = 0; k < d.length; k += 4) {
-        const mx = Math.max(d[k], d[k + 1], d[k + 2]), mn = Math.min(d[k], d[k + 1], d[k + 2]), s = (mx - mn) / (mx || 1);
-        const wt = .1 + s * s * (mx / 255); r += d[k] * wt; g += d[k + 1] * wt; b += d[k + 2] * wt; w += wt;
-      }
-      setTint([r / w, g / w, b / w]);
-    } catch (e) {
-      // لو المتصفح رفض يقرأ الصورة، هنرجع للون الأساسي
-      setTint([139, 124, 246]);
-    }
-  };
-  im.onerror = () => setTint([139, 124, 246]);
-  im.src = src;
-}
 async function setTrack(i, autoplay) {
   cur = i; const t = tracks[i];
   const m = DB.lib[t.path] || t;
@@ -747,6 +711,8 @@ async function setTrack(i, autoplay) {
     if (isRemote) proxyToRemote(); else unproxyFromRemote();
   }
   if (isRemote) {
+  if (masterDryGain) masterDryGain.gain.value = 1;
+  if (ac && ac.state === 'suspended') ac.resume();
     remoteAudio.src = t.url;
     remoteAudio.volume = audio.volume;
     if (autoplay) remoteAudio.play().catch(() => {});
@@ -760,20 +726,17 @@ async function setTrack(i, autoplay) {
   render(); save();
   const row = $('.row.cur'); if (row) row.scrollIntoView({ block: 'nearest' });
   
- let cover = null;
-if (!isRemote) cover = await api.cover(t.path);
-else if (m && m.cover) cover = m.cover; 
-else if (isRemote) {
-  if (m.album === 'القرآن الكريم') cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
-  else if (m.album === 'بودكاست') cover = 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=500&auto=format&fit=crop';
-  else if (m.album === 'راديو') cover = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=500&auto=format&fit=crop';
-  else cover = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500&auto=format&fit=crop';
-}
+  let cover = null;
+  if (!isRemote) cover = await api.cover(t.path);
+  else if (m && m.cover) cover = m.cover; 
+  else if (isRemote) {
+    if (m.album === 'القرآن الكريم') cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
+    else if (m.album === 'بودكاست') cover = 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=500&auto=format&fit=crop';
+    else if (m.album === 'راديو') cover = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=500&auto=format&fit=crop';
+    else cover = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500&auto=format&fit=crop';
+  }
   if (tracks[cur] !== t) return;
   $('#art').src = cover || ''; $('#art').style.display = cover ? 'block' : 'none'; $('#ph').style.display = cover ? 'none' : 'block';
-if (cover) $('#dynamicBg').style.backgroundImage = `url(${cover})`;
-else $('#dynamicBg').style.backgroundImage = 'none';
-  tintFrom(cover);
   
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: m.title || t.title, artist: m.artist || t.artist, album: m.album || t.album, artwork: cover ? [{ src: cover }] : [] });
@@ -892,6 +855,8 @@ setInterval(syncMediaState, 1000);
 const MOBILE = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
 let ac, an, buf, raf = 0, panner, is8D = false, pannerOsc = null, pannerGain = null, vizStyle = 'bars';
+let wetGain, vocalWet, masterDryGain, isNC = false, isSL = false, isKaraoke = false;
+
 function draw() {
   raf = requestAnimationFrame(draw);
   const c = $('#viz'), c2 = $('#barViz'), k = devicePixelRatio || 1;
@@ -1043,7 +1008,7 @@ function applyFilter() {
     const title = (m.title || '').toLowerCase(), artist = (m.artist || '').toLowerCase();
     const album = (m.album || '').toLowerCase(), genre = (m.genre || '').toLowerCase();
     const lyrics = (DB.lyrics[r.dataset.k] || '').toLowerCase();
-const matchGeneral = !f || (title + ' ' + artist + ' ' + lyrics).includes(f);
+    const matchGeneral = !f || (title + ' ' + artist + ' ' + lyrics).includes(f);
     const matchTitle = !ft || title.includes(ft), matchArtist = !fa || artist.includes(fa);
     const matchAlbum = !fb || album.includes(fb), matchGenre = !fg || genre.includes(fg);
     r.hidden = !(matchGeneral && matchTitle && matchArtist && matchAlbum && matchGenre);
@@ -1287,7 +1252,7 @@ $('#editMetaSave').onclick = () => {
           if (editCoverData !== null) {
             const newCover = editCoverData === '' ? '' : editCoverData;
             $('#art').src = newCover || ''; $('#art').style.display = newCover ? 'block' : 'none';
-            $('#ph').style.display = newCover ? 'none' : 'block'; tintFrom(newCover);
+            $('#ph').style.display = newCover ? 'none' : 'block';
           }
         }
       }
@@ -1312,6 +1277,50 @@ $('#editMetaSave').onclick = () => {
     }
   }
   persist(); $('#editMetaModal').hidden = true; render();
+};
+
+$('#editFileRealBtn').onclick = async () => {
+  const k = editTarget;
+  if (!k || !files.has(k)) return toast('الملف مش موجود أو مش محلي');
+  const f = files.get(k);
+  if (!/\.mp3$/i.test(f.name)) return toast('الميزة دي بتدعم MP3 بس حالياً');
+  
+  try {
+    const arrayBuffer = await f.arrayBuffer();
+    const writer = new ID3Writer(arrayBuffer);
+    
+    writer.setFrame('TIT2', document.getElementById('editTitleInput').value.trim() || 'أغنية');
+    writer.setFrame('TPE1', [document.getElementById('editArtistInput').value.trim() || 'فنان']);
+    writer.setFrame('TALB', document.getElementById('editAlbumInput').value.trim() || 'ألبوم');
+    
+    if (editCoverData && editCoverData.startsWith('data:image')) {
+      const res = await fetch(editCoverData);
+      const blob = await res.blob();
+      const imgBuf = await blob.arrayBuffer();
+      writer.setFrame('APIC', { type: 3, data: imgBuf, description: 'Cover' });
+    }
+    
+    writer.addTag();
+    const taggedSongBuffer = writer.arrayBuffer;
+    const blob = new Blob([taggedSongBuffer], { type: 'audio/mpeg' });
+    
+    if (window.showSaveFilePicker) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: f.name,
+        types: [{ description: 'MP3 Audio', accept: {'audio/mpeg': ['.mp3']} }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      toast('تم تعديل الملف الأصلي بنجاح!');
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f.name; a.click();
+      toast('تم تحميل الملف المعدل');
+    }
+  } catch (e) {
+    console.error(e);
+    toast('فشل التعديل: ' + e.message);
+  }
 };
 
 function parseLyrics(raw) {
@@ -1413,7 +1422,10 @@ function applySkin(id) {
   st.setProperty('--line', `rgba(${s[4]},.09)`);
   window.__fix = !!s[6];
   if (s[6]) { st.setProperty('--tint', `rgb(${s[6]})`); st.setProperty('--tint-rgb', s[6]); }
-  else tintFrom($('#art').style.display === 'block' ? $('#art').src : null);
+  else {
+    st.setProperty('--tint', `rgb(139,124,246)`); // لون بنفسجي ثابت
+    st.setProperty('--tint-rgb', `139,124,246`);
+  }
   document.querySelector('meta[name=theme-color]').content = s[1];
   try { localStorage.ng_skin = id; } catch (_) {}
 }
@@ -1438,6 +1450,7 @@ Object.assign(EQP, JSON.parse(localStorage.ng_eq_custom || '{}'));
 const EQ = Object.assign({ on: false, preset: 'flat', gains: [...EQP.flat[1]] }, JSON.parse(localStorage.ng_eq || '{}'));
 let eqNodes = [];
 let compressorNode = null;
+
 function ensureGraph() {
   if (ac) return;
   ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -1455,49 +1468,43 @@ function ensureGraph() {
     pannerOsc.frequency.value = 0.15; pannerGain = ac.createGain();
     pannerGain.gain.value = 0; pannerOsc.connect(pannerGain);
     pannerGain.connect(panner.pan); pannerOsc.start();
+  } catch (e) { panner = null; }
+  
+  let delayNode, feedbackNode;
+  if (!delayNode) {
+    delayNode = ac.createDelay(); delayNode.delayTime.value = 0.4;
+    feedbackNode = ac.createGain(); feedbackNode.gain.value = 0.3;
+    wetGain = ac.createGain(); wetGain.gain.value = 0; 
+    delayNode.connect(feedbackNode); feedbackNode.connect(delayNode);
+    delayNode.connect(wetGain); wetGain.connect(an);
   }
- catch (e) { panner = null; }
-  let delayNode, feedbackNode, wetGain;
-if (!delayNode) {
-  delayNode = ac.createDelay();
-  delayNode.delayTime.value = 0.4;
-  feedbackNode = ac.createGain();
-  feedbackNode.gain.value = 0.3;
-  wetGain = ac.createGain();
-  wetGain.gain.value = 0; // متوقف في الأول
-  
-  delayNode.connect(feedbackNode);
-  feedbackNode.connect(delayNode);
-  delayNode.connect(wetGain);
-  wetGain.connect(an);
-}
-let vocalSplitter, vocalMerger, vocalGainL, vocalGainR, vocalInvL, vocalInvR, vocalWet;
-if (!vocalSplitter) {
-  vocalSplitter = ac.createChannelSplitter(2);
-  vocalMerger = ac.createChannelMerger(2);
-  vocalGainL = ac.createGain(); // القناة الشمال الأصلية
-  vocalGainR = ac.createGain(); // القناة اليمين الأصلية
-  vocalInvL = ac.createGain(); vocalInvL.gain.value = -1; // عكس الشمال
-  vocalInvR = ac.createGain(); vocalInvR.gain.value = -1; // عكس اليمين
-  vocalWet = ac.createGain(); vocalWet.gain.value = 0; // متوقف في الأول
 
-  vocalSplitter.connect(vocalGainL, 0);
-  vocalSplitter.connect(vocalGainR, 1);
-  
-  // ربط الكاريوكي (شمال - يمين)
-  vocalGainL.connect(vocalInvR); vocalInvR.connect(vocalMerger, 0, 0);
-  vocalGainR.connect(vocalInvL); vocalInvL.connect(vocalMerger, 0, 1);
+  let vocalSplitter, vocalMerger, vocalGainL, vocalGainR;
+  if (!vocalSplitter) {
+    vocalSplitter = ac.createChannelSplitter(2); vocalMerger = ac.createChannelMerger(2);
+    vocalGainL = ac.createGain(); vocalGainL.gain.value = 0.5; 
+    vocalGainR = ac.createGain(); vocalGainR.gain.value = -0.5; 
+    vocalWet = ac.createGain(); vocalWet.gain.value = 0;
+    vocalSplitter.connect(vocalGainL, 0); vocalSplitter.connect(vocalGainR, 1);
+    vocalGainL.connect(vocalMerger, 0, 0); vocalGainR.connect(vocalMerger, 0, 0);
+    vocalGainL.connect(vocalMerger, 0, 1); vocalGainR.connect(vocalMerger, 0, 1);
+    vocalMerger.connect(vocalWet);
+  }
 
-  vocalMerger.connect(vocalWet);
-}
+  if (!masterDryGain) { masterDryGain = ac.createGain(); masterDryGain.gain.value = 1; }
+  
   let prev = s;
   if (localStorage.ng_norm === '1') { prev.connect(compressorNode); prev = compressorNode; }
   eqNodes.forEach((n) => { prev.connect(n); prev = n; });
-  if (panner) { prev.connect(panner); panner.connect(an); panner.connect(delayNode); } 
-else { prev.connect(an); prev.connect(delayNode); }
-prev.connect(vocalSplitter);
-vocalWet.connect(an);
-  an.connect(ac.destination);
+  
+  prev.connect(masterDryGain);
+  if (panner) { masterDryGain.connect(panner); panner.connect(an); panner.connect(delayNode); } 
+  else { masterDryGain.connect(an); masterDryGain.connect(delayNode); }
+  
+  prev.connect(vocalSplitter);
+  vocalWet.connect(an);
+  
+  an.connect(ac.destination); // السطر السحري اللي كان ناقص
 }
 const applyEQ = () => { eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; }); try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {} };
 const eqEnable = () => { EQ.on = true; ensureGraph(); ac.resume(); };
@@ -1655,7 +1662,6 @@ const ROWS = [
  ['دايرة', 'Circle', 'Cercle', 'Círculo'],
  ['تغيير الصورة', 'Change cover', 'Changer la pochette', 'Cambiar portada'],
  
- // Quran Translations
  ['بحث بالإنترنت', 'Internet Search', 'Recherche Internet', 'Búsqueda en Internet', 'İnternet Araması', 'Internetsuche', 'Pencarian Internet', 'انٹرنیٹ تلاش'],
  ['إخفاء زر البحث بالإنترنت', 'Hide Internet Search Button', 'Masquer la recherche Internet', 'Ocultar búsqueda en Internet', 'İnternet Aramasını Gizle', 'Internetsuche ausblenden', 'Sembunyikan Pencarian Internet', 'انٹرنیٹ تلاش چھپائیں'],
  ['إظهار زر البحث بالإنترنت', 'Show Internet Search Button', 'Afficher la recherche Internet', 'Mostrar búsqueda en Internet', 'İnternet Aramasını Göster', 'Internetsuche einblenden', 'Tampilkan Pencarian Internet', 'انٹرنیٹ تلاش دکھائیں'],
@@ -2012,9 +2018,9 @@ const THC = new Map();
 async function thumbOf(k) {
   if (THC.has(k)) return THC.get(k);
   const c = await thGet(k); if (c !== undefined) { const u = c === '-' ? null : c; THC.set(k, u); return u; }
-if (DB.lib[k] && DB.lib[k].cover) return DB.lib[k].cover;
-if (DB.lib[k] && DB.lib[k].isRemote) return null;
-if (!files.has(k) || window.__scan) return null;
+  if (DB.lib[k] && DB.lib[k].cover) return DB.lib[k].cover;
+  if (DB.lib[k] && DB.lib[k].isRemote) return null;
+  if (!files.has(k) || window.__scan) return null;
   const u = await thJob(async () => { const tg = await readTags(k, true); if (!tg.cover) return null; const o = await shrink(tg.cover); if (tagCache.get(k) !== tg) URL.revokeObjectURL(tg.cover); return o; });
   THC.set(k, u); thPut(k, u || '-'); return u;
 }
@@ -2158,17 +2164,6 @@ audio.addEventListener('timeupdate', () => {
 });
 
 let fadeInterval;
-audio.addEventListener('play', () => {
-  clearInterval(fadeInterval);
-  const a = activeIsRemote ? remoteAudio : audio;
-  const targetVol = parseFloat($('#vol').value) / 100 || 0.8;
-  a.volume = 0;
-  fadeInterval = setInterval(() => {
-    if (a.volume < targetVol - 0.05) a.volume += 0.05;
-    else { a.volume = targetVol; clearInterval(fadeInterval); }
-  }, 50);
-});
-
 var slT = null, slEnd = false, slCur = 0, slWait = false;
 function slSet(m) {
   clearTimeout(slT); slT = null; slEnd = m === 'end'; slCur = m || 0;
@@ -2207,6 +2202,7 @@ function setSpeed(v) {
   if (b) { b.innerHTML = svgIcons.zap + ' السرعة ' + v + '×'; b.classList.toggle('on', v !== 1); }
   if (view === 'settings') renderSettingsPage();
 }
+
 function renderSettingsPage() {
   const L = $('#list');
   const curSkin = localStorage.ng_skin || 'nagham';
@@ -2428,7 +2424,6 @@ function renderSettingsPage() {
       renderSettingsPage();
     };
   }
-  
   const preSel = document.getElementById('eqpreInline');
   const inputs = L.querySelectorAll('.eq-input-inline');
   
@@ -2470,7 +2465,6 @@ function renderSettingsPage() {
   if (clearBtn) clearBtn.onclick = () => {
     if (confirm('متأكد إنك عايز تمسح كل البيانات؟')) { localStorage.clear(); location.reload(); }
   };
-  
   const normBtn = document.getElementById('normBtn');
   if (normBtn) {
     normBtn.onclick = () => {
@@ -2480,7 +2474,6 @@ function renderSettingsPage() {
     };
   }
 
-  // --- كود المزامنة السحابية الجديد ---
   const syncKeyInput = document.getElementById('syncKeyInput');
   document.getElementById('genSyncCodeBtn')?.addEventListener('click', () => {
     const newCode = 'lahn-' + Math.random().toString(36).substring(2, 10);
@@ -2646,6 +2639,86 @@ document.getElementById('8dBtn').onclick = () => {
   }
   updateFxBtnState();
 };
+
+document.getElementById('ncBtn').onclick = () => {
+  if (cur < 0) return toast('شغل أغنية الأول');
+  isNC = !isNC; isSL = false;
+  document.getElementById('ncBtn').classList.toggle('on', isNC);
+  document.getElementById('slBtn').classList.remove('on');
+  
+  if (isNC) {
+    audio.playbackRate = 1.25;
+    audio.preservesPitch = false;
+    if (wetGain) wetGain.gain.value = 0;
+    toast('Nightcore مقعل');
+  } else {
+    audio.playbackRate = 1;
+    audio.preservesPitch = true;
+    toast('Nightcore مقفول');
+  }
+  updateFxBtnState();
+};
+
+document.getElementById('slBtn').onclick = () => {
+  if (cur < 0) return toast('شغل أغنية الأول');
+  isSL = !isSL; isNC = false;
+  document.getElementById('slBtn').classList.toggle('on', isSL);
+  document.getElementById('ncBtn').classList.remove('on');
+  
+  if (isSL) {
+    if (!ac) ensureGraph();
+    ac.resume();
+    audio.playbackRate = 0.8;
+    audio.preservesPitch = false;
+    if (wetGain) wetGain.gain.value = 0.4;
+    toast('Slowed + Reverb مقعل');
+  } else {
+    audio.playbackRate = 1;
+    audio.preservesPitch = true;
+    if (wetGain) wetGain.gain.value = 0;
+    toast('Slowed + Reverb مقفول');
+  }
+  updateFxBtnState();
+};
+
+document.getElementById('vocalBtn').onclick = () => {
+  if (cur < 0) return toast('شغل أغنية الأول');
+  if (!ac) ensureGraph();
+  ac.resume();
+  
+  isKaraoke = !isKaraoke;
+  document.getElementById('vocalBtn').classList.toggle('on', isKaraoke);
+  
+  if (isKaraoke) {
+    if (vocalWet) vocalWet.gain.value = 1; 
+    if (masterDryGain) masterDryGain.gain.value = 0; 
+    toast('مود الكاريوكي مقعل');
+  } else {
+    if (vocalWet) vocalWet.gain.value = 0;
+    if (masterDryGain) masterDryGain.gain.value = 1; 
+    toast('مود الكاريوكي مقفول');
+  }
+  updateFxBtnState();
+};
+
+document.getElementById('audioFxBtn').onclick = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (cur < 0) return toast('شغل أغنية الأول عشان تقدر تستخدم المؤثرات');
+  const p = e.currentTarget.getBoundingClientRect();
+  showMenu(p.left - 60, p.top - 200, [
+    [(is8D ? '● ' : '○ ') + 'صوت 8D', () => document.getElementById('8dBtn').click()],
+    [(isNC ? '● ' : '○ ') + 'Nightcore', () => document.getElementById('ncBtn').click()],
+    [(isSL ? '● ' : '○ ') + 'Slowed + Reverb', () => document.getElementById('slBtn').click()],
+    [(isKaraoke ? '● ' : '○ ') + 'كاريوكي (إزالة الغناء)', () => document.getElementById('vocalBtn').click()]
+  ]);
+};
+
+function updateFxBtnState() {
+  const isAnyActive = is8D || isNC || isSL || isKaraoke;
+  document.getElementById('audioFxBtn').classList.toggle('on', isAnyActive);
+}
+
 const sortBtnEl = document.getElementById('sortBtn');
 if (sortBtnEl) {
   sortBtnEl.addEventListener('click', (e) => {
@@ -2803,7 +2876,6 @@ function playQuran() {
   const title = QURAN.selectedSurah.name;
   const artist = QURAN.selectedReciter.name;
   
-  // الصورة الافتراضية للقرآن
   const coverUrl = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
 
   DB.lib[key] = { title, artist, album: 'القرآن الكريم', duration: 0, url, isRemote: true, added: Date.now(), cover: coverUrl };
@@ -2817,6 +2889,7 @@ function playQuran() {
   document.getElementById('quranModal').hidden = true;
   toast('جاري تشغيل: ' + title + ' — ' + artist);
 }
+
 function downloadQuran() {
   const url = buildQuranUrl();
   if (!url) return;
@@ -2889,71 +2962,6 @@ if (globeBtn) {
   };
 }
 
-if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
-    reg.update();
-    setInterval(() => reg.update(), 60000);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') reg.update();
-    });
-  }).catch(() => {});
-}
-window.addEventListener('keydown', (e) => {
-  if (e.key === '?' && !e.target.matches('input,textarea')) {
-    e.preventDefault();
-    document.getElementById('shortcutsModal').hidden = false;
-  }
-  if (e.key === 'Escape') {
-    document.getElementById('shortcutsModal').hidden = true;
-  }
-});
-document.getElementById('closeShortcuts').onclick = () => {
-  document.getElementById('shortcutsModal').hidden = true;
-};
-/* --- Nightcore & Slowed + Reverb --- */
-let isNC = false, isSL = false;
-
-document.getElementById('ncBtn').onclick = () => {
-  if (cur < 0) return toast('شغل أغنية الأول');
-  isNC = !isNC; isSL = false;
-  document.getElementById('ncBtn').classList.toggle('on', isNC);
-  document.getElementById('slBtn').classList.remove('on');
-  
-  if (isNC) {
-    audio.playbackRate = 1.25;
-    audio.preservesPitch = false;
-    if (wetGain) wetGain.gain.value = 0;
-    toast('Nightcore مقعل');
-  } else {
-    audio.playbackRate = 1;
-    audio.preservesPitch = true;
-    toast('Nightcore مقفول');
-  }
-  updateFxBtnState();
-};
-
-document.getElementById('slBtn').onclick = () => {
-  if (cur < 0) return toast('شغل أغنية الأول');
-  isSL = !isSL; isNC = false;
-  document.getElementById('slBtn').classList.toggle('on', isSL);
-  document.getElementById('ncBtn').classList.remove('on');
-  
-  if (isSL) {
-    if (!ac) ensureGraph();
-    ac.resume();
-    audio.playbackRate = 0.8;
-    audio.preservesPitch = false;
-    if (wetGain) wetGain.gain.value = 0.4;
-    toast('Slowed + Reverb مقعل');
-  } else {
-    audio.playbackRate = 1;
-    audio.preservesPitch = true;
-    if (wetGain) wetGain.gain.value = 0;
-    toast('Slowed + Reverb مقفول');
-  }
-  updateFxBtnState();
-};
 /* ════════ البحث الأونلاين (راديو / أغاني / بودكاست) ════════ */
 let currentOSMode = 'radio';
 
@@ -3026,211 +3034,29 @@ document.getElementById('osResults').addEventListener('click', (e) => {
   document.getElementById('onlineSearchModal').hidden = true;
   toast('جاري التشغيل: ' + title);
 });
-document.getElementById('osClose').onclick = () => { document.getElementById('onlineSearchModal').hidden = true; };
 
-document.getElementById('osInput').addEventListener('input', async (e) => {
-  const q = e.target.value.trim();
-  const resEl = document.getElementById('osResults');
-  if (!q) { resEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">اكتب حاجة فوق عشان تبحث...</div>'; return; }
-  
-  resEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">⏳ جاري البحث...</div>';
-  
-  try {
-    let items = [];
-    if (currentOSMode === 'radio') {
-      const r = await fetch(`https://de1.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(q)}&limit=20`);
-      const data = await r.json();
-      items = data.map(x => ({ title: x.name, sub: x.country || 'راديو', url: x.url_resolved, isRadio: true }));
-    } 
-    else if (currentOSMode === 'audius') {
-      const r = await fetch(`https://discoveryprovider.audius.co/v1/tracks/search?query=${encodeURIComponent(q)}&app_name=LAHN`);
-      const data = await r.json();
-      items = data.data.map(x => ({ title: x.title, sub: x.user.name, url: `https://discoveryprovider.audius.co/v1/tracks/${x.id}/stream?app_name=LAHN`, isRadio: false }));
-    } 
-    else if (currentOSMode === 'podcast') {
-      const r = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=podcastEpisode&limit=20`);
-      const data = await r.json();
-      items = data.results.map(x => ({ title: x.trackName, sub: x.collectionName, url: x.previewUrl, isRadio: false }));
-    }
-    
-    if (!items.length) { resEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mute);">مفيش نتائج.</div>'; return; }
-    
-    resEl.innerHTML = items.map((item, i) => `
-      <div class="quran-item" data-os-url="${esc(item.url)}" data-os-title="${esc(item.title)}" data-os-sub="${esc(item.sub)}" data-os-radio="${item.isRadio}" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-bottom:1px solid var(--line);">
-        <b style="font-size:14px;color:var(--text);">${esc(item.title)}</b>
-        <span style="font-size:12px;color:var(--mute);">${esc(item.sub)}</span>
-      </div>
-    `).join('');
-    
-  } catch (err) {
-    resEl.innerHTML = '<div style="padding:20px;text-align:center;color:#ef4444;">فشل الاتصال، تأكد من الإنترنت.</div>';
-  }
-});
-
-document.getElementById('osResults').addEventListener('click', (e) => {
-  const item = e.target.closest('.quran-item'); if (!item) return;
-  const url = item.dataset.osUrl, title = item.dataset.osTitle, sub = item.dataset.osSub, isRadio = item.dataset.osRadio === 'true';
-  
-  if (!url) return toast('الرابط غير متاح');
-  
-  const key = 'online:' + Date.now();
-  DB.lib[key] = { title, artist: sub, album: isRadio ? 'راديو' : 'أونلاين', duration: 0, url, isRemote: true, added: Date.now() };
-  persist();
-  
-  if (!tracks.some((t) => t.path === key)) {
-    tracks.push({ path: key, url, title, artist: sub, album: isRadio ? 'راديو' : 'أونلاين', duration: 0, isRemote: true });
-  }
-  setTrack(tracks.findIndex((t) => t.path === key), true);
-  document.getElementById('onlineSearchModal').hidden = true;
-  toast('جاري التشغيل: ' + title);
-});
-let isKaraoke = false;
-document.getElementById('vocalBtn').onclick = () => {
-  if (cur < 0) return toast('شغل أغنية الأول');
-  if (!ac) ensureGraph();
-  ac.resume();
-  isKaraoke = !isKaraoke;
-  document.getElementById('vocalBtn').classList.toggle('on', isKaraoke);
-  
-  if (isKaraoke) {
-    if (typeof vocalWet !== 'undefined') vocalWet.gain.value = 1;
-    if (typeof delayNode !== 'undefined') wetGain.gain.value = 0; 
-    audio.volume = 1;
-    toast('مود الكاريوكي مقعل');
-  } else {
-    if (typeof vocalWet !== 'undefined') vocalWet.gain.value = 0;
-    toast('مود الكاريوكي مقفول');
-  }
-  updateFxBtnState();
-};
-document.getElementById('editFileRealBtn').onclick = async () => {
-  const k = editTarget;
-  if (!k || !files.has(k)) return toast('الملف مش موجود أو مش محلي');
-  const f = files.get(k);
-  if (!/\.mp3$/i.test(f.name)) return toast('الميزة دي بتدعم MP3 بس حالياً');
-  
-  try {
-    const arrayBuffer = await f.arrayBuffer();
-    const writer = new ID3Writer(arrayBuffer);
-    
-    writer.setFrame('TIT2', document.getElementById('editTitleInput').value.trim() || 'أغنية');
-    writer.setFrame('TPE1', [document.getElementById('editArtistInput').value.trim() || 'فنان']);
-    writer.setFrame('TALB', document.getElementById('editAlbumInput').value.trim() || 'ألبوم');
-    
-    // إضافة صورة الغلاف لو موجودة
-    if (editCoverData && editCoverData.startsWith('data:image')) {
-      const res = await fetch(editCoverData);
-      const blob = await res.blob();
-      const imgBuf = await blob.arrayBuffer();
-      writer.setFrame('APIC', { type: 3, data: imgBuf, description: 'Cover' });
-    }
-    
-    writer.addTag();
-    const taggedSongBuffer = writer.arrayBuffer;
-    const blob = new Blob([taggedSongBuffer], { type: 'audio/mpeg' });
-    
-    // حفظ الملف
-    if (window.showSaveFilePicker) {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: f.name,
-        types: [{ description: 'MP3 Audio', accept: {'audio/mpeg': ['.mp3']} }]
-      });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      toast('تم تعديل الملف الأصلي بنجاح!');
-    } else {
-      // تصدير الملف لو المتصفح مش بيدعم الحفظ المباشر
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f.name; a.click();
-      toast('تم تحميل الملف المعدل');
-    }
-  } catch (e) {
-    console.error(e);
-    toast('فشل التعديل: ' + e.message);
-  }
-};
-// توليد الكود وحفظه
-const syncKeyInput = document.getElementById('syncKeyInput');
-let savedSyncKey = localStorage.ng_sync_key || '';
-if (syncKeyInput) syncKeyInput.value = savedSyncKey;
-
-document.getElementById('genSyncCodeBtn')?.addEventListener('click', () => {
-  const newCode = 'lahn-' + Math.random().toString(36).substring(2, 10);
-  localStorage.ng_sync_key = newCode;
-  document.getElementById('syncKeyInput').value = newCode;
-  toast('تم توليد كود جديد! احتفظ بيه.');
-});
-
-// الرفع
-document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
-  let key = document.getElementById('syncKeyInput').value.trim();
-  if (!key) {
-    key = 'lahn-' + Math.random().toString(36).substring(2, 10);
-    localStorage.ng_sync_key = key;
-    document.getElementById('syncKeyInput').value = key;
-    toast('تم توليد كود تلقائي: ' + key);
-  }
-  
-  const btn = document.getElementById('cloudUploadBtn');
-  btn.textContent = '⏳ جاري الرفع...';
-  
-  try {
-    const dataToSync = { db: DB, stats: ST, hist: HIST };
-    const res = await fetch(`https://kvdb.io/${key}`, {
-      method: 'PUT',
-      body: JSON.stringify(dataToSync)
+if (/Android|iPhone|iPad/i.test(navigator.userAgent)) { const b = document.querySelector('#addd'); if (b) b.style.display = 'none'; }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+    reg.update();
+    setInterval(() => reg.update(), 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') reg.update();
     });
-    if (res.ok) toast('تم الرفع بنجاح! ☁️');
-    else throw new Error('فشل الرفع');
-  } catch (e) {
-    toast('خطأ في الرفع، تأكد من الإنترنت');
-  }
-  btn.textContent = 'رفع للسحابة ☁️';
-});
-
-// التنزيل
-document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
-  const key = document.getElementById('syncKeyInput').value.trim();
-  if (!key) return toast('اكتب كود المزامنة الأول');
-  
-  const btn = document.getElementById('cloudDownloadBtn');
-  btn.textContent = '⏳ جاري التنزيل...';
-  
-  try {
-    const res = await fetch(`https://kvdb.io/${key}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
-      if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
-      if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
-      toast('تم التنزيل! جاري إعادة التحميل...');
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      toast('مفيش بيانات بالكود ده');
-    }
-  } catch (e) {
-    toast('خطأ في التنزيل، تأكد من الكود والإنترنت');
-  }
-  btn.textContent = 'تنزيل من السحابة ⬇️';
-});
-document.getElementById('audioFxBtn').onclick = (e) => {
-  if (cur < 0) return toast('شغل أغنية الأول عشان تقدر تستخدم المؤثرات');
-  const p = e.currentTarget.getBoundingClientRect();
-  
-  // بنفتح القايمة لفوق عشان الزرار ده تحت خالص
-  showMenu(p.left - 60, p.top - 200, [
-    [(is8D ? '● ' : '○ ') + 'صوت 8D', () => document.getElementById('8dBtn').click()],
-    [(isNC ? '● ' : '○ ') + 'Nightcore', () => document.getElementById('ncBtn').click()],
-    [(isSL ? '● ' : '○ ') + 'Slowed + Reverb', () => document.getElementById('slBtn').click()],
-    [(isKaraoke ? '● ' : '○ ') + 'كاريوكي (إزالة الغناء)', () => document.getElementById('vocalBtn').click()]
-  ]);
-};
-
-// عشان الزرار الجديد ينور لو أي تأثير منهم شغال
-function updateFxBtnState() {
-  const isAnyActive = is8D || isNC || isSL || isKaraoke;
-  document.getElementById('audioFxBtn').classList.toggle('on', isAnyActive);
+  }).catch(() => {});
 }
+window.addEventListener('keydown', (e) => {
+  if (e.key === '?' && !e.target.matches('input,textarea')) {
+    e.preventDefault();
+    document.getElementById('shortcutsModal').hidden = false;
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('shortcutsModal').hidden = true;
+  }
+});
+document.getElementById('closeShortcuts').onclick = () => {
+  document.getElementById('shortcutsModal').hidden = true;
+};
 </script>
 </body>
 </html>
