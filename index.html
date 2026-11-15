@@ -8,6 +8,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>لحن</title>
+<script src="https://cdn.jsdelivr.net/npm/browser-id3-writer@4.3.0/dist/browser-id3-writer.min.js"></script>
 <style>
 :root{--tint:rgb(139,124,246);--tint-rgb:139,124,246;--bg:#12101a;--text:#f2eefc;--mute:#9d97b5;--line:rgba(255,255,255,.09);--w:255,255,255;--on:#15121f}
 *{box-sizing:border-box;margin:0}html,body{height:100%}
@@ -429,6 +430,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <button class="ib" id="8dBtn" title="صوت 8D" aria-label="صوت 8D" style="font-size:12px;font-weight:bold;width:30px">8D</button>
    <button class="ib" id="ncBtn" title="Nightcore" style="font-size:11px;font-weight:bold;width:30px">NC</button>
 <button class="ib" id="slBtn" title="Slowed + Reverb" style="font-size:11px;font-weight:bold;width:30px">S+R</button>
+<button class="ib" id="vocalBtn" title="Karaoke (Vocal Remover)" style="font-size:11px;font-weight:bold;width:30px">K</button>
  <button class="ib" id="lyricBtn" title="عرض الكلمات" aria-label="عرض الكلمات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></button>
     <div class="vol"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="range" id="vol" min="0" max="100" aria-label="مستوى الصوت"></div>
   </div>
@@ -514,6 +516,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
       <button class="chip" id="editMetaCancel">إلغاء</button>
+<button class="chip" id="editFileRealBtn" style="background:var(--tint);color:#fff;">حفظ في الملف الأصلي</button>
       <button class="chip pri" id="editMetaSave">حفظ التعديلات</button>
     </div>
   </div>
@@ -1458,11 +1461,32 @@ if (!delayNode) {
   delayNode.connect(wetGain);
   wetGain.connect(an);
 }
+let vocalSplitter, vocalMerger, vocalGainL, vocalGainR, vocalInvL, vocalInvR, vocalWet;
+if (!vocalSplitter) {
+  vocalSplitter = ac.createChannelSplitter(2);
+  vocalMerger = ac.createChannelMerger(2);
+  vocalGainL = ac.createGain(); // القناة الشمال الأصلية
+  vocalGainR = ac.createGain(); // القناة اليمين الأصلية
+  vocalInvL = ac.createGain(); vocalInvL.gain.value = -1; // عكس الشمال
+  vocalInvR = ac.createGain(); vocalInvR.gain.value = -1; // عكس اليمين
+  vocalWet = ac.createGain(); vocalWet.gain.value = 0; // متوقف في الأول
+
+  vocalSplitter.connect(vocalGainL, 0);
+  vocalSplitter.connect(vocalGainR, 1);
+  
+  // ربط الكاريوكي (شمال - يمين)
+  vocalGainL.connect(vocalInvR); vocalInvR.connect(vocalMerger, 0, 0);
+  vocalGainR.connect(vocalInvL); vocalInvL.connect(vocalMerger, 0, 1);
+
+  vocalMerger.connect(vocalWet);
+}
   let prev = s;
   if (localStorage.ng_norm === '1') { prev.connect(compressorNode); prev = compressorNode; }
   eqNodes.forEach((n) => { prev.connect(n); prev = n; });
   if (panner) { prev.connect(panner); panner.connect(an); panner.connect(delayNode); } 
 else { prev.connect(an); prev.connect(delayNode); }
+prev.connect(vocalSplitter);
+vocalWet.connect(an);
   an.connect(ac.destination);
 }
 const applyEQ = () => { eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; }); try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {} };
@@ -2220,7 +2244,7 @@ function renderSettingsPage() {
       </section>
 
       <section class="settings-section">
-       <h3>${svgIcons.music} شكل الفيجوالايزر</h3>
+        <h3>${svgIcons.music} شكل الفيجوالايزر</h3>
         <div class="chip-grid">
           <button class="chip ${vizStyle === 'bars' ? 'pri' : ''}" data-viz="bars">أعمدة</button>
           <button class="chip ${vizStyle === 'circle' ? 'pri' : ''}" data-viz="circle">دايرة</button>
@@ -2229,7 +2253,7 @@ function renderSettingsPage() {
       </section>
       
       <section class="settings-section">
-  <h3>${svgIcons.zap} السرعة ومؤقت النوم</h3>
+        <h3>${svgIcons.zap} السرعة ومؤقت النوم</h3>
         <div style="margin-bottom: 20px;">
           <div style="font-size:13px; color:var(--mute); margin-bottom:8px;">سرعة التشغيل</div>
           <div class="chip-grid">
@@ -2249,15 +2273,17 @@ function renderSettingsPage() {
           </div>
         </div>
       </section>
+
       <section class="settings-section">
-  <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
-  <div class="chip-grid">
-    <button class="chip ${localStorage.ng_norm === '1' ? 'pri' : ''}" id="normBtn">
-      ${localStorage.ng_norm === '1' ? 'مفعّل ✓' : 'متوقف'}
-    </button>
-  </div>
-  <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيخلي كل الأغاني بنفس مستوى الصوت (مفيد جداً لو الأغاني بتحملها من النت).</small>
-</section>
+        <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
+        <div class="chip-grid">
+          <button class="chip ${localStorage.ng_norm === '1' ? 'pri' : ''}" id="normBtn">
+            ${localStorage.ng_norm === '1' ? 'مفعّل ✓' : 'متوقف'}
+          </button>
+        </div>
+        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيخلي كل الأغاني بنفس مستوى الصوت (مفيد جداً لو الأغاني بتحملها من النت).</small>
+      </section>
+
       <section class="settings-section">
         <h3>${svgIcons.sliders} المعادل الصوتي</h3>
         <div class="eq-inline">
@@ -2267,8 +2293,8 @@ function renderSettingsPage() {
               <option value="custom">مخصص</option>
             </select>
             <button id="eqonInline" class="chip"></button>
-<input type="text" id="eqCustomName" placeholder="اسم الإعداد..." style="width:100px; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:12px;">
-<button class="chip" id="eqSaveCustom" style="padding:6px 10px; background:var(--tint); color:#fff;">حفظ</button>
+            <input type="text" id="eqCustomName" placeholder="اسم الإعداد..." style="width:100px; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:12px;">
+            <button class="chip" id="eqSaveCustom" style="padding:6px 10px; background:var(--tint); color:#fff;">حفظ</button>
           </div>
           <div class="eqs">
             ${EQB.map((f, i) => `
@@ -2279,6 +2305,21 @@ function renderSettingsPage() {
             `).join('')}
           </div>
           <small>${MOBILE ? 'على الموبايل ممكن المعادل يوقف الصوت لما تقفل الشاشة. لو حصل كده أوقفه.' : 'اسحب الأشرطة لضبط الصوت، أو اختار إعداد جاهز.'}</small>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>${svgIcons.globe} المزامنة السحابية</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <label class="field-lbl">كود المزامنة الخاص بك (احتفظ به لاستخدامه على جهاز آخر):</label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="syncKeyInput" readonly style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(var(--w),.05); color:var(--text); text-align:center; font-weight:bold; letter-spacing:1px;" value="${localStorage.ng_sync_key || ''}">
+            <button class="chip" id="genSyncCodeBtn" style="background:var(--bg); border:1px solid var(--line);">توليد كود</button>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:5px;">
+            <button class="chip" id="cloudUploadBtn" style="flex:1; background:var(--tint); color:#fff;">رفع للسحابة ☁️</button>
+            <button class="chip" id="cloudDownloadBtn" style="flex:1; background:#10b981; color:#fff;">تنزيل من السحابة ⬇️</button>
+          </div>
         </div>
       </section>
       
@@ -2310,6 +2351,10 @@ function renderSettingsPage() {
           <div class="about-row"><span>عدد الكلمات المحفوظة</span><b>${lyricCount}</b></div>
         </div>
       </section>
+      
+      <div style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
+        © ${new Date().getFullYear()} Lahn App. All rights reserved.
+      </div>
     </div>
   `;
   
@@ -2320,6 +2365,7 @@ function renderSettingsPage() {
       renderSettingsPage(); 
     };
   });
+  
   L.querySelectorAll('.skin-item[data-oldskin]').forEach(el => {
     el.onclick = () => {
       isOldSkin = !isOldSkin; localStorage.ng_old_skin = isOldSkin ? '1' : '0'; applyOldSkin();
@@ -2372,6 +2418,7 @@ function renderSettingsPage() {
       renderSettingsPage();
     };
   }
+  
   const preSel = document.getElementById('eqpreInline');
   const inputs = L.querySelectorAll('.eq-input-inline');
   
@@ -2413,6 +2460,7 @@ function renderSettingsPage() {
   if (clearBtn) clearBtn.onclick = () => {
     if (confirm('متأكد إنك عايز تمسح كل البيانات؟')) { localStorage.clear(); location.reload(); }
   };
+  
   const normBtn = document.getElementById('normBtn');
   if (normBtn) {
     normBtn.onclick = () => {
@@ -2421,6 +2469,55 @@ function renderSettingsPage() {
       location.reload(); 
     };
   }
+
+  // --- كود المزامنة السحابية الجديد ---
+  const syncKeyInput = document.getElementById('syncKeyInput');
+  document.getElementById('genSyncCodeBtn')?.addEventListener('click', () => {
+    const newCode = 'lahn-' + Math.random().toString(36).substring(2, 10);
+    localStorage.ng_sync_key = newCode;
+    if (syncKeyInput) syncKeyInput.value = newCode;
+    toast('تم توليد كود جديد! احتفظ بيه.');
+  });
+
+  document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
+    let key = syncKeyInput.value.trim();
+    if (!key) {
+      key = 'lahn-' + Math.random().toString(36).substring(2, 10);
+      localStorage.ng_sync_key = key;
+      syncKeyInput.value = key;
+      toast('تم توليد كود تلقائي: ' + key);
+    }
+    const btn = document.getElementById('cloudUploadBtn');
+    btn.textContent = '⏳ جاري الرفع...';
+    try {
+      const dataToSync = { db: DB, stats: ST, hist: HIST };
+      const res = await fetch(`https://kvdb.io/${key}`, { method: 'PUT', body: JSON.stringify(dataToSync) });
+      if (res.ok) toast('تم الرفع بنجاح! ☁️');
+      else throw new Error('فشل الرفع');
+    } catch (e) { toast('خطأ في الرفع، تأكد من الإنترنت'); }
+    btn.textContent = 'رفع للسحابة ☁️';
+  });
+
+  document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
+    const key = syncKeyInput.value.trim();
+    if (!key) return toast('اكتب كود المزامنة الأول');
+    const btn = document.getElementById('cloudDownloadBtn');
+    btn.textContent = '⏳ جاري التنزيل...';
+    try {
+      const res = await fetch(`https://kvdb.io/${key}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
+        if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
+        if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
+        toast('تم التنزيل! جاري إعادة التحميل...');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        toast('مفيش بيانات بالكود ده');
+      }
+    } catch (e) { toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); }
+    btn.textContent = 'تنزيل من السحابة ⬇️';
+  });
 }
 
 let currentHistoryView = null;
@@ -2974,6 +3071,135 @@ document.getElementById('osResults').addEventListener('click', (e) => {
   setTrack(tracks.findIndex((t) => t.path === key), true);
   document.getElementById('onlineSearchModal').hidden = true;
   toast('جاري التشغيل: ' + title);
+});
+let isKaraoke = false;
+document.getElementById('vocalBtn').onclick = () => {
+  if (cur < 0) return toast('شغل أغنية الأول');
+  if (!ac) ensureGraph();
+  ac.resume();
+  isKaraoke = !isKaraoke;
+  document.getElementById('vocalBtn').classList.toggle('on', isKaraoke);
+  
+  if (isKaraoke) {
+    // بنعتمد على الكاريوكي بدل الصوت العادي
+    if (typeof vocalWet !== 'undefined') vocalWet.gain.value = 1;
+    if (typeof delayNode !== 'undefined') wetGain.gain.value = 0; 
+    audio.volume = 1; // تأكد إن الصوت واصل
+    toast('مود الكاريوكي مقعل');
+  } else {
+    if (typeof vocalWet !== 'undefined') vocalWet.gain.value = 0;
+    toast('مود الكاريوكي مقفول');
+  }
+};
+document.getElementById('editFileRealBtn').onclick = async () => {
+  const k = editTarget;
+  if (!k || !files.has(k)) return toast('الملف مش موجود أو مش محلي');
+  const f = files.get(k);
+  if (!/\.mp3$/i.test(f.name)) return toast('الميزة دي بتدعم MP3 بس حالياً');
+  
+  try {
+    const arrayBuffer = await f.arrayBuffer();
+    const writer = new ID3Writer(arrayBuffer);
+    
+    writer.setFrame('TIT2', document.getElementById('editTitleInput').value.trim() || 'أغنية');
+    writer.setFrame('TPE1', [document.getElementById('editArtistInput').value.trim() || 'فنان']);
+    writer.setFrame('TALB', document.getElementById('editAlbumInput').value.trim() || 'ألبوم');
+    
+    // إضافة صورة الغلاف لو موجودة
+    if (editCoverData && editCoverData.startsWith('data:image')) {
+      const res = await fetch(editCoverData);
+      const blob = await res.blob();
+      const imgBuf = await blob.arrayBuffer();
+      writer.setFrame('APIC', { type: 3, data: imgBuf, description: 'Cover' });
+    }
+    
+    writer.addTag();
+    const taggedSongBuffer = writer.arrayBuffer;
+    const blob = new Blob([taggedSongBuffer], { type: 'audio/mpeg' });
+    
+    // حفظ الملف
+    if (window.showSaveFilePicker) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: f.name,
+        types: [{ description: 'MP3 Audio', accept: {'audio/mpeg': ['.mp3']} }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      toast('تم تعديل الملف الأصلي بنجاح!');
+    } else {
+      // تصدير الملف لو المتصفح مش بيدعم الحفظ المباشر
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f.name; a.click();
+      toast('تم تحميل الملف المعدل');
+    }
+  } catch (e) {
+    console.error(e);
+    toast('فشل التعديل: ' + e.message);
+  }
+};
+// توليد الكود وحفظه
+const syncKeyInput = document.getElementById('syncKeyInput');
+let savedSyncKey = localStorage.ng_sync_key || '';
+if (syncKeyInput) syncKeyInput.value = savedSyncKey;
+
+document.getElementById('genSyncCodeBtn')?.addEventListener('click', () => {
+  const newCode = 'lahn-' + Math.random().toString(36).substring(2, 10);
+  localStorage.ng_sync_key = newCode;
+  document.getElementById('syncKeyInput').value = newCode;
+  toast('تم توليد كود جديد! احتفظ بيه.');
+});
+
+// الرفع
+document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
+  let key = document.getElementById('syncKeyInput').value.trim();
+  if (!key) {
+    key = 'lahn-' + Math.random().toString(36).substring(2, 10);
+    localStorage.ng_sync_key = key;
+    document.getElementById('syncKeyInput').value = key;
+    toast('تم توليد كود تلقائي: ' + key);
+  }
+  
+  const btn = document.getElementById('cloudUploadBtn');
+  btn.textContent = '⏳ جاري الرفع...';
+  
+  try {
+    const dataToSync = { db: DB, stats: ST, hist: HIST };
+    const res = await fetch(`https://kvdb.io/${key}`, {
+      method: 'PUT',
+      body: JSON.stringify(dataToSync)
+    });
+    if (res.ok) toast('تم الرفع بنجاح! ☁️');
+    else throw new Error('فشل الرفع');
+  } catch (e) {
+    toast('خطأ في الرفع، تأكد من الإنترنت');
+  }
+  btn.textContent = 'رفع للسحابة ☁️';
+});
+
+// التنزيل
+document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
+  const key = document.getElementById('syncKeyInput').value.trim();
+  if (!key) return toast('اكتب كود المزامنة الأول');
+  
+  const btn = document.getElementById('cloudDownloadBtn');
+  btn.textContent = '⏳ جاري التنزيل...';
+  
+  try {
+    const res = await fetch(`https://kvdb.io/${key}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
+      if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
+      if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
+      toast('تم التنزيل! جاري إعادة التحميل...');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      toast('مفيش بيانات بالكود ده');
+    }
+  } catch (e) {
+    toast('خطأ في التنزيل، تأكد من الكود والإنترنت');
+  }
+  btn.textContent = 'تنزيل من السحابة ⬇️';
 });
 </script>
 </body>
