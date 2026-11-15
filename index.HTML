@@ -518,7 +518,29 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 
 <div id="npv" hidden><button class="mini cl" id="npx" aria-label="إغلاق">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-</button><img id="art2" alt=""><h2 id="title2" dir="auto"></h2><p id="artist2" dir="auto"></p><canvas id="viz"></canvas></div><script>
+</button><img id="art2" alt=""><h2 id="title2" dir="auto"></h2><p id="artist2" dir="auto"></p><canvas id="viz"></canvas></div>
+
+<!-- نافذة القرآن -->
+<div id="quranModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="eqh"><b>القرآن الكريم</b><button class="chip" id="quranClose">إغلاق</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0;margin:14px 0;">
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <input id="quranReciterSearch" type="text" placeholder="ابحث عن شيخ..." dir="auto" style="margin-bottom:8px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);">
+        <div id="quranReciters" class="quran-list"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <input id="quranSurahSearch" type="text" placeholder="ابحث عن سورة..." dir="auto" style="margin-bottom:8px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);">
+        <div id="quranSurahs" class="quran-list"></div>
+      </div>
+    </div>
+    <div id="quranPreview" class="quran-preview" dir="auto">اختر الشيخ والسورة</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="chip" id="quranDownload" disabled>تحميل</button>
+      <button class="chip pri" id="quranPlay" disabled>تشغيل</button>
+    </div>
+  </div>
+</div><script>
 const $ = (s) => document.querySelector(s);
 const AUD = /\.(mp3|flac|m4a|aac|ogg|opus|wav)$/i;
 const files = new Map(), tagCache = new Map();
@@ -703,12 +725,12 @@ async function setTrack(i, autoplay) {
 
 function step(dir, auto) {
   if (!tracks.length) return;
-  if (auto && repeat === 2) { getActiveAudio().currentTime = 0; getActiveAudio().play(); return; }
+  if (auto && repeat === 2) { audio.currentTime = 0; audio.play(); return; }
   let n;
   if (shuffle && tracks.length > 1) { do n = Math.floor(Math.random() * tracks.length); while (n === cur); }
   else n = cur + dir;
   if (n >= tracks.length || n < 0) {
-    if (repeat === 1 || !auto) n = (n + tracks.length) % tracks.length; else { getActiveAudio().pause(); return; }
+    if (repeat === 1 || !auto) n = (n + tracks.length) % tracks.length; else { audio.pause(); return; }
   }
   setTrack(n, true);
 }
@@ -727,7 +749,7 @@ const fadeOutAndPause = () => {
 
 const toggle = () => { 
   if (cur < 0) return; 
-  const a = getActiveAudio();
+  const a = activeIsRemote ? remoteAudio : audio;
   if (a.paused) a.play(); 
   else fadeOutAndPause(); 
 };
@@ -782,20 +804,20 @@ addEventListener('keydown', (e) => {
 if ('mediaSession' in navigator) {
   const ms = navigator.mediaSession;
 try {
-  ms.setActionHandler('play', () => { if (getActiveAudio().paused) toggle(); });
-  ms.setActionHandler('pause', () => { if (!getActiveAudio().paused) toggle(); });
-  ms.setActionHandler('stop', () => { getActiveAudio().pause(); getActiveAudio().currentTime = 0; });
+  ms.setActionHandler('play', () => { if (audio.paused) toggle(); });
+  ms.setActionHandler('pause', () => { if (!audio.paused) toggle(); });
+  ms.setActionHandler('stop', () => { audio.pause(); audio.currentTime = 0; });
   ms.setActionHandler('nexttrack', () => step(1, false));
   ms.setActionHandler('previoustrack', () => step(-1, false));
-  ms.setActionHandler('seekbackward', (d) => { getActiveAudio().currentTime = Math.max(0, getActiveAudio().currentTime - (d.seekOffset || 10)); });
-  ms.setActionHandler('seekforward', (d) => { getActiveAudio().currentTime = Math.min(getActiveAudio().duration || 0, getActiveAudio().currentTime + (d.seekOffset || 10)); });
-  ms.setActionHandler('seekto', (d) => { if (d.seekTime != null) getActiveAudio().currentTime = d.seekTime; });
+  ms.setActionHandler('seekbackward', (d) => { audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10)); });
+  ms.setActionHandler('seekforward', (d) => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 10)); });
+  ms.setActionHandler('seekto', (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
 } catch (e) {}
   const syncMediaState = () => {
     try {
-      ms.playbackState = getActiveAudio().paused ? 'paused' : 'playing';
-      if (isFinite(getActiveAudio().duration) && getActiveAudio().duration > 0) {
-        ms.setPositionState({ duration: getActiveAudio().duration, position: Math.min(getActiveAudio().currentTime, getActiveAudio().duration), playbackRate: getActiveAudio().playbackRate });
+      ms.playbackState = audio.paused ? 'paused' : 'playing';
+      if (isFinite(audio.duration) && audio.duration > 0) {
+        ms.setPositionState({ duration: audio.duration, position: Math.min(audio.currentTime, audio.duration), playbackRate: audio.playbackRate });
       }
     } catch (_) {}
   };
@@ -2026,14 +2048,14 @@ $('#vm').onclick = (e) => {
 let abA = null, abB = null;
 $('#abBtn').onclick = () => {
   if (!audio.duration) return;
-  if (abA === null) { abA = getActiveAudio().currentTime; toast('تم تحديد نقطة البداية A'); }
-  else if (abB === null) { abB = getActiveAudio().currentTime; toast('تم تحديد نقطة النهاية B'); }
+  if (abA === null) { abA = audio.currentTime; toast('تم تحديد نقطة البداية A'); }
+  else if (abB === null) { abB = audio.currentTime; toast('تم تحديد نقطة النهاية B'); }
   else { abA = null; abB = null; toast('تم إلغاء تكرار المقطع'); }
   $('#abBtn').classList.toggle('on', abA !== null);
 };
 audio.addEventListener('timeupdate', () => {
-  if (abB !== null && abA !== null && getActiveAudio().currentTime >= abB) {
-    getActiveAudio().currentTime = abA;
+  if (abB !== null && abA !== null && audio.currentTime >= abB) {
+    audio.currentTime = abA;
   }
 });
 
@@ -2711,46 +2733,5 @@ document.getElementById('closeShortcuts').onclick = () => {
   document.getElementById('shortcutsModal').hidden = true;
 };
 </script>
-
-<!-- نافذة القرآن -->
-<div id="quranModal" class="modal-overlay" hidden>
-  <div class="modal-card">
-    <div class="eqh"><b>القرآن الكريم</b><button class="chip" id="quranClose">إغلاق</button></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0;margin:14px 0;">
-      <div style="display:flex;flex-direction:column;min-height:0;">
-        <input id="quranReciterSearch" type="text" placeholder="ابحث عن شيخ..." dir="auto" style="margin-bottom:8px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);">
-        <div id="quranReciters" class="quran-list"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;min-height:0;">
-        <input id="quranSurahSearch" type="text" placeholder="ابحث عن سورة..." dir="auto" style="margin-bottom:8px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);">
-        <div id="quranSurahs" class="quran-list"></div>
-      </div>
-    </div>
-    <div id="quranPreview" class="quran-preview" dir="auto">اختر الشيخ والسورة</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="chip" id="quranDownload" disabled>تحميل</button>
-      <button class="chip pri" id="quranPlay" disabled>تشغيل</button>
-    </div>
-  </div>
-</div>
-
-<div id="shortcutsModal" class="modal-overlay" hidden>
-  <div class="modal-card" style="text-align:center;">
-    <div class="eqh" style="justify-content:center;"><b>اختصارات الكيبورد ⌨️</b></div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:start; font-size:14px; margin-top:15px; line-height:2;">
-      <div><b style="color:var(--tint)">Space</b> : تشغيل / إيقاف</div>
-      <div><b style="color:var(--tint)">N</b> : الأغنية التالية</div>
-      <div><b style="color:var(--tint)">P</b> : الأغنية السابقة</div>
-      <div><b style="color:var(--tint)">J</b> : رجوع 15 ثانية</div>
-      <div><b style="color:var(--tint)">L</b> : تقدم 15 ثانية</div>
-      <div><b style="color:var(--tint)">M</b> : كتم الصوت</div>
-      <div><b style="color:var(--tint)">F</b> : إضافة للمفضلة</div>
-      <div><b style="color:var(--tint)">S</b> : عشوائي (تشغيل/إيقاف)</div>
-      <div><b style="color:var(--tint)">⬆ / ⬇</b> : التحكم في الصوت</div>
-      <div><b style="color:var(--tint)">/</b> : البحث</div>
-    </div>
-    <button class="chip pri" id="closeShortcuts" style="margin:20px auto 0;">تمام</button>
-  </div>
-</div>
 </body>
 </html>
