@@ -103,6 +103,7 @@ Because the app relies on `fetch` to retrieve data from the internet (Quran, Rad
 4. اضغط كليك يمين على ملف `index.html` واختر **Open with Live Server**.
 
 ## 📸 لقطات الشاشة
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/34a435a5-bcdd-4d9d-aa68-121c5f28f369" />
 
 
 
