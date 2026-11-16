@@ -688,6 +688,7 @@ async function dropFiles(dt) {
 const audio = new Audio();
 const remoteAudio = new Audio();
 let tracks = [], cur = -1, shuffle = false, repeat = 0;
+let crossfadeTime = parseInt(localStorage.ng_crossfade || 0);
 let activeIsRemote = false, _isProxied = false;
 
 function proxyToRemote() {
@@ -769,6 +770,29 @@ async function setTrack(i, autoplay) {
   }
   
   if (masterDryGain) masterDryGain.gain.value = 1;
+  // تطبيق الـ Crossfade (Fade In)
+  if (crossfadeTime > 0) {
+    window.__isCrossfading = false;
+    const targetVol = parseFloat($('#vol').value) / 100 || 0.8;
+    const activeAudio = isRemote ? remoteAudio : audio;
+    activeAudio.volume = 0;
+    
+    setTimeout(() => {
+      const steps = 50;
+      const intervalTime = (crossfadeTime * 1000) / steps;
+      const volStep = targetVol / steps;
+      let vol = 0;
+      const fadeInInt = setInterval(() => {
+        vol += volStep;
+        if (vol >= targetVol || activeAudio.paused) {
+          clearInterval(fadeInInt);
+          if (!activeAudio.paused) activeAudio.volume = targetVol;
+        } else {
+          activeAudio.volume = vol;
+        }
+      }, intervalTime);
+    }, 100);
+  }
   if (ac && ac.state === 'suspended') ac.resume();
   
   $('#title').textContent = m.title || t.title; 
@@ -849,6 +873,26 @@ audio.addEventListener('ended', () => {
 audio.addEventListener('loadedmetadata', () => { $('#td').textContent = fmt(audio.duration); });
 audio.addEventListener('timeupdate', () => {
   $('#tc').textContent = fmt(audio.currentTime);
+  // تطبيق الـ Crossfade (Fade Out)
+  const timeLeft = audio.duration - audio.currentTime;
+  if (crossfadeTime > 0 && timeLeft <= crossfadeTime && timeLeft > 0 && !window.__isCrossfading) {
+    window.__isCrossfading = true;
+    const activeAudio = activeIsRemote ? remoteAudio : audio;
+    let vol = activeAudio.volume;
+    const steps = 50;
+    const intervalTime = (crossfadeTime * 1000) / steps;
+    const volStep = vol / steps;
+    
+    const fadeOutInt = setInterval(() => {
+      vol -= volStep;
+      if (vol <= 0 || activeAudio.paused) {
+        clearInterval(fadeOutInt);
+        if (!activeAudio.paused) activeAudio.volume = 0;
+      } else {
+        activeAudio.volume = vol;
+      }
+    }, intervalTime);
+  }
   if (!seeking && audio.duration) { $('#seek').value = audio.currentTime / audio.duration * 1000; fill($('#seek')); }
   syncLyricsPlayback();
 });
@@ -1724,6 +1768,11 @@ const ROWS = [
  ['دايرة', 'Circle', 'Cercle', 'Círculo'],
  ['تغيير الصورة', 'Change cover', 'Changer la pochette', 'Cambiar portada'],
  
+ ['مزج الأغاني (Crossfade)', 'Crossfade', 'Fondu enchaîné', 'Fundido cruzado', 'Çapraz geçiş', 'Überblenden', 'Crossfade', 'کراس فیڈ'],
+ ['مدة المزج:', 'Crossfade duration:', 'Durée du fondu :', 'Duración del fundido:', 'Geçiş süresi:', 'Überblendungsdauer:', 'Durasi crossfade:', 'کراس فیڈ دورانیہ:'],
+ ['ثواني', 'seconds', 'secondes', 'segundos', 'saniye', 'Sekunden', 'detik', 'سیکنڈ'],
+ ['بدون مزج', 'No crossfade', 'Pas de fondu', 'Sin fundido', 'Geçiş yok', 'Kein Überblenden', 'Tanpa crossfade', 'بغیر کراس فیڈ'],
+ ['مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.', 'Crossfade songs for a smooth transition at the end.', 'Fondu enchaîné pour une transition fluide.', 'Fundido cruzado para una transición suave.', 'Yumuşak geçiş için şarkıları çapraz geçiş yapın.', 'Überblenden für einen sanften Übergang.', 'Crossfade lagu untuk transisi yang mulus.', 'ہموار منتقلی کے لیے گانے کراس فیڈ کریں۔'],
  ['بحث بالإنترنت', 'Internet Search', 'Recherche Internet', 'Búsqueda en Internet', 'İnternet Araması', 'Internetsuche', 'Pencarian Internet', 'انٹرنیٹ تلاش'],
  ['إخفاء زر البحث بالإنترنت', 'Hide Internet Search Button', 'Masquer la recherche Internet', 'Ocultar búsqueda en Internet', 'İnternet Aramasını Gizle', 'Internetsuche ausblenden', 'Sembunyikan Pencarian Internet', 'انٹرنیٹ تلاش چھپائیں'],
  ['إظهار زر البحث بالإنترنت', 'Show Internet Search Button', 'Afficher la recherche Internet', 'Mostrar búsqueda en Internet', 'İnternet Aramasını Göster', 'Internetsuche einblenden', 'Tampilkan Pencarian Internet', 'انٹرنیٹ تلاش دکھائیں'],
@@ -2281,22 +2330,6 @@ function renderSettingsPage() {
   
   L.innerHTML = `
     <div class="settings-page">
-      <section class="settings-section">
-        <h3>${svgIcons.palette} الشكل والمظهر</h3>
-        <div class="skin-grid">
-          ${Object.entries(SKINS).map(([id, s]) => {
-            const cur = curSkin === id;
-            return `<button class="skin-item ${cur ? 'on' : ''}" data-skin="${id}">
-              <span class="skin-preview" style="background:linear-gradient(135deg, ${s[1]} 50%, ${s[6] ? 'rgb(' + s[6] + ')' : s[2]} 50%)"></span>
-              <span>${s[0]}</span>
-            </button>`;
-          }).join('')}
-          <button class="skin-item ${isOldSkin ? 'on' : ''}" data-oldskin="1">
-            <span class="skin-preview" style="background:#808080; border:2px solid #fff; border-color: #fff #404040 #404040 #fff;"></span>
-            <span>الوضع الكلاسيكي</span>
-          </button>
-        </div>
-      </section>
 
       <section class="settings-section">
         <h3>${svgIcons.globe} اللغة</h3>
@@ -2347,6 +2380,22 @@ function renderSettingsPage() {
           </div>
         </div>
       </section>
+       
+      <section class="settings-section">
+        <h3>${svgIcons.sliders} مزج الأغاني (Crossfade)</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; color:var(--mute);">مدة المزج:</span>
+            <b id="cfVal">${crossfadeTime === 0 ? 'بدون مزج' : crossfadeTime + ' ثواني'}</b>
+          </div>
+          <input type="range" id="crossfadeSlider" min="0" max="30" value="${crossfadeTime}" style="width:100%;">
+        </div>
+        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.</small>
+      </section>
+
+      <!-- قسم توحيد الصوت اللي كان موجود أصلاً -->
+      <section class="settings-section">
+        <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
 
       <section class="settings-section">
         <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
@@ -2396,7 +2445,19 @@ function renderSettingsPage() {
           </div>
         </div>
       </section>
-      
+
+            <section class="settings-section">
+        <h3>${svgIcons.sliders} مزج الأغاني (Crossfade)</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; color:var(--mute);">مدة المزج:</span>
+            <b id="cfVal">${crossfadeTime === 0 ? 'بدون مزج' : crossfadeTime + ' ثواني'}</b>
+          </div>
+          <input type="range" id="crossfadeSlider" min="0" max="30" value="${crossfadeTime}" style="width:100%;">
+        </div>
+        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.</small>
+      </section>
+
       <section class="settings-section">
         <h3>${svgIcons.database} البيانات</h3>
         <div class="settings-actions">
@@ -2589,6 +2650,18 @@ function renderSettingsPage() {
     } catch (e) { toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); }
     btn.textContent = 'تنزيل من السحابة ⬇️';
   });
+  // تشغيل سلايدر المزج
+  const cfSlider = document.getElementById('crossfadeSlider');
+  if (cfSlider) {
+    cfSlider.oninput = (e) => {
+      const val = +e.target.value;
+      localStorage.ng_crossfade = val;
+      crossfadeTime = val;
+      const cfVal = document.getElementById('cfVal');
+      if (cfVal) cfVal.textContent = val === 0 ? 'بدون مزج' : val + ' ثواني';
+      if (typeof setLang === 'function') setLang(LG);
+    };
+  }
 }
 
 let currentHistoryView = null;
