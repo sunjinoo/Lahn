@@ -253,12 +253,86 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 .settings-section { background: rgba(var(--w), .04); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
 .settings-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
 .settings-section h3 svg { width: 18px; height: 18px; flex: none; opacity: .8; }
-.skin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-.skin-item { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background: rgba(var(--w), .04); border: 2px solid transparent; color: var(--mute); font-size: 12px; transition: all .2s; cursor: pointer; font-family: inherit; }
-.skin-item:hover { background: rgba(var(--w), .08); }
-.skin-item.on { border-color: var(--tint); color: var(--text); background: rgba(var(--tint-rgb), .15); }
-.skin-preview { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid var(--line); }
-.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.skin-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+  gap: 12px; 
+}
+.skin-item { 
+  position: relative;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 10px; 
+  padding: 12px 10px; 
+  border-radius: 16px; 
+  background: rgba(var(--w), .03); 
+  border: 1px solid var(--line); 
+  color: var(--mute); 
+  font-size: 13px; 
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); 
+  cursor: pointer; 
+  font-family: inherit; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.skin-item:hover { 
+  background: rgba(var(--w), .08); 
+  transform: translateY(-4px); 
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  color: var(--text);
+}
+.skin-item.on { 
+  border-color: var(--tint); 
+  color: var(--text); 
+  background: rgba(var(--tint-rgb), .12); 
+  box-shadow: 0 0 0 2px rgba(var(--tint-rgb), .3), 0 8px 24px rgba(0,0,0,0.3);
+}
+/* علامة الصح على الثيم النشط */
+.skin-item.on::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: var(--tint);
+  color: #fff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.skin-preview { 
+  width: 100%; 
+  aspect-ratio: 16/9; 
+  border-radius: 10px; 
+  border: 1px solid rgba(var(--w), .1); 
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+/* إضافة شكل زرار تشغيل صغير جوه الثيم عشان يبان زي مشغل موسيقى */
+.skin-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.4);
+}.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .settings-actions { display: flex; flex-direction: column; gap: 8px; }
 .settings-action { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; background: rgba(var(--w), .04); border: 1px solid var(--line); color: var(--text); text-align: start; transition: all .15s; cursor: pointer; font-family: inherit; }
 .settings-action:hover { background: rgba(var(--w), .08); border-color: var(--tint); }
@@ -561,6 +635,42 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <button class="chip pri" id="padReset" style="margin-top:20px;">إعادة ضبط الصوت (المنتصف)</button>
   </div>
 </div>
+
+<!-- نافذة التقرير الأسبوعي -->
+<div id="recapModal" class="modal-overlay" hidden>
+  <div class="modal-card" style="text-align:center;">
+    <div class="eqh" style="justify-content:center;"><b>📊 ملخص أسبوعك</b></div>
+    <p style="margin:15px 0; color:var(--mute);">لقد استمعت إلى <b id="recapTime" style="color:var(--tint); font-size:18px;">0 دقيقة</b> هذا الأسبوع!</p>
+    <div style="background:rgba(var(--w),.05); border-radius:12px; padding:15px; margin-bottom:15px;">
+      <p style="margin-bottom:10px;">🏆 أكتر فنان: <b id="recapArtist" style="color:var(--text);"></b></p>
+      <p>🎵 أكتر أغنية: <b id="recapSong" style="color:var(--text);"></b></p>
+    </div>
+    <button class="chip pri" id="recapClose">تمام، شكراً!</button>
+  </div>
+</div>
+
+<!-- نافذة قص نغمة الرنين -->
+<div id="trimModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="eqh"><b>✂️ قص نغمة رنين</b><button class="chip" id="trimClose">إلغاء</button></div>
+    <p id="trimTrackName" style="font-size:14px; color:var(--mute); margin-bottom:10px; text-align:center;">اسم الأغنية</p>
+    
+    <div style="background:rgba(var(--w),.05); padding:15px; border-radius:12px;">
+      <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--mute); margin-bottom:5px;">
+        <span>من: <b id="trimStartLabel" style="color:var(--text);">0:00</b></span>
+        <span>إلى: <b id="trimEndLabel" style="color:var(--text);">0:30</b></span>
+      </div>
+      <input type="range" id="trimStart" min="0" max="100" value="0" style="margin-bottom:10px;">
+      <input type="range" id="trimEnd" min="0" max="100" value="100">
+    </div>
+    
+    <div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">
+      <button class="chip" id="trimPreviewBtn">▶ معاينة</button>
+      <button class="chip pri" id="trimDownloadBtn">⬇ تنزيل النغمة</button>
+    </div>
+  </div>
+</div>
+
 <div id="shortcutsModal" class="modal-overlay" hidden>
   <div class="modal-card" style="text-align:center;">
     <div class="eqh" style="justify-content:center;"><b>اختصارات الكيبورد ⌨️</b></div>
@@ -1768,6 +1878,31 @@ const ROWS = [
  ['دايرة', 'Circle', 'Cercle', 'Círculo'],
  ['تغيير الصورة', 'Change cover', 'Changer la pochette', 'Cambiar portada'],
  
+ ['العشوائي الذكي', 'Smart Shuffle', 'Lecture aléatoire intelligente', 'Aleatorio inteligente', 'Akıllı Karıştırma', 'Intelligentes Mischen', 'Acak Cerdas', 'سمارٹ شفل'],
+ ['مشاركة القايمة بلينك', 'Share Playlist Link', 'Partager le lien', 'Compartir enlace', 'Bağlantıyı Paylaş', 'Link teilen', 'Bagikan Tautan', 'لنک شیئر کریں'],
+ ['التقرير الأسبوعي', 'Weekly Recap', 'Récapitulatif hebdo', 'Resumen semanal', 'Haftalık Özet', 'Wochenrückblick', 'Rekap Mingguan', 'ہفتہ وار خلاصہ'],
+ ['ملخص أسبوعك', 'Your Weekly Recap', 'Votre récap hebdo', 'Tu resumen semanal', 'Haftalık Özetin', 'Dein Wochenrückblick', 'Rekap Mingguanmu', 'آپ کا ہفتہ وار خلاصہ'],
+ ['لقد استمعت إلى', 'You listened to', 'Vous avez écouté', 'Has escuchado', 'Şunu dinlediniz:', 'Du hast gehört', 'Anda mendengarkan', 'آپ نے سنا'],
+ ['إجمالي وقت الاستماع:', 'Total listening time:', 'Temps d\'écoute total :', 'Tiempo total:', 'Toplam dinleme süresi:', 'Gesamthörzeit:', 'Total waktu mendengarkan:', 'کل سننے کا وقت:'],
+ ['أكتر فنان:', 'Top Artist:', 'Artiste top :', 'Artista top:', 'En İyi Sanatçı:', 'Top-Künstler:', 'Artis Teratas:', 'ٹاپ آرٹسٹ:'],
+ ['أكتر أغنية:', 'Top Song:', 'Titre top :', 'Canción top:', 'En İyi Şarkı:', 'Top-Song:', 'Lagu Teratas:', 'ٹاپ گانا:'],
+ ['دقيقة', 'minutes', 'minutes', 'minutos', 'dakika', 'Minuten', 'menit', 'منٹ'],
+
+ ['تحديث معلومات الأغاني', 'Auto-Tagger', 'Mise à jour auto', 'Auto-Etiquetador', 'Otomatik Etiketleyici', 'Auto-Tagger', 'Auto-Tagger', 'آٹو ٹیگر'],
+ ['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
+ ['جاري تحديث المعلومات...', 'Updating metadata...', 'Mise à jour...', 'Actualizando...', 'Güncelleniyor...', 'Aktualisieren...', 'Memperbarui...', 'میٹا ڈیٹا اپ ڈیٹ ہو رہا ہے...'],
+ ['تم تحديث {n} أغنية بنجاح', 'Updated {n} songs successfully', '{n} titres mis à jour', '{n} canciones actualizadas', '{n} şarkı güncellendi', '{n} Songs aktualisiert', '{n} lagu diperbarui', '{n} گانے اپ ڈیٹ ہو گئے'],
+ ['مفيش معلومات ناقصة، كل حاجة تمام!', 'All metadata is up to date!', 'Tout est à jour !', '¡Todo está actualizado!', 'Tüm bilgiler güncel!', 'Alles ist aktuell!', 'Semua metadata sudah diperbarui!', 'تمام میٹا ڈیٹا اپ ٹو ڈیٹ ہے!'],
+ ['معلومات الأغاني', 'Song Metadata', 'Métadonnées', 'Metadatos', 'Şarkı Bilgileri', 'Song-Metadaten', 'Metadata Lagu', 'گانے کی میٹا ڈیٹا'],
+
+ ['قص نغمة رنين', 'Ringtone Maker', 'Créateur de sonnerie', 'Creador de tonos', 'Zil Sesi Yapıcı', 'Klingelton-Ersteller', 'Pembuat Nada Dering', 'رنگ ٹون میکر'],
+ ['اختر المقطع', 'Select Segment', 'Sélectionner le segment', 'Seleccionar segmento', 'Segmenti Seç', 'Segment auswählen', 'Pilih Segmen', 'سیگمنٹ منتخب کریں'],
+ ['من', 'From', 'De', 'De', 'Başlangıç', 'Von', 'Dari', 'سے'],
+ ['إلى', 'To', 'À', 'A', 'Bitiş', 'Bis', 'Ke', 'تک'],
+ ['معاينة', 'Preview', 'Aperçu', 'Vista previa', 'Önizleme', 'Vorschau', 'Pratinjau', 'پیش نظارہ'],
+ ['تنزيل النغمة', 'Download Ringtone', 'Télécharger la sonnerie', 'Descargar tono', 'Zil Sesini İndir', 'Klingelton herunterladen', 'Unduh Nada Dering', 'رنگ ٹون ڈاؤن لوڈ کریں'],
+ ['جاري تجهيز الصوت...', 'Preparing audio...', 'Préparation de l\'audio...', 'Preparando audio...', 'Ses hazırlanıyor...', 'Audio wird vorbereitet...', 'Menyiapkan audio...', 'آڈیو تیار ہو رہی ہے...'],
+
  ['مزج الأغاني (Crossfade)', 'Crossfade', 'Fondu enchaîné', 'Fundido cruzado', 'Çapraz geçiş', 'Überblenden', 'Crossfade', 'کراس فیڈ'],
  ['مدة المزج:', 'Crossfade duration:', 'Durée du fondu :', 'Duración del fundido:', 'Geçiş süresi:', 'Überblendungsdauer:', 'Durasi crossfade:', 'کراس فیڈ دورانیہ:'],
  ['ثواني', 'seconds', 'secondes', 'segundos', 'saniye', 'Sekunden', 'detik', 'سیکنڈ'],
@@ -2337,6 +2472,23 @@ function renderSettingsPage() {
     <div class="settings-page">
 
       <section class="settings-section">
+        <h3>${svgIcons.palette} الشكل والمظهر</h3>
+        <div class="skin-grid">
+          ${Object.entries(SKINS).map(([id, s]) => {
+            const cur = curSkin === id;
+            return `<button class="skin-item ${cur ? 'on' : ''}" data-skin="${id}">
+              <span class="skin-preview" style="background:linear-gradient(135deg, ${s[1]} 50%, ${s[6] ? 'rgb(' + s[6] + ')' : s[2]} 50%)"></span>
+              <span>${s[0]}</span>
+            </button>`;
+          }).join('')}
+          <button class="skin-item ${isOldSkin ? 'on' : ''}" data-oldskin="1">
+            <span class="skin-preview" style="background:#808080; border:2px solid #fff; border-color: #fff #404040 #404040 #fff;"></span>
+            <span>الوضع الكلاسيكي</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="settings-section">
         <h3>${svgIcons.globe} اللغة</h3>
         <div class="chip-grid">
           ${Object.entries(LANGS).map(([code, info]) => {
@@ -2437,6 +2589,14 @@ function renderSettingsPage() {
       </section>
 
       <section class="settings-section">
+        <h3>${svgIcons.database} تحديث معلومات الأغاني (Auto-Tagger)</h3>
+        <div class="chip-grid">
+          <button class="chip" id="autoTagBtn" style="background:var(--tint); color:#fff;">تحديث الكل</button>
+        </div>
+        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.</small>
+      </section>
+
+      <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
           <label class="field-lbl">كود المزامنة الخاص بك (احتفظ به لاستخدامه على جهاز آخر):</label>
@@ -2449,18 +2609,6 @@ function renderSettingsPage() {
             <button class="chip" id="cloudDownloadBtn" style="flex:1; background:#10b981; color:#fff;">تنزيل من السحابة ⬇️</button>
           </div>
         </div>
-      </section>
-
-            <section class="settings-section">
-        <h3>${svgIcons.sliders} مزج الأغاني (Crossfade)</h3>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:13px; color:var(--mute);">مدة المزج:</span>
-            <b id="cfVal">${crossfadeTime === 0 ? 'بدون مزج' : crossfadeTime + ' ثواني'}</b>
-          </div>
-          <input type="range" id="crossfadeSlider" min="0" max="30" value="${crossfadeTime}" style="width:100%;">
-        </div>
-        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.</small>
       </section>
 
       <section class="settings-section">
@@ -2491,7 +2639,9 @@ function renderSettingsPage() {
           <div class="about-row"><span>عدد الكلمات المحفوظة</span><b>${lyricCount}</b></div>
         </div>
       </section>
-      
+
+
+     
       <div style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
         © ${new Date().getFullYear()} Lahn App. All rights reserved.
       </div>
@@ -2655,7 +2805,8 @@ function renderSettingsPage() {
     } catch (e) { toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); }
     btn.textContent = 'تنزيل من السحابة ⬇️';
   });
-  // تشغيل سلايدر المزج
+
+// تشغيل سلايدر المزج
   const cfSlider = document.getElementById('crossfadeSlider');
   if (cfSlider) {
     cfSlider.oninput = (e) => {
@@ -2838,7 +2989,7 @@ document.getElementById('vocalBtn').onclick = () => {
   if (isKaraoke) {
     if (vocalWet) vocalWet.gain.value = 1; 
     if (masterDryGain) masterDryGain.gain.value = 0; 
-    toast('مود الكاريوكي مقعل');
+    toast('مود الكاريوكي مفعل');
   } else {
     if (vocalWet) vocalWet.gain.value = 0;
     if (masterDryGain) masterDryGain.gain.value = 1; 
@@ -3260,6 +3411,360 @@ document.getElementById('padReset').onclick = () => {
   if (panner) panner.pan.value = 0;
   padDot.style.left = '50%';
   padDot.style.top = '50%';
+};
+
+/* ════════ المميزات الإضافية ════════ */
+
+// 1. العشوائي الذكي (تعديل دالة step)
+const originalStep = step;
+step = function(dir, auto) {
+  if (!tracks.length) return;
+  if (auto && repeat === 2) { audio.currentTime = 0; audio.play(); return; }
+  let n;
+  if (shuffle && tracks.length > 1) {
+    const recent = new Set();
+    let checked = 0;
+    for (let i = HIST.length - 1; i >= 0 && checked < 10; i--) {
+       const idx = tracks.findIndex(t => t.path === HIST[i].k);
+       if (idx !== -1) { recent.add(idx); checked++; }
+    }
+    const avail = [];
+    for(let i=0; i<tracks.length; i++) if(!recent.has(i)) avail.push(i);
+    
+    if (avail.length === 0) {
+      do n = Math.floor(Math.random() * tracks.length); while (n === cur);
+    } else {
+      n = avail[Math.floor(Math.random() * avail.length)];
+    }
+  } else n = cur + dir;
+  
+  if (n >= tracks.length || n < 0) {
+    if (repeat === 1 || !auto) n = (n + tracks.length) % tracks.length; else { audio.pause(); return; }
+  }
+  setTrack(n, true);
+};
+
+// 2. مشاركة القايمة بلينك
+async function shareListLink(n) {
+  if (!DB.lists[n] || !DB.lists[n].length) return toast('القايمة فاضية');
+  const key = 'list_' + Math.random().toString(36).substring(2, 8);
+  const payload = { name: n, tracks: DB.lists[n] };
+  try {
+    const res = await fetch(`https://kvdb.io/${key}`, { method: 'PUT', body: JSON.stringify(payload) });
+    if (res.ok) {
+      const url = location.origin + location.pathname + '?list=' + key;
+      await navigator.clipboard.writeText(url);
+      toast('تم نسخ اللينك! ابعته لصاحبك');
+    } else throw 0;
+  } catch(e) { toast('فشل إنشاء اللينك'); }
+}
+
+// 3. استيراد قايمة من لينك
+async function checkSharedList() {
+  const params = new URLSearchParams(location.search);
+  const key = params.get('list');
+  if (!key) return;
+  try {
+    const res = await fetch(`https://kvdb.io/${key}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (confirm(`هل تريد استيراد قايمة "${data.name}"؟`)) {
+        let n = data.name; while(DB.lists[n]) n += ' ٢';
+        DB.lists[n] = data.tracks;
+        persist(); view = 'pl:' + n; render(); toast('تم الاستيراد بنجاح');
+      }
+      history.replaceState({}, document.title, location.pathname);
+    }
+  } catch(e) {}
+}
+checkSharedList();
+
+// 4. التقرير الأسبوعي
+function checkWeeklyRecap() {
+  const lastRecap = +localStorage.ng_last_recap || 0;
+  const now = Date.now();
+  const week = 7 * 24 * 60 * 60 * 1000;
+  if (now - lastRecap < week) return;
+  
+  const pastWeek = HIST.filter(x => x.t > now - week);
+  if (pastWeek.length < 5) return;
+  
+  const time = Math.round(sumDays(7));
+  const artists = {}, songs = {};
+  pastWeek.forEach(x => {
+    const m = DB.lib[x.k];
+    if (!m) return;
+    songs[x.k] = (songs[x.k] || 0) + 1;
+    artistsOf(m).forEach(a => artists[a] = (artists[a] || 0) + 1);
+  });
+  
+  const topArtist = Object.entries(artists).sort((a,b)=>b[1]-a[1])[0] || ['-', 0];
+  const topSong = Object.entries(songs).sort((a,b)=>b[1]-a[1])[0] || ['-', 0];
+  
+  document.getElementById('recapTime').textContent = time + ' دقيقة';
+  document.getElementById('recapArtist').textContent = topArtist[0];
+  document.getElementById('recapSong').textContent = DB.lib[topSong[0]]?.title || '-';
+  
+  document.getElementById('recapModal').hidden = false;
+  localStorage.ng_last_recap = now;
+}
+document.getElementById('recapClose').onclick = () => { document.getElementById('recapModal').hidden = true; };
+setTimeout(checkWeeklyRecap, 3000);
+
+// 5. إضافة خيار "مشاركة القايمة بلينك" في قايمة الـ VM
+const originalVMOnclick = document.getElementById('vm').onclick;
+document.getElementById('vm').onclick = (e) => {
+  const p = e.currentTarget.getBoundingClientRect(), it = [[svgIcons.plus + ' قايمة جديدة', () => newList()]];
+  if (view.startsWith('pl:')) {
+    it.push([svgIcons.share + ' مشاركة القايمة بلينك', () => shareListLink(view.slice(3))]);
+  }
+  if (view === 'queue') {
+    it.push([svgIcons.download + ' احفظ قايمة التشغيل كقايمة', () => { const n = (prompt('اسم القايمة:') || '').trim(); if (!n) return; DB.lists[n] = tracks.map((t) => t.path); view = 'pl:' + n; persist(); render(); }]);
+  } else if (view === 'hist') {
+    it.push([svgIcons.trash + ' مسح السجل', () => { if (confirm('تمسح السجل كله؟')) { HIST = []; localStorage.ng_hist = '[]'; render(); } }]);
+    it.push([ST.off ? svgIcons.play + ' تشغيل التسجيل' : svgIcons.x + ' إيقاف التسجيل', () => { ST.off = !ST.off; saveStats(); }]);
+  } else {
+    it.push([svgIcons.play + ' تشغيل الكل', () => startQueue(keysOfView(), keysOfView()[0])], [svgIcons.share + ' مشاركة القايمة (نص)', shareList], [svgIcons.download + ' تصدير ملف القايمة', exportList]);
+    if (view.startsWith('pl:')) it.push([svgIcons.edit + ' إعادة تسمية', renameList], [svgIcons.trash + ' حذف القايمة', deleteList]);
+  }
+  if (view !== 'hist') it.push([svgIcons.upload + ' استيراد قايمة من ملف', importList], [svgIcons.upload + ' استيراد M3U', importM3U], [svgIcons.download + ' تصدير M3U', exportM3U]);
+  if (view.startsWith('ar:')) it.push([svgIcons.edit + ' تعديل اسم وصورة الفنان', () => openEditArtistModal(view.slice(3))], [svgIcons.x + ' ما تفصلش الاسم ده', noSplit]);
+  showMenu(p.left, p.bottom + 4, it);
+};
+
+/* ════════ تحديث معلومات الأغاني (Auto-Tagger) ════════ */
+async function runAutoTagger() {
+  const btn = document.getElementById('autoTagBtn');
+  if (!btn) return;
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  
+  let updatedCount = 0;
+  let processed = 0;
+  const keys = Object.keys(DB.lib);
+  
+  for (const k of keys) {
+    const m = DB.lib[k];
+    if (m.isRemote || !m.title) { processed++; continue; }
+    
+    // لو الأغنية معاها كل المعلومات، تجاهلها
+    if (m.album && m.year && m.genre && DB.covers[k]) { processed++; continue; }
+    
+    btn.textContent = `⏳ جاري التحديث ${processed}/${keys.length}...`;
+    
+    try {
+      const q = encodeURIComponent(`${m.artist || ''} ${m.title || ''}`);
+      
+      // 1. جلب السنة والنوع من iTunes
+      const itunesRes = await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&limit=1`);
+      const itunesData = await itunesRes.json();
+      if (itunesData.results && itunesData.results[0]) {
+        const r = itunesData.results[0];
+        if (!m.year && r.releaseDate) m.year = r.releaseDate.slice(0, 4);
+        if (!m.genre && r.primaryGenreName) m.genre = r.primaryGenreName;
+        if (!DB.covers[k] && r.artworkUrl100) DB.covers[k] = r.artworkUrl100.replace('100x100', '500x500');
+      }
+      
+      // 2. جلب الألبوم والغلاف من Deezer (لو لسه ناقصين)
+      if (!m.album || !DB.covers[k]) {
+        const dzRes = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`);
+        const dzData = await dzRes.json();
+        if (dzData.data && dzData.data[0]) {
+          const r = dzData.data[0];
+          if (!m.album && r.album) m.album = r.album.title;
+          if (!DB.covers[k] && r.album) DB.covers[k] = r.album.cover_big;
+        }
+      }
+      
+      // تنظيف الكاش القديم عشان الصورة الجديدة تظهر
+      if (DB.covers[k] && tagCache.has(k)) {
+        const c = tagCache.get(k);
+        if (c.cover) URL.revokeObjectURL(c.cover);
+        tagCache.delete(k);
+      }
+      
+      updatedCount++;
+      if (updatedCount % 10 === 0) { persist(); render(); }
+      
+      // تأخير بسيط عشان ميتعملهاش Ban من الـ API
+      await new Promise(r => setTimeout(r, 500));
+      
+    } catch (e) { console.warn(e); }
+    processed++;
+  }
+  
+  persist();
+  btn.textContent = originalText;
+  btn.disabled = false;
+  renderSettingsPage(); 
+  toast(`تم تحديث ${updatedCount} أغنية بنجاح`);
+}
+
+// ربط الزرار
+const autoTagBtn = document.getElementById('autoTagBtn');
+if (autoTagBtn) {
+  autoTagBtn.onclick = () => runAutoTagger();
+}
+
+/* ════════ قص نغمة الرنين ════════ */
+let trimAudioBuffer = null;
+let trimFileName = "ringtone.wav";
+
+window.openTrimModal = async (k) => {
+  if (!k) return;
+  const modal = document.getElementById('trimModal');
+  const trackName = document.getElementById('trimTrackName');
+  const startSlider = document.getElementById('trimStart');
+  const endSlider = document.getElementById('trimEnd');
+  
+  modal.hidden = false;
+  trackName.textContent = "جاري تجهيز الصوت...";
+  
+  try {
+    // 1. جلب الملف كـ ArrayBuffer
+    let arrayBuffer;
+    if (files.has(k)) {
+      arrayBuffer = await files.get(k).arrayBuffer();
+    } else if (DB.lib[k] && DB.lib[k].url) {
+      const res = await fetch(DB.lib[k].url);
+      arrayBuffer = await res.arrayBuffer();
+    } else {
+      throw new Error('الملف مش موجود');
+    }
+    
+    // 2. فك تشفير الصوت (Decode)
+    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    trimAudioBuffer = await ac.decodeAudioData(arrayBuffer);
+    
+    // 3. تجهيز الواجهة
+    const duration = trimAudioBuffer.duration;
+    const m = DB.lib[k] || {};
+    trackName.textContent = (m.title || 'أغنية') + ' - ' + (m.artist || '');
+    trimFileName = (m.title || 'ringtone') + '.wav';
+    
+    startSlider.max = Math.floor(duration);
+    endSlider.max = Math.floor(duration);
+    startSlider.value = 0;
+    // الافتراضي 30 ثانية أو أقل لو الأغنية قصيرة
+    endSlider.value = Math.min(30, Math.floor(duration)); 
+    
+    updateTrimLabels();
+  } catch (e) {
+    toast('فشل تحميل الصوت للقص');
+    modal.hidden = true;
+  }
+};
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function updateTrimLabels() {
+  const s = +document.getElementById('trimStart').value;
+  const e = +document.getElementById('trimEnd').value;
+  document.getElementById('trimStartLabel').textContent = formatTime(s);
+  document.getElementById('trimEndLabel').textContent = formatTime(e);
+  
+  // ضمان إن النهاية دايماً بعد البداية
+  if (e <= s) {
+    document.getElementById('trimEnd').value = s + 1;
+    document.getElementById('trimEndLabel').textContent = formatTime(s + 1);
+  }
+}
+
+document.getElementById('trimStart').oninput = updateTrimLabels;
+document.getElementById('trimEnd').oninput = updateTrimLabels;
+document.getElementById('trimClose').onclick = () => { 
+  document.getElementById('trimModal').hidden = true; 
+  if (window.trimPreviewSource) { window.trimPreviewSource.stop(); }
+};
+
+// 4. المعاينة
+document.getElementById('trimPreviewBtn').onclick = () => {
+  if (!trimAudioBuffer) return;
+  if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  ac.resume();
+  
+  const s = +document.getElementById('trimStart').value;
+  const e = +document.getElementById('trimEnd').value;
+  
+  if (window.trimPreviewSource) { window.trimPreviewSource.stop(); }
+  
+  window.trimPreviewSource = ac.createBufferSource();
+  window.trimPreviewSource.buffer = trimAudioBuffer;
+  window.trimPreviewSource.connect(ac.destination);
+  window.trimPreviewSource.start(0, s, e - s);
+  toast('جاري معاينة المقطع...');
+};
+
+// 5. تحويل الـ AudioBuffer إلى WAV (دالة مساعدة)
+function bufferToWav(abuffer, startSec, endSec) {
+  const numOfChan = abuffer.numberOfChannels;
+  const length = Math.floor((endSec - startSec) * abuffer.sampleRate);
+  const sampleRate = abuffer.sampleRate;
+  const buffer = new ArrayBuffer(44 + length * numOfChan * 2);
+  const view = new DataView(buffer);
+  
+  function writeString(view, offset, string) {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  }
+  
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + length * numOfChan * 2, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numOfChan, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * numOfChan * 2, true);
+  view.setUint16(32, numOfChan * 2, true);
+  view.setUint16(34, 16, true);
+  writeString(view, 36, 'data');
+  view.setUint32(40, length * numOfChan * 2, true);
+  
+  const channels = [];
+  let offset = 44;
+  for (let i = 0; i < numOfChan; i++) {
+    channels.push(abuffer.getChannelData(i));
+  }
+  
+  const startSample = Math.floor(startSec * sampleRate);
+  for (let i = 0; i < length; i++) {
+    for (let channel = 0; channel < numOfChan; channel++) {
+      let sample = channels[channel][startSample + i];
+      sample = Math.max(-1, Math.min(1, sample));
+      sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
+      view.setInt16(offset, sample, true);
+      offset += 2;
+    }
+  }
+  return new Blob([view], { type: 'audio/wav' });
+}
+
+// 6. التنزيل
+document.getElementById('trimDownloadBtn').onclick = () => {
+  if (!trimAudioBuffer) return;
+  const s = +document.getElementById('trimStart').value;
+  const e = +document.getElementById('trimEnd').value;
+  
+  toast('جاري القص، ثواني...');
+  
+  setTimeout(() => {
+    const wavBlob = bufferToWav(trimAudioBuffer, s, e);
+    const url = URL.createObjectURL(wavBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = trimFileName;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('تم تنزيل النغمة بنجاح!');
+    document.getElementById('trimModal').hidden = true;
+  }, 100);
 };
 </script>
 </body>
