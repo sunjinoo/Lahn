@@ -1,4 +1,4 @@
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/cee5aba2-4d7c-4ba6-8e7e-71e79a6ef888" /><div align="center">
+<div align="center">
   
 # 🎵 Lahn (لحن) - Ultimate Music Player
   
@@ -109,7 +109,6 @@ Because the app relies on `fetch` to retrieve data from the internet (Quran, Rad
 <img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/9dd960fb-a1ff-488e-ad91-4884a80b0082" />
 <img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/345e0b3d-641f-4a7d-955d-38655b47f2a4" />
 <img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/80dc3be6-7881-4085-8a38-cdf05666c37d" />
-![Uploading image.png…]()
 
 <img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/b67695a7-f247-4bdd-ace7-ed6a1a08deb2" />
 
