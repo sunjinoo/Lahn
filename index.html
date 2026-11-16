@@ -1892,6 +1892,11 @@ const ROWS = [
  ['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
  ['جاري تحديث المعلومات...', 'Updating metadata...', 'Mise à jour...', 'Actualizando...', 'Güncelleniyor...', 'Aktualisieren...', 'Memperbarui...', 'میٹا ڈیٹا اپ ڈیٹ ہو رہا ہے...'],
  ['تم تحديث {n} أغنية بنجاح', 'Updated {n} songs successfully', '{n} titres mis à jour', '{n} canciones actualizadas', '{n} şarkı güncellendi', '{n} Songs aktualisiert', '{n} lagu diperbarui', '{n} گانے اپ ڈیٹ ہو گئے'],
+
+ ['تحديث معلومات الأغاني', 'Auto-Tagger', 'Mise à jour auto', 'Auto-Etiquetador', 'Otomatik Etiketleyici', 'Auto-Tagger', 'Auto-Tagger', 'آٹو ٹیگر'],
+ ['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
+ ['جاري تحديث المعلومات...', 'Updating metadata...', 'Mise à jour...', 'Actualizando...', 'Güncelleniyor...', 'Aktualisieren...', 'Memperbarui...', 'میٹا ڈیٹا اپ ڈیٹ ہو رہا ہے...'],
+ ['تم تحديث {n} أغنية بنجاح', 'Updated {n} songs successfully', '{n} titres mis à jour', '{n} canciones actualizadas', '{n} şarkı güncellendi', '{n} Songs aktualisiert', '{n} lagu diperbarui', '{n} گانے اپ ڈیٹ ہو گئے'],
  ['مفيش معلومات ناقصة، كل حاجة تمام!', 'All metadata is up to date!', 'Tout est à jour !', '¡Todo está actualizado!', 'Tüm bilgiler güncel!', 'Alles ist aktuell!', 'Semua metadata sudah diperbarui!', 'تمام میٹا ڈیٹا اپ ٹو ڈیٹ ہے!'],
  ['معلومات الأغاني', 'Song Metadata', 'Métadonnées', 'Metadatos', 'Şarkı Bilgileri', 'Song-Metadaten', 'Metadata Lagu', 'گانے کی میٹا ڈیٹا'],
 
@@ -2592,17 +2597,23 @@ function renderSettingsPage() {
         <h3>${svgIcons.database} تحديث معلومات الأغاني (Auto-Tagger)</h3>
         <div class="chip-grid">
           <button class="chip" id="autoTagBtn" style="background:var(--tint); color:#fff;">تحديث الكل</button>
+        <!-- شريط تقدم التحديث -->
+        <div id="autoTagProgressContainer" style="display: none; margin-top: 15px;">
+          <div style="width: 100%; height: 8px; background: rgba(var(--w), .1); border-radius: 10px; overflow: hidden;">
+            <div id="autoTagProgressBar" style="width: 0%; height: 100%; background: var(--tint); transition: width 0.3s ease; border-radius: 10px;"></div>
+          </div>
+          <div id="autoTagProgressText" style="font-size: 12px; color: var(--mute); margin-top: 8px; text-align: center;"></div>
+        </div>
         </div>
         <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.</small>
       </section>
 
-      <section class="settings-section">
+          <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <label class="field-lbl">كود المزامنة الخاص بك (احتفظ به لاستخدامه على جهاز آخر):</label>
+          <label class="field-lbl">كود المزامنة (هيتولد تلقائياً لما ترفع):</label>
           <div style="display:flex; gap:8px;">
-            <input type="text" id="syncKeyInput" readonly style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(var(--w),.05); color:var(--text); text-align:center; font-weight:bold; letter-spacing:1px;" value="${localStorage.ng_sync_key || ''}">
-            <button class="chip" id="genSyncCodeBtn" style="background:var(--bg); border:1px solid var(--line);">توليد كود</button>
+            <input type="text" id="syncKeyInput" readonly style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(var(--w),.05); color:var(--text); text-align:center; font-weight:bold; letter-spacing:1px;" value="${localStorage.ng_sync_key || ''}" placeholder="لا يوجد كود بعد">
           </div>
           <div style="display:flex; gap:10px; margin-top:5px;">
             <button class="chip" id="cloudUploadBtn" style="flex:1; background:var(--tint); color:#fff;">رفع للسحابة ☁️</button>
@@ -2766,32 +2777,60 @@ function renderSettingsPage() {
     toast('تم توليد كود جديد! احتفظ بيه.');
   });
 
+    // رفع للسحابة باستخدام jsonblob
   document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
-    let key = syncKeyInput.value.trim();
-    if (!key) {
-      key = 'lahn-' + Math.random().toString(36).substring(2, 10);
-      localStorage.ng_sync_key = key;
-      syncKeyInput.value = key;
-      toast('تم توليد كود تلقائي: ' + key);
-    }
+    const key = syncKeyInput.value.trim();
     const btn = document.getElementById('cloudUploadBtn');
     btn.textContent = '⏳ جاري الرفع...';
+    
     try {
       const dataToSync = { db: DB, stats: ST, hist: HIST };
-      const res = await fetch(`https://kvdb.io/${key}`, { method: 'PUT', body: JSON.stringify(dataToSync) });
-      if (res.ok) toast('تم الرفع بنجاح! ☁️');
-      else throw new Error('فشل الرفع');
-    } catch (e) { toast('خطأ في الرفع، تأكد من الإنترنت'); }
+      let url = 'https://jsonblob.com/api/jsonBlob';
+      let method = 'POST';
+      
+      // لو فيه كود موجود، بنحدث نفس الملف بدل ما نعمل واحد جديد
+      if (key) {
+        url = `https://jsonblob.com/api/jsonBlob/${key}`;
+        method = 'PUT';
+      }
+      
+      const res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSync)
+      });
+      
+      if (res.ok) {
+        if (method === 'POST') {
+          // بنجيب الكود الجديد من الـ Response
+          const location = res.headers.get('Location');
+          if (location) {
+            const newKey = location.split('/').pop();
+            localStorage.ng_sync_key = newKey;
+            syncKeyInput.value = newKey;
+            toast('تم الرفع! كود المزامنة بتاعك: ' + newKey);
+          }
+        } else {
+          toast('تم تحديث بياناتك في السحابة! ☁️');
+        }
+      } else {
+        throw new Error('فشل الرفع');
+      }
+    } catch (e) { 
+      toast('خطأ في الرفع، تأكد من الإنترنت'); 
+    }
     btn.textContent = 'رفع للسحابة ☁️';
   });
 
+  // تنزيل من السحابة
   document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
     const key = syncKeyInput.value.trim();
     if (!key) return toast('اكتب كود المزامنة الأول');
     const btn = document.getElementById('cloudDownloadBtn');
     btn.textContent = '⏳ جاري التنزيل...';
+    
     try {
-      const res = await fetch(`https://kvdb.io/${key}`);
+      const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
       if (res.ok) {
         const data = await res.json();
         if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
@@ -2800,13 +2839,21 @@ function renderSettingsPage() {
         toast('تم التنزيل! جاري إعادة التحميل...');
         setTimeout(() => location.reload(), 1500);
       } else {
-        toast('مفيش بيانات بالكود ده');
+        toast('مفيش بيانات بالكود ده، أو الكود غلط');
       }
-    } catch (e) { toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); }
+    } catch (e) { 
+      toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); 
+    }
     btn.textContent = 'تنزيل من السحابة ⬇️';
   });
 
 // تشغيل سلايدر المزج
+
+  // ربط زرار تحديث المعلومات
+  const autoTagBtn = document.getElementById('autoTagBtn');
+  if (autoTagBtn) {
+    autoTagBtn.onclick = () => runAutoTagger();
+  }
   const cfSlider = document.getElementById('crossfadeSlider');
   if (cfSlider) {
     cfSlider.oninput = (e) => {
@@ -3535,69 +3582,96 @@ document.getElementById('vm').onclick = (e) => {
 /* ════════ تحديث معلومات الأغاني (Auto-Tagger) ════════ */
 async function runAutoTagger() {
   const btn = document.getElementById('autoTagBtn');
-  if (!btn) return;
+  const progressContainer = document.getElementById('autoTagProgressContainer');
+  const progressBar = document.getElementById('autoTagProgressBar');
+  const progressText = document.getElementById('autoTagProgressText');
+  
+  if (!btn || !progressContainer) return;
+  
   btn.disabled = true;
   const originalText = btn.textContent;
+  
+  // إظهار شريط التحميل
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressText.textContent = trs('جاري تحديث المعلومات...');
   
   let updatedCount = 0;
   let processed = 0;
   const keys = Object.keys(DB.lib);
+  const total = keys.length;
+  
+  if (total === 0) {
+    progressContainer.style.display = 'none';
+    btn.disabled = false;
+    return;
+  }
+  
+  const fetchItunesJSONP = (query) => {
+    return new Promise((resolve) => {
+      const callbackName = 'itunesCb_' + Math.random().toString(36).substring(2, 9);
+      window[callbackName] = (data) => {
+        resolve(data);
+        delete window[callbackName];
+        document.getElementById(callbackName)?.remove();
+      };
+      const script = document.createElement('script');
+      script.id = callbackName;
+      script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=1&callback=${callbackName}`;
+      script.onerror = () => { resolve({ results: [] }); delete window[callbackName]; };
+      document.body.appendChild(script);
+    });
+  };
   
   for (const k of keys) {
     const m = DB.lib[k];
-    if (m.isRemote || !m.title) { processed++; continue; }
     
-    // لو الأغنية معاها كل المعلومات، تجاهلها
+    // تحديث شريط التقدم في كل لفة
+    const percent = Math.round((processed / total) * 100);
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `${trs('جاري تحديث المعلومات...')} (${processed}/${total})`;
+    
+    if (m.isRemote || !m.title) { processed++; continue; }
     if (m.album && m.year && m.genre && DB.covers[k]) { processed++; continue; }
     
-    btn.textContent = `⏳ جاري التحديث ${processed}/${keys.length}...`;
-    
     try {
-      const q = encodeURIComponent(`${m.artist || ''} ${m.title || ''}`);
+      const query = `${m.artist || ''} ${m.title || ''}`.trim();
+      const itunesData = await fetchItunesJSONP(query);
       
-      // 1. جلب السنة والنوع من iTunes
-      const itunesRes = await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&limit=1`);
-      const itunesData = await itunesRes.json();
       if (itunesData.results && itunesData.results[0]) {
         const r = itunesData.results[0];
         if (!m.year && r.releaseDate) m.year = r.releaseDate.slice(0, 4);
         if (!m.genre && r.primaryGenreName) m.genre = r.primaryGenreName;
+        if (!m.album && r.collectionName) m.album = r.collectionName;
         if (!DB.covers[k] && r.artworkUrl100) DB.covers[k] = r.artworkUrl100.replace('100x100', '500x500');
-      }
-      
-      // 2. جلب الألبوم والغلاف من Deezer (لو لسه ناقصين)
-      if (!m.album || !DB.covers[k]) {
-        const dzRes = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`);
-        const dzData = await dzRes.json();
-        if (dzData.data && dzData.data[0]) {
-          const r = dzData.data[0];
-          if (!m.album && r.album) m.album = r.album.title;
-          if (!DB.covers[k] && r.album) DB.covers[k] = r.album.cover_big;
+        
+        if (DB.covers[k] && tagCache.has(k)) {
+          const c = tagCache.get(k);
+          if (c.cover) URL.revokeObjectURL(c.cover);
+          tagCache.delete(k);
         }
+        updatedCount++;
       }
       
-      // تنظيف الكاش القديم عشان الصورة الجديدة تظهر
-      if (DB.covers[k] && tagCache.has(k)) {
-        const c = tagCache.get(k);
-        if (c.cover) URL.revokeObjectURL(c.cover);
-        tagCache.delete(k);
-      }
-      
-      updatedCount++;
-      if (updatedCount % 10 === 0) { persist(); render(); }
-      
-      // تأخير بسيط عشان ميتعملهاش Ban من الـ API
-      await new Promise(r => setTimeout(r, 500));
+      if (updatedCount % 5 === 0) { persist(); render(); }
+      await new Promise(r => setTimeout(r, 400));
       
     } catch (e) { console.warn(e); }
+    
     processed++;
   }
   
-  persist();
-  btn.textContent = originalText;
-  btn.disabled = false;
-  renderSettingsPage(); 
-  toast(`تم تحديث ${updatedCount} أغنية بنجاح`);
+  // خلصنا
+  progressBar.style.width = '100%';
+  progressText.textContent = trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount);
+  
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    btn.textContent = originalText;
+    btn.disabled = false;
+    if (view === 'settings') renderSettingsPage(); 
+    toast(trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount));
+  }, 1000);
 }
 
 // ربط الزرار
