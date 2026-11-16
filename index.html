@@ -2116,6 +2116,11 @@ addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.code === 'KeyA' && !typing) { e.preventDefault(); visKeys().forEach((k) => SEL.add(k)); paintSel(); return; }
   if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
   const c = e.code;
+  // دعم أزرار الملتيميديا في الكيبورد
+  if (c === 'MediaPlayPause') { e.preventDefault(); toggle(); return; }
+  if (c === 'MediaTrackNext') { e.preventDefault(); step(1, false); return; }
+  if (c === 'MediaTrackPrevious') { e.preventDefault(); step(-1, false); return; }
+  if (c === 'MediaStop') { e.preventDefault(); audio.pause(); audio.currentTime = 0; return; }
   if (c === 'KeyJ') audio.currentTime -= 15; else if (c === 'KeyL') audio.currentTime += 15;
   else if (c === 'KeyM') audio.muted = !audio.muted; else if (c === 'KeyN') $('#next').click(); else if (c === 'KeyP') $('#prev').click();
   else if (c === 'KeyS') $('#shuffle').click(); else if (c === 'KeyF') toggleFav(curKey());
