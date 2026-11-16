@@ -85,7 +85,12 @@ body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
 .ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--mute);position:relative}.ib:hover{color:var(--text);background:rgba(var(--w),.1)}.ib.on{color:var(--tint)}.ib svg{width:20px;height:20px}
 .play{width:46px;height:46px;background:var(--text);color:var(--on)}.play:hover{background:var(--text);color:var(--on);filter:brightness(1.1);transform:scale(1.05)}.play svg{width:24px;height:24px}
 #repeat[data-one="1"]::after{content:"1";position:absolute;font-size:9px;font-weight:700;top:17px;left:50%;transform:translateX(-50%)}
-.seekrow{display:flex;align-items:center;gap:10px;width:100%;direction:ltr;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+.seekrow{display:flex;align-items:center;gap:10px;width:100%;direction:ltr;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;position:relative;height:30px}
+#seek{position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:0;cursor:pointer;}
+#waveformCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+body.seek-normal .seekrow { height: auto; }
+body.seek-normal #seek { position: static; opacity: 1; height: 4px; inset: auto; z-index: auto; }
+body.seek-normal #waveformCanvas { display: none; }
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;width:100%;height:4px;border-radius:4px;cursor:pointer;background:linear-gradient(to right,var(--text) var(--p,0%),rgba(var(--w),.2) var(--p,0%))}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--text);opacity:0;transition:opacity .15s}
 input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-webkit-slider-thumb{opacity:1}
@@ -288,7 +293,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   background: rgba(var(--tint-rgb), .12); 
   box-shadow: 0 0 0 2px rgba(var(--tint-rgb), .3), 0 8px 24px rgba(0,0,0,0.3);
 }
-/* علامة الصح على الثيم النشط */
 .skin-item.on::after {
   content: '✓';
   position: absolute;
@@ -319,7 +323,6 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   overflow: hidden;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
 }
-/* إضافة شكل زرار تشغيل صغير جوه الثيم عشان يبان زي مشغل موسيقى */
 .skin-preview::after {
   content: '';
   position: absolute;
@@ -332,7 +335,8 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   background: rgba(255,255,255,0.25);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255,255,255,0.4);
-}.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+}
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .settings-actions { display: flex; flex-direction: column; gap: 8px; }
 .settings-action { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; background: rgba(var(--w), .04); border: 1px solid var(--line); color: var(--text); text-align: start; transition: all .15s; cursor: pointer; font-family: inherit; }
 .settings-action:hover { background: rgba(var(--w), .08); border-color: var(--tint); }
@@ -489,7 +493,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
       <button class="ib" id="abBtn" aria-label="تكرار مقطع" title="A-B Loop" style="font-size:11px;font-weight:bold">A-B</button>     
       <button class="ib" id="repeat" aria-label="تكرار"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 1 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
     </div>
-    <div class="seekrow"><span id="tc">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل"><span id="td">0:00</span></div>
+    <div class="seekrow" id="seekrow"><span id="tc">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل"><span id="td">0:00</span><canvas id="waveformCanvas"></canvas></div>
   </div>
   <div class="rt">
        <button class="ib" id="pipBtn" title="صورة داخل صورة" aria-label="صورة داخل صورة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="12" y="12" width="9" height="9"></rect></svg></button>
@@ -688,7 +692,8 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     </div>
     <button class="chip pri" id="closeShortcuts" style="margin:20px auto 0;">تمام</button>
   </div>
-</div><script>
+</div>
+<script>
 // منع الكاش القديم من التدخل
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -930,6 +935,40 @@ async function setTrack(i, autoplay) {
   const curSkin = localStorage.ng_skin || 'nagham';
   if (SKINS[curSkin] && !SKINS[curSkin][6] && cover) tintFrom(cover);
   
+  // الموجة الصوتية
+  const waveCanvas = document.getElementById('waveformCanvas');
+  if (waveCanvas) {
+    const ctx = waveCanvas.getContext('2d');
+    const updateWave = () => {
+      const pct = audio.currentTime / (audio.duration || 1);
+      const w = waveCanvas.width;
+      const h = waveCanvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const n = 80;
+      const bw = w / n;
+      const playedW = w * pct;
+      
+      const tint = getComputedStyle(document.documentElement).getPropertyValue('--tint-rgb').trim() || '139,124,246';
+      
+      for (let j = 0; j < n; j++) {
+        const bh = (Math.sin(j * 0.5) * 0.4 + 0.5) * h;
+        const isPlayed = (j * bw + bw / 2) < playedW;
+        
+        if (isPlayed) {
+          ctx.fillStyle = `rgb(${tint})`;
+        } else {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        }
+        
+        ctx.beginPath();
+        ctx.roundRect(j * bw + 1, (h - bh) / 2, bw - 2, bh, 2);
+        ctx.fill();
+      }
+    };
+    audio.addEventListener('timeupdate', updateWave);
+    audio.addEventListener('loadedmetadata', updateWave);
+  }
+  
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: m.title || t.title, artist: m.artist || t.artist, album: m.album || t.album, artwork: cover ? [{ src: cover }] : [] });
     navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
@@ -937,13 +976,27 @@ async function setTrack(i, autoplay) {
   if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
 }
 
-
 function step(dir, auto) {
   if (!tracks.length) return;
   if (auto && repeat === 2) { audio.currentTime = 0; audio.play(); return; }
   let n;
-  if (shuffle && tracks.length > 1) { do n = Math.floor(Math.random() * tracks.length); while (n === cur); }
-  else n = cur + dir;
+  if (shuffle && tracks.length > 1) {
+    const recent = new Set();
+    let checked = 0;
+    for (let i = HIST.length - 1; i >= 0 && checked < 10; i--) {
+       const idx = tracks.findIndex(t => t.path === HIST[i].k);
+       if (idx !== -1) { recent.add(idx); checked++; }
+    }
+    const avail = [];
+    for(let i=0; i<tracks.length; i++) if(!recent.has(i)) avail.push(i);
+    
+    if (avail.length === 0) {
+      do n = Math.floor(Math.random() * tracks.length); while (n === cur);
+    } else {
+      n = avail[Math.floor(Math.random() * avail.length)];
+    }
+  } else n = cur + dir;
+  
   if (n >= tracks.length || n < 0) {
     if (repeat === 1 || !auto) n = (n + tracks.length) % tracks.length; else { audio.pause(); return; }
   }
@@ -964,6 +1017,7 @@ const fadeOutAndPause = () => {
 
 const toggle = () => { 
   if (cur < 0) return; 
+  if (ac && ac.state === 'suspended') ac.resume();
   const a = activeIsRemote ? remoteAudio : audio;
   if (a.paused) a.play(); 
   else fadeOutAndPause(); 
@@ -1033,6 +1087,10 @@ addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); toggle(); }
   else if (e.code === 'ArrowRight') audio.currentTime += 5;
   else if (e.code === 'ArrowLeft') audio.currentTime -= 5;
+  else if (e.code === 'MediaPlayPause') { e.preventDefault(); toggle(); }
+  else if (e.code === 'MediaTrackNext') { e.preventDefault(); step(1, false); }
+  else if (e.code === 'MediaTrackPrevious') { e.preventDefault(); step(-1, false); }
+  else if (e.code === 'MediaStop') { e.preventDefault(); audio.pause(); audio.currentTime = 0; }
 });
 
 /* ---- Media Session كامل ---- */
@@ -1636,12 +1694,10 @@ function applySkin(id) {
   window.__fix = !!s[6];
   if (s[6]) { st.setProperty('--tint', `rgb(${s[6]})`); st.setProperty('--tint-rgb', s[6]); }
   else {
-    // بنجيب اللون المحفوظ، ولو مفيش بنحط البنفسجي
     const savedTint = localStorage.ng_tint || '139,124,246';
     st.setProperty('--tint', `rgb(${savedTint})`);
     st.setProperty('--tint-rgb', savedTint);
   }
-  
   document.querySelector('meta[name=theme-color]').content = s[1];
   try { localStorage.ng_skin = id; } catch (_) {}
 }
@@ -1670,6 +1726,7 @@ let compressorNode = null;
 function ensureGraph() {
   if (ac) return;
   ac = new (window.AudioContext || window.webkitAudioContext)();
+  if (ac.state === 'suspended') ac.resume();
   const s = ac.createMediaElementSource(audio);
   
   compressorNode = ac.createDynamicsCompressor();
@@ -1878,6 +1935,27 @@ const ROWS = [
  ['دايرة', 'Circle', 'Cercle', 'Círculo'],
  ['تغيير الصورة', 'Change cover', 'Changer la pochette', 'Cambiar portada'],
  
+ ['شكل شريط التقدم', 'Seek Bar Style', 'Style de la barre', 'Estilo de la barra', 'Kaydırma Çubuğu Stili', 'Suchleisten-Stil', 'Gaya Bilah', 'سیک بار انداز'],
+ ['موج الصوت', 'Waveform', 'Forme d\'onde', 'Forma de onda', 'Ses Dalgası', 'Wellenform', 'Bentuk Gelombang', 'آواز کی لہر'],
+ ['عادي', 'Normal', 'Normal', 'Normal', 'Normal', 'Normal', 'Normal', 'نارمل'],
+
+ ['بحث بالإنترنت', 'Internet Search', 'Recherche Internet', 'Búsqueda en Internet', 'İnternet Araması', 'Internetsuche', 'Pencarian Internet', 'انٹرنیٹ تلاش'],
+ ['إخفاء زر البحث بالإنترنت', 'Hide Internet Search Button', 'Masquer la recherche Internet', 'Ocultar búsqueda en Internet', 'İnternet Aramasını Gizle', 'Internetsuche ausblenden', 'Sembunyikan Pencarian Internet', 'انٹرنیٹ تلاش چھپائیں'],
+ ['إظهار زر البحث بالإنترنت', 'Show Internet Search Button', 'Afficher la recherche Internet', 'Mostrar búsqueda en Internet', 'İnternet Aramasını Göster', 'Internetsuche einblenden', 'Tampilkan Pencarian Internet', 'انٹرنیٹ تلاش دکھائیں'],
+ ['قرآن', 'Quran', 'Coran', 'Corán', 'Kuran', 'Koran', 'Al-Quran', 'قرآن'],
+ ['تحديث معلومات الأغاني', 'Auto-Tagger', 'Mise à jour auto', 'Auto-Etiquetador', 'Otomatik Etiketleyici', 'Auto-Tagger', 'Auto-Tagger', 'آٹو ٹیگر'],
+ ['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
+ ['جاري تحديث المعلومات...', 'Updating metadata...', 'Mise à jour...', 'Actualizando...', 'Güncelleniyor...', 'Aktualisieren...', 'Memperbarui...', 'میٹا ڈیٹا اپ ڈیٹ ہو رہا ہے...'],
+ ['تم تحديث {n} أغنية بنجاح', 'Updated {n} songs successfully', '{n} titres mis à jour', '{n} canciones actualizadas', '{n} şarkı güncellendi', '{n} Songs aktualisiert', '{n} lagu diperbarui', '{n} گانے اپ ڈیٹ ہو گئے'],
+ ['المراقبة التلقائية للمجلد', 'Auto-Watch Folder', 'Surveillance du dossier', 'Vigilancia de carpeta', 'Otomatik Klasör İzleme', 'Ordner automatisch überwachen', 'Pantau Folder Otomatis', 'خودکار فولڈر کی نگرانی'],
+ ['تفعيل المراقبة', 'Enable Auto-Watch', 'Activer la surveillance', 'Activar vigilancia', 'İzlemeyi Etkinleştir', 'Überwachung aktivieren', 'Aktifkan Pantau', 'نگرانی فعال کریں'],
+ ['إيقاف المراقبة', 'Disable Auto-Watch', 'Désactiver la surveillance', 'Desactivar vigilancia', 'İzlemeyi Devre Dışı Bırak', 'Überwachung deaktivieren', 'Nonaktifkan Pantau', 'نگرانی غیر فعال کریں'],
+ ['بيضيف الأغاني الجديدة من الفولدر اللي إنت رابطها أوتوماتيك.', 'Auto-adds new songs from your linked folder.', 'Ajoute automatiquement les nouveaux titres.', 'Añade automáticamente nuevas canciones.', 'Bağlı klasörden yeni şarkıları ekler.', 'Fügt neue Songs automatisch hinzu.', 'Menambahkan lagu baru secara otomatis.', 'آپ کے لنک کردہ فولڈر سے نئے گانے شامل کرتا ہے۔'],
+ ['مزج الأغاني (Crossfade)', 'Crossfade', 'Fondu enchaîné', 'Fundido cruzado', 'Çapraz geçiş', 'Überblenden', 'Crossfade', 'کراس فیڈ'],
+ ['مدة المزج:', 'Crossfade duration:', 'Durée du fondu :', 'Duración del fundido:', 'Geçiş süresi:', 'Überblendungsdauer:', 'Durasi crossfade:', 'کراس فیڈ دورانیہ:'],
+ ['ثواني', 'seconds', 'secondes', 'segundos', 'saniye', 'Sekunden', 'detik', 'سیکنڈ'],
+ ['بدون مزج', 'No crossfade', 'Pas de fondu', 'Sin fundido', 'Geçiş yok', 'Kein Überblenden', 'Tanpa crossfade', 'بغیر کراس فیڈ'],
+ ['مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.', 'Crossfade songs for a smooth transition at the end.', 'Fondu enchaîné pour une transition fluide.', 'Fundido cruzado para una transición suave.', 'Yumuşak geçiş için şarkıları çapraz geçiş yapın.', 'Überblenden für einen sanften Übergang.', 'Crossfade lagu untuk transisi yang mulus.', 'ہموار منتقلی کے لیے گانے کراس فیڈ کریں۔'],
  ['العشوائي الذكي', 'Smart Shuffle', 'Lecture aléatoire intelligente', 'Aleatorio inteligente', 'Akıllı Karıştırma', 'Intelligentes Mischen', 'Acak Cerdas', 'سمارٹ شفل'],
  ['مشاركة القايمة بلينك', 'Share Playlist Link', 'Partager le lien', 'Compartir enlace', 'Bağlantıyı Paylaş', 'Link teilen', 'Bagikan Tautan', 'لنک شیئر کریں'],
  ['التقرير الأسبوعي', 'Weekly Recap', 'Récapitulatif hebdo', 'Resumen semanal', 'Haftalık Özet', 'Wochenrückblick', 'Rekap Mingguan', 'ہفتہ وار خلاصہ'],
@@ -1887,36 +1965,13 @@ const ROWS = [
  ['أكتر فنان:', 'Top Artist:', 'Artiste top :', 'Artista top:', 'En İyi Sanatçı:', 'Top-Künstler:', 'Artis Teratas:', 'ٹاپ آرٹسٹ:'],
  ['أكتر أغنية:', 'Top Song:', 'Titre top :', 'Canción top:', 'En İyi Şarkı:', 'Top-Song:', 'Lagu Teratas:', 'ٹاپ گانا:'],
  ['دقيقة', 'minutes', 'minutes', 'minutos', 'dakika', 'Minuten', 'menit', 'منٹ'],
-
- ['تحديث معلومات الأغاني', 'Auto-Tagger', 'Mise à jour auto', 'Auto-Etiquetador', 'Otomatik Etiketleyici', 'Auto-Tagger', 'Auto-Tagger', 'آٹو ٹیگر'],
- ['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
- ['جاري تحديث المعلومات...', 'Updating metadata...', 'Mise à jour...', 'Actualizando...', 'Güncelleniyor...', 'Aktualisieren...', 'Memperbarui...', 'میٹا ڈیٹا اپ ڈیٹ ہو رہا ہے...'],
- ['تم تحديث {n} أغنية بنجاح', 'Updated {n} songs successfully', '{n} titres mis à jour', '{n} canciones actualizadas', '{n} şarkı güncellendi', '{n} Songs aktualisiert', '{n} lagu diperbarui', '{n} گانے اپ ڈیٹ ہو گئے'],
-
- ['تحديث معلومات الأغاني', 'Auto-Tagger', 'Mise à jour auto', 'Auto-Etiquetador', 'Otomatik Etiketleyici', 'Auto-Tagger', 'Auto-Tagger', 'آٹو ٹیگر'],
- ['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
- ['جاري تحديث المعلومات...', 'Updating metadata...', 'Mise à jour...', 'Actualizando...', 'Güncelleniyor...', 'Aktualisieren...', 'Memperbarui...', 'میٹا ڈیٹا اپ ڈیٹ ہو رہا ہے...'],
- ['تم تحديث {n} أغنية بنجاح', 'Updated {n} songs successfully', '{n} titres mis à jour', '{n} canciones actualizadas', '{n} şarkı güncellendi', '{n} Songs aktualisiert', '{n} lagu diperbarui', '{n} گانے اپ ڈیٹ ہو گئے'],
- ['مفيش معلومات ناقصة، كل حاجة تمام!', 'All metadata is up to date!', 'Tout est à jour !', '¡Todo está actualizado!', 'Tüm bilgiler güncel!', 'Alles ist aktuell!', 'Semua metadata sudah diperbarui!', 'تمام میٹا ڈیٹا اپ ٹو ڈیٹ ہے!'],
- ['معلومات الأغاني', 'Song Metadata', 'Métadonnées', 'Metadatos', 'Şarkı Bilgileri', 'Song-Metadaten', 'Metadata Lagu', 'گانے کی میٹا ڈیٹا'],
-
  ['قص نغمة رنين', 'Ringtone Maker', 'Créateur de sonnerie', 'Creador de tonos', 'Zil Sesi Yapıcı', 'Klingelton-Ersteller', 'Pembuat Nada Dering', 'رنگ ٹون میکر'],
  ['اختر المقطع', 'Select Segment', 'Sélectionner le segment', 'Seleccionar segmento', 'Segmenti Seç', 'Segment auswählen', 'Pilih Segmen', 'سیگمنٹ منتخب کریں'],
  ['من', 'From', 'De', 'De', 'Başlangıç', 'Von', 'Dari', 'سے'],
  ['إلى', 'To', 'À', 'A', 'Bitiş', 'Bis', 'Ke', 'تک'],
  ['معاينة', 'Preview', 'Aperçu', 'Vista previa', 'Önizleme', 'Vorschau', 'Pratinjau', 'پیش نظارہ'],
  ['تنزيل النغمة', 'Download Ringtone', 'Télécharger la sonnerie', 'Descargar tono', 'Zil Sesini İndir', 'Klingelton herunterladen', 'Unduh Nada Dering', 'رنگ ٹون ڈاؤن لوڈ کریں'],
- ['جاري تجهيز الصوت...', 'Preparing audio...', 'Préparation de l\'audio...', 'Preparando audio...', 'Ses hazırlanıyor...', 'Audio wird vorbereitet...', 'Menyiapkan audio...', 'آڈیو تیار ہو رہی ہے...'],
-
- ['مزج الأغاني (Crossfade)', 'Crossfade', 'Fondu enchaîné', 'Fundido cruzado', 'Çapraz geçiş', 'Überblenden', 'Crossfade', 'کراس فیڈ'],
- ['مدة المزج:', 'Crossfade duration:', 'Durée du fondu :', 'Duración del fundido:', 'Geçiş süresi:', 'Überblendungsdauer:', 'Durasi crossfade:', 'کراس فیڈ دورانیہ:'],
- ['ثواني', 'seconds', 'secondes', 'segundos', 'saniye', 'Sekunden', 'detik', 'سیکنڈ'],
- ['بدون مزج', 'No crossfade', 'Pas de fondu', 'Sin fundido', 'Geçiş yok', 'Kein Überblenden', 'Tanpa crossfade', 'بغیر کراس فیڈ'],
- ['مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.', 'Crossfade songs for a smooth transition at the end.', 'Fondu enchaîné pour une transition fluide.', 'Fundido cruzado para una transición suave.', 'Yumuşak geçiş için şarkıları çapraz geçiş yapın.', 'Überblenden für einen sanften Übergang.', 'Crossfade lagu untuk transisi yang mulus.', 'ہموار منتقلی کے لیے گانے کراس فیڈ کریں۔'],
- ['بحث بالإنترنت', 'Internet Search', 'Recherche Internet', 'Búsqueda en Internet', 'İnternet Araması', 'Internetsuche', 'Pencarian Internet', 'انٹرنیٹ تلاش'],
- ['إخفاء زر البحث بالإنترنت', 'Hide Internet Search Button', 'Masquer la recherche Internet', 'Ocultar búsqueda en Internet', 'İnternet Aramasını Gizle', 'Internetsuche ausblenden', 'Sembunyikan Pencarian Internet', 'انٹرنیٹ تلاش چھپائیں'],
- ['إظهار زر البحث بالإنترنت', 'Show Internet Search Button', 'Afficher la recherche Internet', 'Mostrar búsqueda en Internet', 'İnternet Aramasını Göster', 'Internetsuche einblenden', 'Tampilkan Pencarian Internet', 'انٹرنیٹ تلاش دکھائیں'],
- ['قرآن', 'Quran', 'Coran', 'Corán', 'Kuran', 'Koran', 'Al-Quran', 'قرآن']
+ ['جاري تجهيز الصوت...', 'Preparing audio...', 'Préparation de l\'audio...', 'Preparando audio...', 'Ses hazırlanıyor...', 'Audio wird vorbereitet...', 'Menyiapkan audio...', 'آڈیو تیار ہو رہی ہے...']
 ];
 
 const EX = new Map(), PT = [];
@@ -2245,22 +2300,11 @@ SKINS.custom = ['لون خاص', '#12101a', '#f2eefc', '#9d97b5', '255,255,255',
 accIn.oninput = () => { localStorage.ng_acc = accIn.value; SKINS.custom[6] = hex2rgb(accIn.value); applySkin('custom'); };
 applySkin(localStorage.ng_skin || 'nagham');
 
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('input, textarea, select')) {
-    const active = document.activeElement;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) active.blur();
-  }
-});
 addEventListener('keydown', (e) => {
   const t = e.target, typing = t.matches && t.matches('input,select,textarea');
   if ((e.ctrlKey || e.metaKey) && e.code === 'KeyA' && !typing) { e.preventDefault(); visKeys().forEach((k) => SEL.add(k)); paintSel(); return; }
   if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
   const c = e.code;
-  // دعم أزرار الملتيميديا في الكيبورد
-  if (c === 'MediaPlayPause') { e.preventDefault(); toggle(); return; }
-  if (c === 'MediaTrackNext') { e.preventDefault(); step(1, false); return; }
-  if (c === 'MediaTrackPrevious') { e.preventDefault(); step(-1, false); return; }
-  if (c === 'MediaStop') { e.preventDefault(); audio.pause(); audio.currentTime = 0; return; }
   if (c === 'KeyJ') audio.currentTime -= 15; else if (c === 'KeyL') audio.currentTime += 15;
   else if (c === 'KeyM') audio.muted = !audio.muted; else if (c === 'KeyN') $('#next').click(); else if (c === 'KeyP') $('#prev').click();
   else if (c === 'KeyS') $('#shuffle').click(); else if (c === 'KeyF') toggleFav(curKey());
@@ -2397,6 +2441,11 @@ $('#restoreInput').onchange = async (e) => {
 
 $('#vm').onclick = (e) => {
   const p = e.currentTarget.getBoundingClientRect(), it = [[svgIcons.plus + ' قايمة جديدة', () => newList()]];
+  
+  if (view.startsWith('pl:')) {
+    it.push([svgIcons.share + ' مشاركة القايمة بلينك', () => shareListLink(view.slice(3))]);
+  }
+  
   if (view === 'queue') {
     it.push([svgIcons.download + ' احفظ قايمة التشغيل كقايمة', () => { const n = (prompt('اسم القايمة:') || '').trim(); if (!n) return; DB.lists[n] = tracks.map((t) => t.path); view = 'pl:' + n; persist(); render(); }]);
   } else if (view === 'hist') {
@@ -2426,6 +2475,17 @@ audio.addEventListener('timeupdate', () => {
 });
 
 let fadeInterval;
+audio.addEventListener('play', () => {
+  clearInterval(fadeInterval);
+  const a = activeIsRemote ? remoteAudio : audio;
+  const targetVol = parseFloat($('#vol').value) / 100 || 0.8;
+  a.volume = 0;
+  fadeInterval = setInterval(() => {
+    if (a.volume < targetVol - 0.05) a.volume += 0.05;
+    else { a.volume = targetVol; clearInterval(fadeInterval); }
+  }, 50);
+});
+
 var slT = null, slEnd = false, slCur = 0, slWait = false;
 function slSet(m) {
   clearTimeout(slT); slT = null; slEnd = m === 'end'; slCur = m || 0;
@@ -2475,7 +2535,6 @@ function renderSettingsPage() {
   
   L.innerHTML = `
     <div class="settings-page">
-
       <section class="settings-section">
         <h3>${svgIcons.palette} الشكل والمظهر</h3>
         <div class="skin-grid">
@@ -2519,7 +2578,13 @@ function renderSettingsPage() {
           <button class="chip ${vizStyle === 'circle' ? 'pri' : ''}" data-viz="circle">دايرة</button>
           <button class="chip ${vizStyle === 'wave' ? 'pri' : ''}" data-viz="wave">موجات</button>
         </div>
+        <h3>${svgIcons.sliders} شكل شريط التقدم</h3>
+        <div class="chip-grid">
+          <button class="chip ${(localStorage.ng_seek_mode || 'wave') === 'wave' ? 'pri' : ''}" data-seek="wave">موج الصوت</button>
+          <button class="chip ${localStorage.ng_seek_mode === 'normal' ? 'pri' : ''}" data-seek="normal">عادي</button>
+        </div>
       </section>
+
       
       <section class="settings-section">
         <h3>${svgIcons.zap} السرعة ومؤقت النوم</h3>
@@ -2542,7 +2607,7 @@ function renderSettingsPage() {
           </div>
         </div>
       </section>
-       
+
       <section class="settings-section">
         <h3>${svgIcons.sliders} مزج الأغاني (Crossfade)</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -2554,10 +2619,6 @@ function renderSettingsPage() {
         </div>
         <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">مزج الأغاني ببعضها في آخر الثواني المحددة لانتقال ناعم.</small>
       </section>
-
-      <!-- قسم توحيد الصوت اللي كان موجود أصلاً -->
-      <section class="settings-section">
-        <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
 
       <section class="settings-section">
         <h3>${svgIcons.zap} توحيد مستوى الصوت (Normalization)</h3>
@@ -2597,18 +2658,27 @@ function renderSettingsPage() {
         <h3>${svgIcons.database} تحديث معلومات الأغاني (Auto-Tagger)</h3>
         <div class="chip-grid">
           <button class="chip" id="autoTagBtn" style="background:var(--tint); color:#fff;">تحديث الكل</button>
-        <!-- شريط تقدم التحديث -->
+        </div>
         <div id="autoTagProgressContainer" style="display: none; margin-top: 15px;">
           <div style="width: 100%; height: 8px; background: rgba(var(--w), .1); border-radius: 10px; overflow: hidden;">
             <div id="autoTagProgressBar" style="width: 0%; height: 100%; background: var(--tint); transition: width 0.3s ease; border-radius: 10px;"></div>
           </div>
           <div id="autoTagProgressText" style="font-size: 12px; color: var(--mute); margin-top: 8px; text-align: center;"></div>
         </div>
-        </div>
         <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.</small>
       </section>
 
-          <section class="settings-section">
+      <section class="settings-section">
+        <h3>${svgIcons.folder} المراقبة التلقائية للمجلد</h3>
+        <div class="chip-grid">
+          <button class="chip ${localStorage.ng_watch === '1' ? 'pri' : ''}" id="toggleWatchBtn">
+            ${localStorage.ng_watch === '1' ? 'إيقاف المراقبة' : 'تفعيل المراقبة'}
+          </button>
+        </div>
+        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيضيف الأغاني الجديدة من الفولدر اللي إنت رابطها أوتوماتيك.</small>
+      </section>
+
+      <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
           <label class="field-lbl">كود المزامنة (هيتولد تلقائياً لما ترفع):</label>
@@ -2621,7 +2691,7 @@ function renderSettingsPage() {
           </div>
         </div>
       </section>
-
+      
       <section class="settings-section">
         <h3>${svgIcons.database} البيانات</h3>
         <div class="settings-actions">
@@ -2650,9 +2720,7 @@ function renderSettingsPage() {
           <div class="about-row"><span>عدد الكلمات المحفوظة</span><b>${lyricCount}</b></div>
         </div>
       </section>
-
-
-     
+      
       <div style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
         © ${new Date().getFullYear()} Lahn App. All rights reserved.
       </div>
@@ -2679,6 +2747,14 @@ function renderSettingsPage() {
   });
 
   L.querySelectorAll('[data-viz]').forEach(el => {
+  L.querySelectorAll('[data-seek]').forEach(el => {
+    el.onclick = () => {
+      const mode = el.dataset.seek;
+      localStorage.ng_seek_mode = mode;
+      document.body.classList.toggle('seek-normal', mode === 'normal');
+      renderSettingsPage();
+    };
+  });
     el.onclick = () => { vizStyle = el.dataset.viz; localStorage.ng_viz = vizStyle; renderSettingsPage(); };
   });
 
@@ -2769,15 +2845,48 @@ function renderSettingsPage() {
     };
   }
 
-  const syncKeyInput = document.getElementById('syncKeyInput');
-  document.getElementById('genSyncCodeBtn')?.addEventListener('click', () => {
-    const newCode = 'lahn-' + Math.random().toString(36).substring(2, 10);
-    localStorage.ng_sync_key = newCode;
-    if (syncKeyInput) syncKeyInput.value = newCode;
-    toast('تم توليد كود جديد! احتفظ بيه.');
-  });
+  // --- سلايدر المزج ---
+  const cfSlider = document.getElementById('crossfadeSlider');
+  if (cfSlider) {
+    cfSlider.oninput = (e) => {
+      const val = +e.target.value;
+      localStorage.ng_crossfade = val;
+      crossfadeTime = val;
+      const cfVal = document.getElementById('cfVal');
+      if (cfVal) cfVal.textContent = val === 0 ? 'بدون مزج' : val + ' ثواني';
+      if (typeof setLang === 'function') setLang(LG);
+    };
+  }
 
-    // رفع للسحابة باستخدام jsonblob
+  // --- زرار تحديث المعلومات ---
+  const autoTagBtn = document.getElementById('autoTagBtn');
+  if (autoTagBtn) {
+    autoTagBtn.onclick = () => runAutoTagger();
+  }
+
+  // --- زرار المراقبة ---
+  const toggleWatchBtn = document.getElementById('toggleWatchBtn');
+  if (toggleWatchBtn) {
+    toggleWatchBtn.onclick = () => {
+      if (!DIR) return toast('اربط مجلد الأول من زرار "مجلد"');
+      
+      const isOn = localStorage.ng_watch === '1';
+      localStorage.ng_watch = isOn ? '0' : '1';
+      
+      if (isOn) {
+        if (watchInterval) clearInterval(watchInterval);
+        toast('تم إيقاف المراقبة');
+      } else {
+        startAutoWatch();
+        toast('تم تفعيل المراقبة');
+      }
+      renderSettingsPage();
+    };
+  }
+
+  // --- المزامنة السحابية ---
+  const syncKeyInput = document.getElementById('syncKeyInput');
+  
   document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
     const key = syncKeyInput.value.trim();
     const btn = document.getElementById('cloudUploadBtn');
@@ -2788,7 +2897,6 @@ function renderSettingsPage() {
       let url = 'https://jsonblob.com/api/jsonBlob';
       let method = 'POST';
       
-      // لو فيه كود موجود، بنحدث نفس الملف بدل ما نعمل واحد جديد
       if (key) {
         url = `https://jsonblob.com/api/jsonBlob/${key}`;
         method = 'PUT';
@@ -2802,7 +2910,6 @@ function renderSettingsPage() {
       
       if (res.ok) {
         if (method === 'POST') {
-          // بنجيب الكود الجديد من الـ Response
           const location = res.headers.get('Location');
           if (location) {
             const newKey = location.split('/').pop();
@@ -2822,7 +2929,6 @@ function renderSettingsPage() {
     btn.textContent = 'رفع للسحابة ☁️';
   });
 
-  // تنزيل من السحابة
   document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
     const key = syncKeyInput.value.trim();
     if (!key) return toast('اكتب كود المزامنة الأول');
@@ -2846,26 +2952,116 @@ function renderSettingsPage() {
     }
     btn.textContent = 'تنزيل من السحابة ⬇️';
   });
-
-// تشغيل سلايدر المزج
-
-  // ربط زرار تحديث المعلومات
-  const autoTagBtn = document.getElementById('autoTagBtn');
-  if (autoTagBtn) {
-    autoTagBtn.onclick = () => runAutoTagger();
-  }
-  const cfSlider = document.getElementById('crossfadeSlider');
-  if (cfSlider) {
-    cfSlider.oninput = (e) => {
-      const val = +e.target.value;
-      localStorage.ng_crossfade = val;
-      crossfadeTime = val;
-      const cfVal = document.getElementById('cfVal');
-      if (cfVal) cfVal.textContent = val === 0 ? 'بدون مزج' : val + ' ثواني';
-      if (typeof setLang === 'function') setLang(LG);
-    };
-  }
 }
+
+// دالة التحديث
+async function runAutoTagger() {
+  const btn = document.getElementById('autoTagBtn');
+  const progressContainer = document.getElementById('autoTagProgressContainer');
+  const progressBar = document.getElementById('autoTagProgressBar');
+  const progressText = document.getElementById('autoTagProgressText');
+  
+  if (!btn || !progressContainer) return;
+  
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressText.textContent = trs('جاري تحديث المعلومات...');
+  
+  let updatedCount = 0;
+  let processed = 0;
+  const keys = Object.keys(DB.lib);
+  const total = keys.length;
+  
+  if (total === 0) {
+    progressContainer.style.display = 'none';
+    btn.disabled = false;
+    return;
+  }
+  
+  const fetchItunesJSONP = (query) => {
+    return new Promise((resolve) => {
+      const callbackName = 'itunesCb_' + Math.random().toString(36).substring(2, 9);
+      window[callbackName] = (data) => {
+        resolve(data);
+        delete window[callbackName];
+        document.getElementById(callbackName)?.remove();
+      };
+      const script = document.createElement('script');
+      script.id = callbackName;
+      script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=1&callback=${callbackName}`;
+      script.onerror = () => { resolve({ results: [] }); delete window[callbackName]; };
+      document.body.appendChild(script);
+    });
+  };
+  
+  for (const k of keys) {
+    const m = DB.lib[k];
+    
+    const percent = Math.round((processed / total) * 100);
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `${trs('جاري تحديث المعلومات...')} (${processed}/${total})`;
+    
+    if (m.isRemote || !m.title) { processed++; continue; }
+    if (m.album && m.year && m.genre && DB.covers[k]) { processed++; continue; }
+    
+    try {
+      const query = `${m.artist || ''} ${m.title || ''}`.trim();
+      const itunesData = await fetchItunesJSONP(query);
+      
+      if (itunesData.results && itunesData.results[0]) {
+        const r = itunesData.results[0];
+        if (!m.year && r.releaseDate) m.year = r.releaseDate.slice(0, 4);
+        if (!m.genre && r.primaryGenreName) m.genre = r.primaryGenreName;
+        if (!m.album && r.collectionName) m.album = r.collectionName;
+        if (!DB.covers[k] && r.artworkUrl100) DB.covers[k] = r.artworkUrl100.replace('100x100', '500x500');
+        
+        if (DB.covers[k] && tagCache.has(k)) {
+          const c = tagCache.get(k);
+          if (c.cover) URL.revokeObjectURL(c.cover);
+          tagCache.delete(k);
+        }
+        updatedCount++;
+      }
+      
+      if (updatedCount % 5 === 0) { persist(); render(); }
+      await new Promise(r => setTimeout(r, 400));
+      
+    } catch (e) { console.warn(e); }
+    processed++;
+  }
+  
+  progressBar.style.width = '100%';
+  progressText.textContent = trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount);
+  
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    btn.textContent = originalText;
+    btn.disabled = false;
+    if (view === 'settings') renderSettingsPage(); 
+    toast(trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount));
+  }, 1000);
+}
+
+// المراقبة التلقائية للمجلد
+let watchInterval = null;
+function startAutoWatch() {
+  if (watchInterval) clearInterval(watchInterval);
+  if (localStorage.ng_watch !== '1' || !DIR) return;
+  
+  watchInterval = setInterval(async () => {
+    if (!DIR) return;
+    try {
+      const perm = await DIR.queryPermission({ mode: 'read' });
+      if (perm === 'granted') {
+        await scanDir(DIR, true);
+      }
+    } catch (e) {}
+  }, 15000);
+}
+setTimeout(startAutoWatch, 3000);
 
 let currentHistoryView = null;
 function updateHistoryState() {
@@ -2962,6 +3158,7 @@ render = function() {
   updateHistoryState();
 };
 window.__v8 = true; render();
+if (localStorage.ng_seek_mode === 'normal') document.body.classList.add('seek-normal');
 setLang(LG);
 
 document.getElementById('8dBtn').onclick = () => {
@@ -2994,11 +3191,11 @@ document.getElementById('ncBtn').onclick = () => {
     audio.playbackRate = 1.25;
     audio.preservesPitch = false;
     if (wetGain) wetGain.gain.value = 0;
-    toast('Nightcore مقعل');
+    toast('تم تفعيل Nightcore');
   } else {
     audio.playbackRate = 1;
     audio.preservesPitch = true;
-    toast('Nightcore مقفول');
+    toast('تم إيقاف Nightcore');
   }
   updateFxBtnState();
 };
@@ -3015,12 +3212,12 @@ document.getElementById('slBtn').onclick = () => {
     audio.playbackRate = 0.8;
     audio.preservesPitch = false;
     if (wetGain) wetGain.gain.value = 0.4;
-    toast('Slowed + Reverb مقعل');
+    toast('تم تفعيل Slowed + Reverb');
   } else {
     audio.playbackRate = 1;
     audio.preservesPitch = true;
     if (wetGain) wetGain.gain.value = 0;
-    toast('Slowed + Reverb مقفول');
+    toast('تم إيقاف Slowed + Reverb');
   }
   updateFxBtnState();
 };
@@ -3036,11 +3233,11 @@ document.getElementById('vocalBtn').onclick = () => {
   if (isKaraoke) {
     if (vocalWet) vocalWet.gain.value = 1; 
     if (masterDryGain) masterDryGain.gain.value = 0; 
-    toast('مود الكاريوكي مفعل');
+    toast('تم تفعيل الكاريوكي');
   } else {
     if (vocalWet) vocalWet.gain.value = 0;
     if (masterDryGain) masterDryGain.gain.value = 1; 
-    toast('مود الكاريوكي مقفول');
+    toast('تم إيقاف الكاريوكي');
   }
   updateFxBtnState();
 };
@@ -3407,7 +3604,8 @@ window.addEventListener('keydown', (e) => {
 document.getElementById('closeShortcuts').onclick = () => {
   document.getElementById('shortcutsModal').hidden = true;
 };
-/* ════════ لوحة الصوت 3D ════════ */
+
+// 3D Audio Pad logic
 const padArea = document.getElementById('padArea');
 const padDot = document.getElementById('padDot');
 const padModal = document.getElementById('audioPadModal');
@@ -3459,39 +3657,9 @@ document.getElementById('padReset').onclick = () => {
   padDot.style.left = '50%';
   padDot.style.top = '50%';
 };
-
 /* ════════ المميزات الإضافية ════════ */
 
-// 1. العشوائي الذكي (تعديل دالة step)
-const originalStep = step;
-step = function(dir, auto) {
-  if (!tracks.length) return;
-  if (auto && repeat === 2) { audio.currentTime = 0; audio.play(); return; }
-  let n;
-  if (shuffle && tracks.length > 1) {
-    const recent = new Set();
-    let checked = 0;
-    for (let i = HIST.length - 1; i >= 0 && checked < 10; i--) {
-       const idx = tracks.findIndex(t => t.path === HIST[i].k);
-       if (idx !== -1) { recent.add(idx); checked++; }
-    }
-    const avail = [];
-    for(let i=0; i<tracks.length; i++) if(!recent.has(i)) avail.push(i);
-    
-    if (avail.length === 0) {
-      do n = Math.floor(Math.random() * tracks.length); while (n === cur);
-    } else {
-      n = avail[Math.floor(Math.random() * avail.length)];
-    }
-  } else n = cur + dir;
-  
-  if (n >= tracks.length || n < 0) {
-    if (repeat === 1 || !auto) n = (n + tracks.length) % tracks.length; else { audio.pause(); return; }
-  }
-  setTrack(n, true);
-};
-
-// 2. مشاركة القايمة بلينك
+// 1. مشاركة القايمة بلينك
 async function shareListLink(n) {
   if (!DB.lists[n] || !DB.lists[n].length) return toast('القايمة فاضية');
   const key = 'list_' + Math.random().toString(36).substring(2, 8);
@@ -3506,7 +3674,7 @@ async function shareListLink(n) {
   } catch(e) { toast('فشل إنشاء اللينك'); }
 }
 
-// 3. استيراد قايمة من لينك
+// 2. استيراد قايمة من لينك (لو حد فتح بلينك)
 async function checkSharedList() {
   const params = new URLSearchParams(location.search);
   const key = params.get('list');
@@ -3526,7 +3694,7 @@ async function checkSharedList() {
 }
 checkSharedList();
 
-// 4. التقرير الأسبوعي
+// 3. التقرير الأسبوعي
 function checkWeeklyRecap() {
   const lastRecap = +localStorage.ng_last_recap || 0;
   const now = Date.now();
@@ -3557,289 +3725,6 @@ function checkWeeklyRecap() {
 }
 document.getElementById('recapClose').onclick = () => { document.getElementById('recapModal').hidden = true; };
 setTimeout(checkWeeklyRecap, 3000);
-
-// 5. إضافة خيار "مشاركة القايمة بلينك" في قايمة الـ VM
-const originalVMOnclick = document.getElementById('vm').onclick;
-document.getElementById('vm').onclick = (e) => {
-  const p = e.currentTarget.getBoundingClientRect(), it = [[svgIcons.plus + ' قايمة جديدة', () => newList()]];
-  if (view.startsWith('pl:')) {
-    it.push([svgIcons.share + ' مشاركة القايمة بلينك', () => shareListLink(view.slice(3))]);
-  }
-  if (view === 'queue') {
-    it.push([svgIcons.download + ' احفظ قايمة التشغيل كقايمة', () => { const n = (prompt('اسم القايمة:') || '').trim(); if (!n) return; DB.lists[n] = tracks.map((t) => t.path); view = 'pl:' + n; persist(); render(); }]);
-  } else if (view === 'hist') {
-    it.push([svgIcons.trash + ' مسح السجل', () => { if (confirm('تمسح السجل كله؟')) { HIST = []; localStorage.ng_hist = '[]'; render(); } }]);
-    it.push([ST.off ? svgIcons.play + ' تشغيل التسجيل' : svgIcons.x + ' إيقاف التسجيل', () => { ST.off = !ST.off; saveStats(); }]);
-  } else {
-    it.push([svgIcons.play + ' تشغيل الكل', () => startQueue(keysOfView(), keysOfView()[0])], [svgIcons.share + ' مشاركة القايمة (نص)', shareList], [svgIcons.download + ' تصدير ملف القايمة', exportList]);
-    if (view.startsWith('pl:')) it.push([svgIcons.edit + ' إعادة تسمية', renameList], [svgIcons.trash + ' حذف القايمة', deleteList]);
-  }
-  if (view !== 'hist') it.push([svgIcons.upload + ' استيراد قايمة من ملف', importList], [svgIcons.upload + ' استيراد M3U', importM3U], [svgIcons.download + ' تصدير M3U', exportM3U]);
-  if (view.startsWith('ar:')) it.push([svgIcons.edit + ' تعديل اسم وصورة الفنان', () => openEditArtistModal(view.slice(3))], [svgIcons.x + ' ما تفصلش الاسم ده', noSplit]);
-  showMenu(p.left, p.bottom + 4, it);
-};
-
-/* ════════ تحديث معلومات الأغاني (Auto-Tagger) ════════ */
-async function runAutoTagger() {
-  const btn = document.getElementById('autoTagBtn');
-  const progressContainer = document.getElementById('autoTagProgressContainer');
-  const progressBar = document.getElementById('autoTagProgressBar');
-  const progressText = document.getElementById('autoTagProgressText');
-  
-  if (!btn || !progressContainer) return;
-  
-  btn.disabled = true;
-  const originalText = btn.textContent;
-  
-  // إظهار شريط التحميل
-  progressContainer.style.display = 'block';
-  progressBar.style.width = '0%';
-  progressText.textContent = trs('جاري تحديث المعلومات...');
-  
-  let updatedCount = 0;
-  let processed = 0;
-  const keys = Object.keys(DB.lib);
-  const total = keys.length;
-  
-  if (total === 0) {
-    progressContainer.style.display = 'none';
-    btn.disabled = false;
-    return;
-  }
-  
-  const fetchItunesJSONP = (query) => {
-    return new Promise((resolve) => {
-      const callbackName = 'itunesCb_' + Math.random().toString(36).substring(2, 9);
-      window[callbackName] = (data) => {
-        resolve(data);
-        delete window[callbackName];
-        document.getElementById(callbackName)?.remove();
-      };
-      const script = document.createElement('script');
-      script.id = callbackName;
-      script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=1&callback=${callbackName}`;
-      script.onerror = () => { resolve({ results: [] }); delete window[callbackName]; };
-      document.body.appendChild(script);
-    });
-  };
-  
-  for (const k of keys) {
-    const m = DB.lib[k];
-    
-    // تحديث شريط التقدم في كل لفة
-    const percent = Math.round((processed / total) * 100);
-    progressBar.style.width = percent + '%';
-    progressText.textContent = `${trs('جاري تحديث المعلومات...')} (${processed}/${total})`;
-    
-    if (m.isRemote || !m.title) { processed++; continue; }
-    if (m.album && m.year && m.genre && DB.covers[k]) { processed++; continue; }
-    
-    try {
-      const query = `${m.artist || ''} ${m.title || ''}`.trim();
-      const itunesData = await fetchItunesJSONP(query);
-      
-      if (itunesData.results && itunesData.results[0]) {
-        const r = itunesData.results[0];
-        if (!m.year && r.releaseDate) m.year = r.releaseDate.slice(0, 4);
-        if (!m.genre && r.primaryGenreName) m.genre = r.primaryGenreName;
-        if (!m.album && r.collectionName) m.album = r.collectionName;
-        if (!DB.covers[k] && r.artworkUrl100) DB.covers[k] = r.artworkUrl100.replace('100x100', '500x500');
-        
-        if (DB.covers[k] && tagCache.has(k)) {
-          const c = tagCache.get(k);
-          if (c.cover) URL.revokeObjectURL(c.cover);
-          tagCache.delete(k);
-        }
-        updatedCount++;
-      }
-      
-      if (updatedCount % 5 === 0) { persist(); render(); }
-      await new Promise(r => setTimeout(r, 400));
-      
-    } catch (e) { console.warn(e); }
-    
-    processed++;
-  }
-  
-  // خلصنا
-  progressBar.style.width = '100%';
-  progressText.textContent = trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount);
-  
-  setTimeout(() => {
-    progressContainer.style.display = 'none';
-    btn.textContent = originalText;
-    btn.disabled = false;
-    if (view === 'settings') renderSettingsPage(); 
-    toast(trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount));
-  }, 1000);
-}
-
-// ربط الزرار
-const autoTagBtn = document.getElementById('autoTagBtn');
-if (autoTagBtn) {
-  autoTagBtn.onclick = () => runAutoTagger();
-}
-
-/* ════════ قص نغمة الرنين ════════ */
-let trimAudioBuffer = null;
-let trimFileName = "ringtone.wav";
-
-window.openTrimModal = async (k) => {
-  if (!k) return;
-  const modal = document.getElementById('trimModal');
-  const trackName = document.getElementById('trimTrackName');
-  const startSlider = document.getElementById('trimStart');
-  const endSlider = document.getElementById('trimEnd');
-  
-  modal.hidden = false;
-  trackName.textContent = "جاري تجهيز الصوت...";
-  
-  try {
-    // 1. جلب الملف كـ ArrayBuffer
-    let arrayBuffer;
-    if (files.has(k)) {
-      arrayBuffer = await files.get(k).arrayBuffer();
-    } else if (DB.lib[k] && DB.lib[k].url) {
-      const res = await fetch(DB.lib[k].url);
-      arrayBuffer = await res.arrayBuffer();
-    } else {
-      throw new Error('الملف مش موجود');
-    }
-    
-    // 2. فك تشفير الصوت (Decode)
-    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
-    trimAudioBuffer = await ac.decodeAudioData(arrayBuffer);
-    
-    // 3. تجهيز الواجهة
-    const duration = trimAudioBuffer.duration;
-    const m = DB.lib[k] || {};
-    trackName.textContent = (m.title || 'أغنية') + ' - ' + (m.artist || '');
-    trimFileName = (m.title || 'ringtone') + '.wav';
-    
-    startSlider.max = Math.floor(duration);
-    endSlider.max = Math.floor(duration);
-    startSlider.value = 0;
-    // الافتراضي 30 ثانية أو أقل لو الأغنية قصيرة
-    endSlider.value = Math.min(30, Math.floor(duration)); 
-    
-    updateTrimLabels();
-  } catch (e) {
-    toast('فشل تحميل الصوت للقص');
-    modal.hidden = true;
-  }
-};
-
-function formatTime(sec) {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return m + ':' + String(s).padStart(2, '0');
-}
-
-function updateTrimLabels() {
-  const s = +document.getElementById('trimStart').value;
-  const e = +document.getElementById('trimEnd').value;
-  document.getElementById('trimStartLabel').textContent = formatTime(s);
-  document.getElementById('trimEndLabel').textContent = formatTime(e);
-  
-  // ضمان إن النهاية دايماً بعد البداية
-  if (e <= s) {
-    document.getElementById('trimEnd').value = s + 1;
-    document.getElementById('trimEndLabel').textContent = formatTime(s + 1);
-  }
-}
-
-document.getElementById('trimStart').oninput = updateTrimLabels;
-document.getElementById('trimEnd').oninput = updateTrimLabels;
-document.getElementById('trimClose').onclick = () => { 
-  document.getElementById('trimModal').hidden = true; 
-  if (window.trimPreviewSource) { window.trimPreviewSource.stop(); }
-};
-
-// 4. المعاينة
-document.getElementById('trimPreviewBtn').onclick = () => {
-  if (!trimAudioBuffer) return;
-  if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
-  ac.resume();
-  
-  const s = +document.getElementById('trimStart').value;
-  const e = +document.getElementById('trimEnd').value;
-  
-  if (window.trimPreviewSource) { window.trimPreviewSource.stop(); }
-  
-  window.trimPreviewSource = ac.createBufferSource();
-  window.trimPreviewSource.buffer = trimAudioBuffer;
-  window.trimPreviewSource.connect(ac.destination);
-  window.trimPreviewSource.start(0, s, e - s);
-  toast('جاري معاينة المقطع...');
-};
-
-// 5. تحويل الـ AudioBuffer إلى WAV (دالة مساعدة)
-function bufferToWav(abuffer, startSec, endSec) {
-  const numOfChan = abuffer.numberOfChannels;
-  const length = Math.floor((endSec - startSec) * abuffer.sampleRate);
-  const sampleRate = abuffer.sampleRate;
-  const buffer = new ArrayBuffer(44 + length * numOfChan * 2);
-  const view = new DataView(buffer);
-  
-  function writeString(view, offset, string) {
-    for (let i = 0; i < string.length; i++) {
-      view.setUint8(offset + i, string.charCodeAt(i));
-    }
-  }
-  
-  writeString(view, 0, 'RIFF');
-  view.setUint32(4, 36 + length * numOfChan * 2, true);
-  writeString(view, 8, 'WAVE');
-  writeString(view, 12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numOfChan, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * numOfChan * 2, true);
-  view.setUint16(32, numOfChan * 2, true);
-  view.setUint16(34, 16, true);
-  writeString(view, 36, 'data');
-  view.setUint32(40, length * numOfChan * 2, true);
-  
-  const channels = [];
-  let offset = 44;
-  for (let i = 0; i < numOfChan; i++) {
-    channels.push(abuffer.getChannelData(i));
-  }
-  
-  const startSample = Math.floor(startSec * sampleRate);
-  for (let i = 0; i < length; i++) {
-    for (let channel = 0; channel < numOfChan; channel++) {
-      let sample = channels[channel][startSample + i];
-      sample = Math.max(-1, Math.min(1, sample));
-      sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
-      view.setInt16(offset, sample, true);
-      offset += 2;
-    }
-  }
-  return new Blob([view], { type: 'audio/wav' });
-}
-
-// 6. التنزيل
-document.getElementById('trimDownloadBtn').onclick = () => {
-  if (!trimAudioBuffer) return;
-  const s = +document.getElementById('trimStart').value;
-  const e = +document.getElementById('trimEnd').value;
-  
-  toast('جاري القص، ثواني...');
-  
-  setTimeout(() => {
-    const wavBlob = bufferToWav(trimAudioBuffer, s, e);
-    const url = URL.createObjectURL(wavBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = trimFileName;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('تم تنزيل النغمة بنجاح!');
-    document.getElementById('trimModal').hidden = true;
-  }, 100);
-};
 </script>
 </body>
 </html>
