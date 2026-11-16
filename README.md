@@ -15,6 +15,9 @@
 
 **Lahn** is a feature-rich, web-based music player that works offline. It is designed to be your all-in-one media hub, combining local music playback with online streaming, audio processing, and a sleek, modern interface.
 
+# App Link
+https://sunjinoo.github.io/Lahn/#home
+
 ## ✨ Features
 
 - **🎧 Local Library:** Play local audio files (MP3, FLAC, WAV, M4A) with ID3 tag reading and cover art extraction.
@@ -53,7 +56,18 @@ Because the app relies on `fetch` to retrieve data from the internet (Quran, Rad
 
 ## 📸 Screenshots
 
-*(Add your screenshots here)*
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/34a435a5-bcdd-4d9d-aa68-121c5f28f369" />
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/9dd960fb-a1ff-488e-ad91-4884a80b0082" />
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/345e0b3d-641f-4a7d-955d-38655b47f2a4" />
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/80dc3be6-7881-4085-8a38-cdf05666c37d" />
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/b67695a7-f247-4bdd-ace7-ed6a1a08deb2" />
+
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/173143ca-c3d5-42b4-951a-88b4a76d6953" />
 
 ---
 
@@ -62,6 +76,9 @@ Because the app relies on `fetch` to retrieve data from the internet (Quran, Rad
   <p><b>تطبيق ويب تقدمي (PWA) متكامل للموسيقى، القرآن الكريم، الراديو، والبودكاست.</b></p>
 </div>
 
+# رابط الموقع 
+
+https://sunjinoo.github.io/Lahn/#home
 ## 📖 عن المشروع
 
 **لحن** هو مشغل موسيقى احترافي يعمل على المتصفح ويتميز بدعم العمل بدون إنترنت. تم تصميمه ليكون مركزك الشامل للترفيه، حيث يجمع بين تشغيل الملفات المحلية، البث المباشر، والمعالجة الصوتية المتقدمة، بواجهة عصرية وسريعة.
@@ -103,20 +120,20 @@ Because the app relies on `fetch` to retrieve data from the internet (Quran, Rad
 4. اضغط كليك يمين على ملف `index.html` واختر **Open with Live Server**.
 
 ## 📸 لقطات الشاشة
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/34a435a5-bcdd-4d9d-aa68-121c5f28f369" />
 
 
 
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/9dd960fb-a1ff-488e-ad91-4884a80b0082" />
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/345e0b3d-641f-4a7d-955d-38655b47f2a4" />
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/80dc3be6-7881-4085-8a38-cdf05666c37d" />
 
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/b67695a7-f247-4bdd-ace7-ed6a1a08deb2" />
 
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/173143ca-c3d5-42b4-951a-88b4a76d6953" />
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/0ee6ac6c-cc96-4253-8f1e-8d97e44ffce7" />
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/b1a0e7f7-478b-483c-bf68-b4374e340621" />
+
+
+<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/4e3fe53e-5ba5-4182-9f65-73e2687a02e8" />
+
 
 <img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/5180f9fd-968d-412e-957a-cf7fd9d53017" />
-<img width="1280" height="994" alt="image" src="https://github.com/user-attachments/assets/0ee6ac6c-cc96-4253-8f1e-8d97e44ffce7" />
 
 
 ---
