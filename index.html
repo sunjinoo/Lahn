@@ -85,9 +85,30 @@ body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
 .ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--mute);position:relative}.ib:hover{color:var(--text);background:rgba(var(--w),.1)}.ib.on{color:var(--tint)}.ib svg{width:20px;height:20px}
 .play{width:46px;height:46px;background:var(--text);color:var(--on)}.play:hover{background:var(--text);color:var(--on);filter:brightness(1.1);transform:scale(1.05)}.play svg{width:24px;height:24px}
 #repeat[data-one="1"]::after{content:"1";position:absolute;font-size:9px;font-weight:700;top:17px;left:50%;transform:translateX(-50%)}
-.seekrow{display:flex;align-items:center;gap:10px;width:100%;direction:ltr;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;position:relative;height:30px}
+.seekrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  direction: ltr;
+  font-size: 10px;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+  height: 20px;
+  min-width: 0;
+}
 #seek{position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:0;cursor:pointer;}
-#waveformCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+#waveformCanvas {
+  position: absolute;
+  top: 3px;
+  left: 14%;
+  right: auto;
+  width: 72%;
+  height: 14px;
+  z-index: 1;
+  pointer-events: none;
+}
 body.seek-normal .seekrow { height: auto; }
 body.seek-normal #seek { position: static; opacity: 1; height: 4px; inset: auto; z-index: auto; }
 body.seek-normal #waveformCanvas { display: none; }
@@ -1964,8 +1985,182 @@ const ROWS = [
  ['إلى', 'To', 'À', 'A', 'Bitiş', 'Bis', 'Ke', 'تک'],
  ['معاينة', 'Preview', 'Aperçu', 'Vista previa', 'Önizleme', 'Vorschau', 'Pratinjau', 'پیش نظارہ'],
  ['تنزيل النغمة', 'Download Ringtone', 'Télécharger la sonnerie', 'Descargar tono', 'Zil Sesini İndir', 'Klingelton herunterladen', 'Unduh Nada Dering', 'رنگ ٹون ڈاؤن لوڈ کریں'],
- ['جاري تجهيز الصوت...', 'Preparing audio...', 'Préparation de l\'audio...', 'Preparando audio...', 'Ses hazırlanıyor...', 'Audio wird vorbereitet...', 'Menyiapkan audio...', 'آڈیو تیار ہو رہی ہے...']
+
+['جاري تجهيز الصوت...', 'Preparing audio...', 'Préparation de l\'audio...', 'Preparando audio...', 'Ses hazırlanıyor...', 'Audio wird vorbereitet...', 'Menyiapkan audio...', 'آڈیو تیار ہو رہی ہے...'],
+
+// توحيد مستوى الصوت
+['توحيد مستوى الصوت (Normalization)', 'Volume Normalization', 'Normalisation du volume', 'Normalización del volumen', 'Ses Seviyesi Normalleştirme', 'Lautstärkenormalisierung', 'Normalisasi Volume', 'آواز کی سطح کو یکساں کرنا'],
+['بيخلي كل الأغاني بنفس مستوى الصوت (مفيد جداً لو الأغاني بتحملها من النت).', 'Keeps all songs at a consistent volume level (useful for downloaded music).', 'Maintient un niveau sonore uniforme pour toutes les chansons (utile pour la musique téléchargée).', 'Mantiene todas las canciones al mismo nivel de volumen (útil para música descargada).', 'Tüm şarkıları aynı ses seviyesinde tutar (indirilen müzikler için kullanışlıdır).', 'Hält alle Songs auf einem einheitlichen Lautstärkepegel (praktisch für heruntergeladene Musik).', 'Menjaga semua lagu pada tingkat volume yang konsisten (berguna untuk musik unduhan).', 'تمام گانوں کی آواز ایک جیسی رکھتا ہے (ڈاؤن لوڈ کی گئی موسیقی کے لیے مفید ہے)'],
+
+// تحديث بيانات الأغاني
+['تحديث معلومات الأغاني (Auto-Tagger)', 'Update Song Information (Auto-Tagger)', 'Mettre à jour les informations des chansons', 'Actualizar información de canciones', 'Şarkı Bilgilerini Güncelle', 'Songinformationen aktualisieren', 'Perbarui Informasi Lagu', 'گانے کی معلومات اپ ڈیٹ کریں'],
+['تحديث الكل', 'Update All', 'Tout mettre à jour', 'Actualizar todo', 'Tümünü Güncelle', 'Alle aktualisieren', 'Perbarui Semua', 'سب اپ ڈیٹ کریں'],
+['بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.', 'Fetches the album, year, genre, and cover art for songs with missing information.', 'Récupère l’album, l’année, le genre et la pochette des chansons dont les informations sont manquantes.', 'Obtiene el álbum, año, género y portada de las canciones que no tienen esa información.', 'Eksik bilgileri olan şarkılar için albüm, yıl, tür ve kapak görselini getirir.', 'Ergänzt Album, Jahr, Genre und Cover für Songs mit fehlenden Informationen.', 'Mengambil album, tahun, genre, dan sampul untuk lagu yang informasinya belum lengkap.', 'جن گانوں کی معلومات نامکمل ہیں ان کے لیے البم، سال، صنف اور سرورق حاصل کرتا ہے۔'],
+
+// المزامنة السحابية
+['المزامنة السحابية', 'Cloud Sync', 'Synchronisation cloud', 'Sincronización en la nube', 'Bulut Senkronizasyonu', 'Cloud-Synchronisierung', 'Sinkronisasi Cloud', 'کلاؤڈ سنک'],
+['كود المزامنة (هيتولد تلقائياً لما ترفع):', 'Sync Code (generated automatically when you upload):', 'Code de synchronisation (généré automatiquement lors de l’envoi) :', 'Código de sincronización (se genera al subir):', 'Senkronizasyon Kodu (yükleme sırasında otomatik oluşturulur):', 'Synchronisierungscode (wird beim Hochladen automatisch erstellt):', 'Kode Sinkronisasi (dibuat otomatis saat mengunggah):', 'سنک کوڈ (اپ لوڈ کرنے پر خود بخود بنے گا):'],
+['لا يوجد كود بعد', 'No code yet', 'Aucun code pour le moment', 'Aún no hay código', 'Henüz kod yok', 'Noch kein Code vorhanden', 'Belum ada kode', 'ابھی کوئی کوڈ نہیں'],
+['رفع للسحابة ☁️', 'Upload to Cloud ☁️', 'Envoyer vers le cloud ☁️', 'Subir a la nube ☁️', 'Buluta Yükle ☁️', 'In die Cloud hochladen ☁️', 'Unggah ke Cloud ☁️', 'کلاؤڈ پر اپ لوڈ کریں ☁️'],
+['تنزيل من السحابة ⬇️', 'Download from Cloud ⬇️', 'Télécharger depuis le cloud ⬇️', 'Descargar de la nube ⬇️', 'Buluttan İndir ⬇️', 'Aus der Cloud herunterladen ⬇️', 'Unduh dari Cloud ⬇️', 'کلاؤڈ سے ڈاؤن لوڈ کریں ⬇️'],
+['⏳ جاري الرفع...', '⏳ Uploading...', '⏳ Envoi en cours...', '⏳ Subiendo...', '⏳ Yükleniyor...', '⏳ Wird hochgeladen...', '⏳ Mengunggah...', '⏳ اپ لوڈ ہو رہا ہے...'],
+['⏳ جاري التنزيل...', '⏳ Downloading...', '⏳ Téléchargement en cours...', '⏳ Descargando...', '⏳ İndiriliyor...', '⏳ Wird heruntergeladen...', '⏳ Mengunduh...', '⏳ ڈاؤن لوڈ ہو رہا ہے...'],
+['اكتب كود المزامنة الأول', 'Enter the sync code first', 'Saisissez d’abord le code de synchronisation', 'Primero introduce el código de sincronización', 'Önce senkronizasyon kodunu girin', 'Geben Sie zuerst den Synchronisierungscode ein', 'Masukkan kode sinkronisasi terlebih dahulu', 'پہلے سنک کوڈ درج کریں'],
+['تم الرفع! كود المزامنة بتاعك: ', 'Uploaded! Your sync code: ', 'Envoi réussi ! Votre code : ', '¡Subido! Tu código de sincronización: ', 'Yüklendi! Senkronizasyon kodunuz: ', 'Hochgeladen! Ihr Synchronisierungscode: ', 'Berhasil diunggah! Kode sinkronisasi Anda: ', 'اپ لوڈ ہو گیا! آپ کا سنک کوڈ: '],
+['تم تحديث بياناتك في السحابة! ☁️', 'Your cloud data has been updated! ☁️', 'Vos données cloud ont été mises à jour ! ☁️', '¡Tus datos en la nube se han actualizado! ☁️', 'Bulut verileriniz güncellendi! ☁️', 'Ihre Cloud-Daten wurden aktualisiert! ☁️', 'Data cloud Anda berhasil diperbarui! ☁️', 'آپ کا کلاؤڈ ڈیٹا اپ ڈیٹ ہو گیا! ☁️'],
+['فشل الرفع', 'Upload failed', 'Échec de l’envoi', 'Error al subir', 'Yükleme başarısız', 'Upload fehlgeschlagen', 'Gagal mengunggah', 'اپ لوڈ ناکام ہو گیا'],
+['خطأ في الرفع، تأكد من الإنترنت', 'Upload error, check your internet connection', 'Erreur d’envoi, vérifiez votre connexion Internet', 'Error al subir, comprueba tu conexión a Internet', 'Yükleme hatası, internet bağlantınızı kontrol edin', 'Upload-Fehler, überprüfen Sie Ihre Internetverbindung', 'Gagal mengunggah, periksa koneksi internet Anda', 'اپ لوڈ میں خرابی، اپنا انٹرنیٹ چیک کریں'],
+['تم التنزيل! جاري إعادة التحميل...', 'Downloaded! Reloading...', 'Téléchargement terminé ! Rechargement...', '¡Descargado! Recargando...', 'İndirildi! Yeniden yükleniyor...', 'Heruntergeladen! Seite wird neu geladen...', 'Berhasil diunduh! Memuat ulang...', 'ڈاؤن لوڈ مکمل! دوبارہ لوڈ ہو رہا ہے...']
+
 ];
+
+ROWS.push(
+  // المشغل والتنقل
+  ['شكل القوائم', 'List Layout', 'Disposition des listes', 'Diseño de listas', 'Liste Düzeni', 'Listenlayout', 'Tata Letak Daftar', 'فہرستوں کی ترتیب'],
+  ['رجوع', 'Back', 'Retour', 'Atrás', 'Geri', 'Zurück', 'Kembali', 'واپس'],
+  ['تقدم', 'Forward', 'Avancer', 'Adelante', 'İleri', 'Vorwärts', 'Maju', 'آگے'],
+  ['ابحث في القايمة…', 'Search the list…', 'Rechercher dans la liste…', 'Buscar en la lista…', 'Listede ara…', 'Liste durchsuchen…', 'Cari daftar…', 'فہرست میں تلاش کریں…'],
+  ['فلاتر البحث المتقدم', 'Advanced Search Filters', 'Filtres de recherche avancés', 'Filtros de búsqueda avanzada', 'Gelişmiş Arama Filtreleri', 'Erweiterte Suchfilter', 'Filter Pencarian Lanjutan', 'اعلیٰ درجے کے سرچ فلٹرز'],
+  ['ترتيب', 'Sort', 'Trier', 'Ordenar', 'Sırala', 'Sortieren', 'Urutkan', 'ترتیب دیں'],
+  ['طريقة العرض', 'View Mode', 'Mode d’affichage', 'Modo de visualización', 'Görünüm Modu', 'Ansichtsmodus', 'Mode Tampilan', 'دیکھنے کا انداز'],
+  ['اسم الأغنية...', 'Song title...', 'Titre de la chanson...', 'Título de la canción...', 'Şarkı adı...', 'Songtitel...', 'Judul lagu...', 'گانے کا نام...'],
+  ['اسم الفنان...', 'Artist name...', 'Nom de l’artiste...', 'Nombre del artista...', 'Sanatçı adı...', 'Künstlername...', 'Nama artis...', 'فنکار کا نام...'],
+  ['اسم الألبوم...', 'Album name...', 'Nom de l’album...', 'Nombre del álbum...', 'Albüm adı...', 'Albumname...', 'Nama album...', 'البم کا نام...'],
+  ['النوع (Genre)...', 'Genre...', 'Genre...', 'Género...', 'Tür...', 'Genre...', 'Genre...', 'صنف...'],
+  ['تكرار مقطع', 'Repeat Segment', 'Répéter le segment', 'Repetir segmento', 'Bölümü Tekrarla', 'Abschnitt wiederholen', 'Ulangi Bagian', 'حصہ دہرائیں'],
+  ['مؤثرات صوتية', 'Audio Effects', 'Effets audio', 'Efectos de audio', 'Ses Efektleri', 'Audioeffekte', 'Efek Audio', 'آڈیو ایفیکٹس'],
+  ['عرض الكلمات', 'Show Lyrics', 'Afficher les paroles', 'Mostrar letras', 'Şarkı Sözlerini Göster', 'Songtexte anzeigen', 'Tampilkan Lirik', 'بول دکھائیں'],
+  ['الصق أو اكتب الكلمات هنا...', 'Paste or type lyrics here...', 'Collez ou saisissez les paroles ici...', 'Pega o escribe la letra aquí...', 'Şarkı sözlerini buraya yapıştırın veya yazın...', 'Songtext hier einfügen oder eingeben...', 'Tempel atau ketik lirik di sini...', 'بول یہاں پیسٹ کریں یا لکھیں...'],
+  ['ابحث عن شيخ...', 'Search for a reciter...', 'Rechercher un réciteur...', 'Buscar un recitador...', 'Kâri ara...', 'Nach einem Rezitator suchen...', 'Cari qari...', 'قاری تلاش کریں...'],
+  ['ابحث عن سورة...', 'Search for a surah...', 'Rechercher une sourate...', 'Buscar una sura...', 'Sure ara...', 'Nach einer Sure suchen...', 'Cari surah...', 'سورۃ تلاش کریں...'],
+  ['اكتب اسم للبحث...', 'Type a name to search...', 'Saisissez un nom à rechercher...', 'Escribe un nombre para buscar...', 'Aramak için bir isim yazın...', 'Geben Sie einen Suchbegriff ein...', 'Ketik nama untuk mencari...', 'تلاش کے لیے نام لکھیں...'],
+
+  // الكلمات الغنائية
+  ['مفيش كلمات متضافة للأغنية دي.', 'No lyrics have been added to this song.', 'Aucune parole ajoutée à cette chanson.', 'No se han añadido letras a esta canción.', 'Bu şarkıya henüz söz eklenmedi.', 'Für diesen Song wurden noch keine Songtexte hinzugefügt.', 'Belum ada lirik untuk lagu ini.', 'اس گانے کے بول ابھی شامل نہیں کیے گئے۔'],
+  ['اضغط «تعديل الكلمات» لإضافتها بصيغة عادية أو متزامنة.', 'Press “Edit Lyrics” to add plain or synced lyrics.', 'Appuyez sur « Modifier les paroles » pour ajouter des paroles simples ou synchronisées.', 'Pulsa «Editar letras» para añadir letras normales o sincronizadas.', 'Düz veya senkronize sözler eklemek için “Şarkı Sözlerini Düzenle”ye basın.', 'Klicken Sie auf „Songtexte bearbeiten“, um normale oder synchronisierte Texte hinzuzufügen.', 'Tekan “Edit Lirik” untuk menambahkan lirik biasa atau tersinkronisasi.', 'عام یا ہم وقت بول شامل کرنے کے لیے "بول میں ترمیم کریں" دبائیں۔'],
+  ['اكتب الكلمات النصية العادية، أو استخدم صيغة التوقيت (LRC) للكلمات المتزامنة مثل:', 'Enter plain lyrics, or use the LRC timestamp format for synchronized lyrics, for example:', 'Saisissez des paroles simples ou utilisez le format temporel LRC pour les paroles synchronisées, par exemple :', 'Escribe letras normales o utiliza el formato de tiempo LRC para letras sincronizadas, por ejemplo:', 'Normal şarkı sözlerini yazın veya senkronize sözler için LRC zaman biçimini kullanın:', 'Geben Sie normalen Text ein oder verwenden Sie das LRC-Zeitformat für synchronisierte Songtexte, zum Beispiel:', 'Masukkan lirik biasa atau gunakan format waktu LRC untuk lirik tersinkronisasi, misalnya:', 'عام بول لکھیں یا ہم وقت بولوں کے لیے LRC ٹائم فارمیٹ استعمال کریں، مثلاً:'],
+  ['طريقة العرض: متزامن', 'View mode: Synced', 'Mode d’affichage : synchronisé', 'Modo de visualización: sincronizado', 'Görünüm: Senkronize', 'Anzeigemodus: Synchronisiert', 'Mode tampilan: Tersinkronisasi', 'دیکھنے کا انداز: ہم وقت'],
+  ['طريقة العرض: عادي', 'View mode: Plain', 'Mode d’affichage : normal', 'Modo de visualización: normal', 'Görünüm: Normal', 'Anzeigemodus: Einfach', 'Mode tampilan: Biasa', 'دیکھنے کا انداز: عام'],
+  ['تم حفظ الكلمات بنجاح', 'Lyrics saved successfully', 'Paroles enregistrées avec succès', 'Letras guardadas correctamente', 'Şarkı sözleri başarıyla kaydedildi', 'Songtexte erfolgreich gespeichert', 'Lirik berhasil disimpan', 'بول کامیابی سے محفوظ ہو گئے'],
+  ['تم جلب الكلمات تلقائياً', 'Lyrics fetched automatically', 'Paroles récupérées automatiquement', 'Letras obtenidas automáticamente', 'Şarkı sözleri otomatik olarak alındı', 'Songtexte automatisch abgerufen', 'Lirik berhasil diambil secara otomatis', 'بول خودکار طور پر حاصل ہو گئے'],
+  ['لم يتم العثور على كلمات', 'No lyrics found', 'Aucune parole trouvée', 'No se encontraron letras', 'Şarkı sözü bulunamadı', 'Keine Songtexte gefunden', 'Lirik tidak ditemukan', 'کوئی بول نہیں ملے'],
+  ['مفيش أغنية شغالة حالياً', 'No song is currently playing', 'Aucune chanson en cours de lecture', 'No hay ninguna canción reproduciéndose', 'Şu anda çalan şarkı yok', 'Derzeit wird kein Song abgespielt', 'Tidak ada lagu yang sedang diputar', 'اس وقت کوئی گانا نہیں چل رہا'],
+  ['جاري البحث...', 'Searching...', 'Recherche en cours...', 'Buscando...', 'Aranıyor...', 'Suche läuft...', 'Sedang mencari...', 'تلاش جاری ہے...'],
+  ['فشل الاتصال بالإنترنت', 'Internet connection failed', 'Échec de la connexion Internet', 'Error de conexión a Internet', 'İnternet bağlantısı başarısız', 'Internetverbindung fehlgeschlagen', 'Koneksi internet gagal', 'انٹرنیٹ کنکشن ناکام ہو گیا'],
+
+  // القوائم والسجل والإحصائيات
+  ['قايمة التشغيل', 'Queue', 'File d’attente', 'Cola de reproducción', 'Çalma Kuyruğu', 'Warteschlange', 'Antrean Putar', 'پلے بیک قطار'],
+  ['قايمة التشغيل فاضية', 'The queue is empty', 'La file d’attente est vide', 'La cola está vacía', 'Çalma kuyruğu boş', 'Die Warteschlange ist leer', 'Antrean kosong', 'پلے بیک قطار خالی ہے'],
+  ['محدد', 'Selected', 'Sélectionné', 'Seleccionado', 'Seçildi', 'Ausgewählt', 'Dipilih', 'منتخب'],
+  ['إضافة للقايمة الجاية', 'Add to Next Queue', 'Ajouter à la prochaine file', 'Añadir a la siguiente cola', 'Sonraki Kuyruğa Ekle', 'Zur nächsten Warteschlange hinzufügen', 'Tambahkan ke Antrean Berikutnya', 'اگلی قطار میں شامل کریں'],
+  ['حذف من المكتبة', 'Remove from Library', 'Retirer de la bibliothèque', 'Eliminar de la biblioteca', 'Kitaplıktan Kaldır', 'Aus der Bibliothek entfernen', 'Hapus dari Perpustakaan', 'لائبریری سے ہٹائیں'],
+  ['إلغاء التحديد', 'Clear Selection', 'Annuler la sélection', 'Quitar selección', 'Seçimi Temizle', 'Auswahl aufheben', 'Hapus Pilihan', 'انتخاب ختم کریں'],
+  ['تحديد الكل', 'Select All', 'Tout sélectionner', 'Seleccionar todo', 'Tümünü Seç', 'Alles auswählen', 'Pilih Semua', 'سب منتخب کریں'],
+  ['مسح السجل', 'Clear History', 'Effacer l’historique', 'Borrar historial', 'Geçmişi Temizle', 'Verlauf löschen', 'Hapus Riwayat', 'ہسٹری صاف کریں'],
+  ['تمسح السجل كله؟', 'Clear the entire history?', 'Effacer tout l’historique ?', '¿Borrar todo el historial?', 'Tüm geçmiş silinsin mi?', 'Den gesamten Verlauf löschen?', 'Hapus seluruh riwayat?', 'کیا پوری ہسٹری صاف کرنی ہے؟'],
+  ['السجل فاضي', 'History is empty', 'L’historique est vide', 'El historial está vacío', 'Geçmiş boş', 'Der Verlauf ist leer', 'Riwayat kosong', 'ہسٹری خالی ہے'],
+  ['مفيش بيانات لسه — الإحصائيات بتبدأ من أول ما تسمع', 'No data yet — stats will appear as you listen', 'Aucune donnée pour le moment — les statistiques commenceront à votre écoute', 'Aún no hay datos: las estadísticas aparecerán cuando escuches música', 'Henüz veri yok — istatistikler dinlemeye başladığınızda oluşur', 'Noch keine Daten — Statistiken erscheinen, sobald Sie Musik hören', 'Belum ada data — statistik akan muncul saat Anda mendengarkan', 'ابھی کوئی ڈیٹا نہیں — سنتے ہی اعدادوشمار ظاہر ہوں گے'],
+  ['أكتر الفنانين استماعاً', 'Top Artists', 'Artistes les plus écoutés', 'Artistas más escuchados', 'En Çok Dinlenen Sanatçılar', 'Meistgehörte Künstler', 'Artis Paling Sering Diputar', 'سب سے زیادہ سنے گئے فنکار'],
+  ['أكتر الأغاني استماعاً', 'Top Songs', 'Chansons les plus écoutées', 'Canciones más escuchadas', 'En Çok Dinlenen Şarkılar', 'Meistgehörte Songs', 'Lagu Paling Sering Diputar', 'سب سے زیادہ سنے گئے گانے'],
+  ['أكتر الألبومات استماعاً', 'Top Albums', 'Albums les plus écoutés', 'Álbumes más escuchados', 'En Çok Dinlenen Albümler', 'Meistgehörte Alben', 'Album Paling Sering Diputar', 'سب سے زیادہ سنے گئے البمز'],
+  ['النهاردة', 'Today', 'Aujourd’hui', 'Hoy', 'Bugün', 'Heute', 'Hari Ini', 'آج'],
+  ['إمبارح', 'Yesterday', 'Hier', 'Ayer', 'Dün', 'Gestern', 'Kemarin', 'کل'],
+  ['الأسبوع', 'This Week', 'Cette semaine', 'Esta semana', 'Bu Hafta', 'Diese Woche', 'Minggu Ini', 'اس ہفتے'],
+  ['الشهر', 'This Month', 'Ce mois-ci', 'Este mes', 'Bu Ay', 'Dieser Monat', 'Bulan Ini', 'اس مہینے'],
+  ['السنة', 'This Year', 'Cette année', 'Este año', 'Bu Yıl', 'Dieses Jahr', 'Tahun Ini', 'اس سال'],
+  ['الكل', 'All Time', 'Depuis toujours', 'Todo el tiempo', 'Tüm Zamanlar', 'Gesamter Zeitraum', 'Sepanjang Waktu', 'ہر وقت'],
+  ['الفنانون', 'Artists', 'Artistes', 'Artistas', 'Sanatçılar', 'Künstler', 'Artis', 'فنکار'],
+  ['الألبومات', 'Albums', 'Albums', 'Álbumes', 'Albümler', 'Alben', 'Album', 'البمز'],
+  ['فردي', 'Singles', 'Singles', 'Sencillos', 'Tekliler', 'Singles', 'Singel', 'سنگلز'],
+
+  // تعديل بيانات الأغاني
+  ['تعديل معلومات الأغنية', 'Edit Song Information', 'Modifier les informations de la chanson', 'Editar información de la canción', 'Şarkı Bilgilerini Düzenle', 'Songinformationen bearbeiten', 'Edit Informasi Lagu', 'گانے کی معلومات میں ترمیم کریں'],
+  ['تعديل اسم وصورة الفنان', 'Edit Artist Name and Photo', 'Modifier le nom et la photo de l’artiste', 'Editar nombre y foto del artista', 'Sanatçı Adını ve Fotoğrafını Düzenle', 'Künstlername und Foto bearbeiten', 'Edit Nama dan Foto Artis', 'فنکار کا نام اور تصویر تبدیل کریں'],
+  ['سنة الإصدار', 'Release Year', 'Année de sortie', 'Año de lanzamiento', 'Çıkış Yılı', 'Erscheinungsjahr', 'Tahun Rilis', 'ریلیز کا سال'],
+  ['صورة الغلاف', 'Cover Art', 'Pochette', 'Portada', 'Kapak Görseli', 'Coverbild', 'Sampul', 'کور تصویر'],
+  ['صورة الفنان', 'Artist Photo', 'Photo de l’artiste', 'Foto del artista', 'Sanatçı Fotoğrafı', 'Künstlerfoto', 'Foto Artis', 'فنکار کی تصویر'],
+  ['الاسم الجديد للفنان (سيتم تحديثه في جميع أغانيه)', 'New artist name (will update across all their songs)', 'Nouveau nom de l’artiste (mis à jour dans toutes ses chansons)', 'Nuevo nombre del artista (se actualizará en todas sus canciones)', 'Yeni sanatçı adı (tüm şarkılarında güncellenir)', 'Neuer Künstlername (wird in allen Songs aktualisiert)', 'Nama artis baru (akan diperbarui di semua lagunya)', 'فنکار کا نیا نام (اس کے تمام گانوں میں اپ ڈیٹ ہو گا)'],
+  ['تم تعديل معلومات الأغنية', 'Song information updated', 'Informations de la chanson mises à jour', 'Información de la canción actualizada', 'Şarkı bilgileri güncellendi', 'Songinformationen aktualisiert', 'Informasi lagu diperbarui', 'گانے کی معلومات اپ ڈیٹ ہو گئیں'],
+  ['تم تعديل اسم الفنان', 'Artist name updated', 'Nom de l’artiste mis à jour', 'Nombre del artista actualizado', 'Sanatçı adı güncellendi', 'Künstlername aktualisiert', 'Nama artis diperbarui', 'فنکار کا نام اپ ڈیٹ ہو گیا'],
+  ['حفظ التعديلات', 'Save Changes', 'Enregistrer les modifications', 'Guardar cambios', 'Değişiklikleri Kaydet', 'Änderungen speichern', 'Simpan Perubahan', 'تبدیلیاں محفوظ کریں'],
+  ['الاسم الجديد:', 'New name:', 'Nouveau nom :', 'Nuevo nombre:', 'Yeni ad:', 'Neuer Name:', 'Nama baru:', 'نیا نام:'],
+  ['اسم القايمة:', 'Playlist name:', 'Nom de la liste :', 'Nombre de la lista:', 'Çalma listesi adı:', 'Playlistname:', 'Nama daftar putar:', 'پلے لسٹ کا نام:'],
+  ['اسم القايمة الجديدة:', 'New playlist name:', 'Nom de la nouvelle liste :', 'Nombre de la nueva lista:', 'Yeni çalma listesi adı:', 'Name der neuen Playlist:', 'Nama daftar putar baru:', 'نئی پلے لسٹ کا نام:'],
+
+  // مؤقت النوم
+  ['مؤقت النوم', 'Sleep Timer', 'Minuteur de veille', 'Temporizador de apagado', 'Uyku Zamanlayıcısı', 'Sleep-Timer', 'Timer Tidur', 'سلیپ ٹائمر'],
+  ['إيقاف التسجيل', 'Pause Recording', 'Mettre en pause l’enregistrement', 'Pausar grabación', 'Kaydı Duraklat', 'Aufnahme pausieren', 'Jeda Perekaman', 'ریکارڈنگ روکیں'],
+  ['تشغيل التسجيل', 'Resume Recording', 'Reprendre l’enregistrement', 'Reanudar grabación', 'Kayda Devam Et', 'Aufnahme fortsetzen', 'Lanjutkan Perekaman', 'ریکارڈنگ دوبارہ شروع کریں'],
+  ['انتظر نهاية المقطع الحالي', 'Wait Until the Current Track Ends', 'Attendre la fin du morceau actuel', 'Esperar al final de la pista actual', 'Geçerli Şarkının Bitmesini Bekle', 'Aktuellen Titel zu Ende spielen', 'Tunggu Lagu Saat Ini Selesai', 'موجودہ گانا ختم ہونے کا انتظار کریں'],
+  ['المؤقت خلص، هننتظر نهاية الأغنية...', 'Timer ended. Waiting for the song to finish...', 'Minuteur terminé. En attente de la fin de la chanson...', 'El temporizador terminó. Esperando a que acabe la canción...', 'Zamanlayıcı bitti. Şarkının bitmesi bekleniyor...', 'Timer abgelaufen. Warten auf das Ende des Songs...', 'Timer selesai. Menunggu lagu berakhir...', 'ٹائمر ختم ہو گیا، گانا ختم ہونے کا انتظار ہے...'],
+  ['تم إيقاف متابعة المجلد', 'Folder monitoring stopped', 'Surveillance du dossier arrêtée', 'Se detuvo la supervisión de la carpeta', 'Klasör izleme durduruldu', 'Ordnerüberwachung gestoppt', 'Pemantauan folder dihentikan', 'فولڈر کی نگرانی بند کر دی گئی'],
+
+  // رسائل المجلد والاستيراد
+  ['تم استيراد الأغاني. المتابعة التلقائية غير متاحة في هذا المتصفح؛ أعد اختيار المجلد لإضافة الأغاني الجديدة.', 'Songs imported. Automatic monitoring is unavailable in this browser; select the folder again to add new songs.', 'Chansons importées. La surveillance automatique n’est pas disponible dans ce navigateur ; sélectionnez à nouveau le dossier pour ajouter de nouveaux titres.', 'Canciones importadas. La supervisión automática no está disponible en este navegador; vuelve a seleccionar la carpeta para añadir canciones.', 'Şarkılar içe aktarıldı. Bu tarayıcıda otomatik izleme kullanılamıyor; yeni şarkılar eklemek için klasörü yeniden seçin.', 'Songs importiert. Die automatische Überwachung ist in diesem Browser nicht verfügbar. Wählen Sie den Ordner erneut aus, um neue Songs hinzuzufügen.', 'Lagu berhasil diimpor. Pemantauan otomatis tidak tersedia di browser ini; pilih folder lagi untuk menambahkan lagu baru.', 'گانے درآمد ہو گئے۔ اس براؤزر میں خودکار نگرانی دستیاب نہیں؛ نئے گانے شامل کرنے کے لیے فولڈر دوبارہ منتخب کریں۔'],
+  ['تم اختيار المجلد، جاري فحص الأغاني...', 'Folder selected. Scanning songs...', 'Dossier sélectionné. Analyse des chansons...', 'Carpeta seleccionada. Analizando canciones...', 'Klasör seçildi. Şarkılar taranıyor...', 'Ordner ausgewählt. Songs werden durchsucht...', 'Folder dipilih. Memindai lagu...', 'فولڈر منتخب ہو گیا، گانوں کی جانچ جاری ہے...'],
+  ['تم تفعيل متابعة المجلد بنجاح', 'Folder monitoring enabled successfully', 'Surveillance du dossier activée avec succès', 'La supervisión de la carpeta se activó correctamente', 'Klasör izleme başarıyla etkinleştirildi', 'Ordnerüberwachung erfolgreich aktiviert', 'Pemantauan folder berhasil diaktifkan', 'فولڈر کی نگرانی کامیابی سے فعال ہو گئی'],
+  ['تم إلغاء اختيار المجلد', 'Folder selection cancelled', 'Sélection du dossier annulée', 'Selección de carpeta cancelada', 'Klasör seçimi iptal edildi', 'Ordnerauswahl abgebrochen', 'Pemilihan folder dibatalkan', 'فولڈر کا انتخاب منسوخ کر دیا گیا'],
+  ['تعذر استيراد المجلد:', 'Could not import folder:', 'Impossible d’importer le dossier :', 'No se pudo importar la carpeta:', 'Klasör içe aktarılamadı:', 'Ordner konnte nicht importiert werden:', 'Tidak dapat mengimpor folder:', 'فولڈر درآمد نہیں ہو سکا:'],
+  ['خطأ غير معروف', 'Unknown error', 'Erreur inconnue', 'Error desconocido', 'Bilinmeyen hata', 'Unbekannter Fehler', 'Kesalahan tidak diketahui', 'نامعلوم خرابی'],
+  ['المجلد اتحفظ، لكن لازم تسمح للحن بقراءة محتوياته', 'Folder saved, but you must allow Lahn to read its contents', 'Dossier enregistré, mais vous devez autoriser Lahn à lire son contenu', 'Carpeta guardada, pero debes permitir que Lahn lea su contenido', 'Klasör kaydedildi ancak Lahn’ın içeriğini okumasına izin vermelisiniz', 'Ordner gespeichert, aber Lahn benötigt die Berechtigung, dessen Inhalt zu lesen', 'Folder tersimpan, tetapi Anda harus mengizinkan Lahn membaca isinya', 'فولڈر محفوظ ہو گیا، لیکن لحن کو اس کا مواد پڑھنے کی اجازت دیں'],
+
+  // البحث والمحتوى عبر الإنترنت
+  ['🌐 قرآن', '🌐 Quran', '🌐 Coran', '🌐 Corán', '🌐 Kuran', '🌐 Koran', '🌐 Al-Quran', '🌐 قرآن'],
+  ['📻 راديو مباشر', '📻 Live Radio', '📻 Radio en direct', '📻 Radio en vivo', '📻 Canlı Radyo', '📻 Live-Radio', '📻 Radio Langsung', '📻 لائیو ریڈیو'],
+  ['🎵 أغاني مجانية (Audius)', '🎵 Free Music (Audius)', '🎵 Musique gratuite (Audius)', '🎵 Música gratis (Audius)', '🎵 Ücretsiz Müzik (Audius)', '🎵 Kostenlose Musik (Audius)', '🎵 Musik Gratis (Audius)', '🎵 مفت موسیقی (Audius)'],
+  ['🎙️ بودكاست', '🎙️ Podcasts', '🎙️ Podcasts', '🎙️ Podcasts', '🎙️ Podcastler', '🎙️ Podcasts', '🎙️ Podcast', '🎙️ پوڈکاسٹ'],
+  ['أغاني أونلاين', 'Online Music', 'Musique en ligne', 'Música en línea', 'Çevrimiçi Müzik', 'Online-Musik', 'Musik Online', 'آن لائن موسیقی'],
+  ['بودكاست', 'Podcast', 'Podcast', 'Pódcast', 'Podcast', 'Podcast', 'Podcast', 'پوڈکاسٹ'],
+  ['راديو', 'Radio', 'Radio', 'Radio', 'Radyo', 'Radio', 'Radio', 'ریڈیو'],
+  ['اكتب حاجة فوق عشان تبحث...', 'Type something above to search...', 'Saisissez quelque chose ci-dessus pour rechercher...', 'Escribe algo arriba para buscar...', 'Aramak için yukarıya bir şey yazın...', 'Geben Sie oben etwas ein, um zu suchen...', 'Ketik sesuatu di atas untuk mencari...', 'تلاش کے لیے اوپر کچھ لکھیں...'],
+  ['مفيش نتائج.', 'No results.', 'Aucun résultat.', 'No hay resultados.', 'Sonuç bulunamadı.', 'Keine Ergebnisse.', 'Tidak ada hasil.', 'کوئی نتائج نہیں۔'],
+  ['فشل الاتصال، تأكد من الإنترنت.', 'Connection failed. Check your internet.', 'Échec de la connexion. Vérifiez votre Internet.', 'Error de conexión. Comprueba tu Internet.', 'Bağlantı başarısız. İnternetinizi kontrol edin.', 'Verbindung fehlgeschlagen. Überprüfen Sie Ihr Internet.', 'Koneksi gagal. Periksa internet Anda.', 'کنکشن ناکام ہو گیا، انٹرنیٹ چیک کریں۔'],
+  ['الرابط غير متاح', 'Link unavailable', 'Lien indisponible', 'Enlace no disponible', 'Bağlantı kullanılamıyor', 'Link nicht verfügbar', 'Tautan tidak tersedia', 'لنک دستیاب نہیں'],
+
+  // المؤثرات الصوتية
+  ['شغل أغنية الأول عشان تقدر تستخدم الصوت 8D', 'Play a song first to use 8D audio', 'Lancez d’abord une chanson pour utiliser l’audio 8D', 'Reproduce una canción primero para usar el audio 8D', '8D sesi kullanmak için önce bir şarkı çalın', 'Spielen Sie zuerst einen Song ab, um 8D-Audio zu verwenden', 'Putar lagu terlebih dahulu untuk menggunakan audio 8D', '8D آڈیو استعمال کرنے کے لیے پہلے گانا چلائیں'],
+  ['المعالج غير متاح في متصفحك', 'Audio processor unavailable in your browser', 'Processeur audio indisponible dans votre navigateur', 'El procesador de audio no está disponible en tu navegador', 'Ses işlemcisi tarayıcınızda kullanılamıyor', 'Audioprozessor in Ihrem Browser nicht verfügbar', 'Prosesor audio tidak tersedia di browser Anda', 'آپ کے براؤزر میں آڈیو پروسیسر دستیاب نہیں'],
+  ['هذه الميزة غير مدعومة في متصفحك', 'This feature is not supported by your browser', 'Cette fonctionnalité n’est pas prise en charge par votre navigateur', 'Tu navegador no admite esta función', 'Bu özellik tarayıcınızda desteklenmiyor', 'Diese Funktion wird von Ihrem Browser nicht unterstützt', 'Fitur ini tidak didukung oleh browser Anda', 'یہ فیچر آپ کے براؤزر میں معاون نہیں'],
+  ['تم تفعيل صوت 8D', '8D Audio Enabled', 'Audio 8D activé', 'Audio 8D activado', '8D Ses Etkinleştirildi', '8D-Audio aktiviert', 'Audio 8D Diaktifkan', '8D آڈیو فعال ہو گئی'],
+  ['تم إيقاف صوت 8D', '8D Audio Disabled', 'Audio 8D désactivé', 'Audio 8D desactivado', '8D Ses Devre Dışı Bırakıldı', '8D-Audio deaktiviert', 'Audio 8D Dinonaktifkan', '8D آڈیو بند ہو گئی'],
+  ['شغل أغنية الأول', 'Play a song first', 'Lancez d’abord une chanson', 'Reproduce una canción primero', 'Önce bir şarkı çalın', 'Spielen Sie zuerst einen Song ab', 'Putar lagu terlebih dahulu', 'پہلے گانا چلائیں'],
+  ['تم تفعيل Nightcore', 'Nightcore Enabled', 'Nightcore activé', 'Nightcore activado', 'Nightcore Etkinleştirildi', 'Nightcore aktiviert', 'Nightcore Diaktifkan', 'نائٹ کور فعال ہو گیا'],
+  ['تم إيقاف Nightcore', 'Nightcore Disabled', 'Nightcore désactivé', 'Nightcore desactivado', 'Nightcore Devre Dışı', 'Nightcore deaktiviert', 'Nightcore Dinonaktifkan', 'نائٹ کور بند ہو گیا'],
+  ['تم تفعيل Slowed + Reverb', 'Slowed + Reverb Enabled', 'Slowed + Reverb activé', 'Slowed + Reverb activado', 'Slowed + Reverb Etkinleştirildi', 'Slowed + Reverb aktiviert', 'Slowed + Reverb Diaktifkan', 'سلوڈ + ریورب فعال ہو گیا'],
+  ['تم إيقاف Slowed + Reverb', 'Slowed + Reverb Disabled', 'Slowed + Reverb désactivé', 'Slowed + Reverb desactivado', 'Slowed + Reverb Devre Dışı', 'Slowed + Reverb deaktiviert', 'Slowed + Reverb Dinonaktifkan', 'سلوڈ + ریورب بند ہو گیا'],
+  ['تم تفعيل الكاريوكي', 'Karaoke Enabled', 'Karaoké activé', 'Karaoke activado', 'Karaoke Etkinleştirildi', 'Karaoke aktiviert', 'Karaoke Diaktifkan', 'کیراوکی فعال ہو گیا'],
+  ['تم إيقاف الكاريوكي', 'Karaoke Disabled', 'Karaoké désactivé', 'Karaoke desactivado', 'Karaoke Devre Dışı', 'Karaoke deaktiviert', 'Karaoke Dinonaktifkan', 'کیراوکی بند ہو گیا'],
+  ['شغل أغنية الأول عشان تقدر تستخدم المؤثرات', 'Play a song first to use audio effects', 'Lancez d’abord une chanson pour utiliser les effets audio', 'Reproduce una canción primero para usar los efectos de audio', 'Ses efektlerini kullanmak için önce bir şarkı çalın', 'Spielen Sie zuerst einen Song ab, um Audioeffekte zu verwenden', 'Putar lagu terlebih dahulu untuk menggunakan efek audio', 'آڈیو ایفیکٹس استعمال کرنے کے لیے پہلے گانا چلائیں'],
+  ['كاريوكي (إزالة الغناء)', 'Karaoke (Vocal Removal)', 'Karaoké (suppression des voix)', 'Karaoke (eliminar voces)', 'Karaoke (Vokal Kaldırma)', 'Karaoke (Gesang entfernen)', 'Karaoke (Penghapus Vokal)', 'کیراوکی (آواز ختم کریں)'],
+  ['🎧 لوحة الصوت 3D', '🎧 3D Audio Panel', '🎧 Panneau audio 3D', '🎧 Panel de audio 3D', '🎧 3D Ses Paneli', '🎧 3D-Audio-Steuerung', '🎧 Panel Audio 3D', '🎧 3D آڈیو پینل'],
+
+  // رسائل عامة وأدوات
+  ['اختر الشيخ الأول', 'Select a reciter first', 'Sélectionnez d’abord un réciteur', 'Selecciona primero un recitador', 'Önce bir kâri seçin', 'Wählen Sie zuerst einen Rezitator aus', 'Pilih qari terlebih dahulu', 'پہلے قاری منتخب کریں'],
+  ['اختر الشيخ والسورة', 'Select a reciter and a surah', 'Sélectionnez un réciteur et une sourate', 'Selecciona un recitador y una sura', 'Bir kâri ve sure seçin', 'Wählen Sie einen Rezitator und eine Sure aus', 'Pilih qari dan surah', 'قاری اور سورۃ منتخب کریں'],
+  ['القرآن الكريم', 'The Holy Quran', 'Le Saint Coran', 'El Sagrado Corán', 'Yüce Kuran', 'Der Heilige Koran', 'Al-Quran', 'قرآن مجید'],
+  ['جاري تشغيل:', 'Now Playing:', 'Lecture en cours :', 'Reproduciendo:', 'Şimdi Çalıyor:', 'Wird abgespielt:', 'Sedang Diputar:', 'اب چل رہا ہے:'],
+  ['جاري التحميل...', 'Loading...', 'Chargement...', 'Cargando...', 'Yükleniyor...', 'Wird geladen...', 'Memuat...', 'لوڈ ہو رہا ہے...'],
+  ['فشل تحميل البيانات. تأكد من الإنترنت.', 'Failed to load data. Check your internet connection.', 'Échec du chargement des données. Vérifiez votre connexion Internet.', 'No se pudieron cargar los datos. Comprueba tu conexión a Internet.', 'Veriler yüklenemedi. İnternet bağlantınızı kontrol edin.', 'Daten konnten nicht geladen werden. Überprüfen Sie Ihre Internetverbindung.', 'Gagal memuat data. Periksa koneksi internet Anda.', 'ڈیٹا لوڈ نہیں ہو سکا۔ انٹرنیٹ کنکشن چیک کریں۔'],
+  ['هل تريد استيراد قايمة', 'Do you want to import the playlist', 'Voulez-vous importer la liste', '¿Quieres importar la lista', 'Çalma listesini içe aktarmak istiyor musunuz', 'Möchten Sie die Playlist importieren', 'Apakah Anda ingin mengimpor daftar putar', 'کیا آپ پلے لسٹ درآمد کرنا چاہتے ہیں'],
+  ['تم الاستيراد بنجاح', 'Imported successfully', 'Importation réussie', 'Importado correctamente', 'Başarıyla içe aktarıldı', 'Erfolgreich importiert', 'Berhasil diimpor', 'کامیابی سے درآمد ہو گیا'],
+  ['تم تغيير الصورة', 'Image changed', 'Image modifiée', 'Imagen cambiada', 'Görsel değiştirildi', 'Bild geändert', 'Gambar diubah', 'تصویر تبدیل ہو گئی'],
+  ['تم تصدير النسخة الاحتياطية', 'Backup exported', 'Sauvegarde exportée', 'Copia de seguridad exportada', 'Yedek dışa aktarıldı', 'Backup exportiert', 'Cadangan berhasil diekspor', 'بیک اپ ایکسپورٹ ہو گیا'],
+  ['تمت الاستعادة بنجاح! جاري إعادة التحميل...', 'Restored successfully! Reloading...', 'Restauration réussie ! Rechargement...', '¡Restauración correcta! Recargando...', 'Başarıyla geri yüklendi! Yeniden yükleniyor...', 'Erfolgreich wiederhergestellt! Wird neu geladen...', 'Berhasil dipulihkan! Memuat ulang...', 'کامیابی سے بحال ہو گیا! دوبارہ لوڈ ہو رہا ہے...'],
+  ['ملف غير صالح', 'Invalid file', 'Fichier invalide', 'Archivo no válido', 'Geçersiz dosya', 'Ungültige Datei', 'File tidak valid', 'غلط فائل'],
+  ['متصفحك لا يدعم هذه الميزة (تتطلب Chrome أو Edge حديث)', 'Your browser does not support this feature (requires a recent version of Chrome or Edge)', 'Votre navigateur ne prend pas en charge cette fonctionnalité (Chrome ou Edge récent requis)', 'Tu navegador no admite esta función (se requiere una versión reciente de Chrome o Edge)', 'Tarayıcınız bu özelliği desteklemiyor (güncel Chrome veya Edge gerekir)', 'Ihr Browser unterstützt diese Funktion nicht (aktuelle Version von Chrome oder Edge erforderlich)', 'Browser Anda tidak mendukung fitur ini (memerlukan Chrome atau Edge versi terbaru)', 'آپ کا براؤزر اس فیچر کو سپورٹ نہیں کرتا (نئے Chrome یا Edge کی ضرورت ہے)'],
+  ['هذه الميزة لا تعمل عند فتح الملف مباشرة. يرجى استخدام سيرفر محلي (localhost)', 'This feature does not work when opening the file directly. Please use a local server (localhost)', 'Cette fonctionnalité ne fonctionne pas en ouvrant le fichier directement. Utilisez un serveur local (localhost)', 'Esta función no funciona al abrir el archivo directamente. Usa un servidor local (localhost)', 'Bu özellik dosya doğrudan açıldığında çalışmaz. Lütfen yerel bir sunucu (localhost) kullanın', 'Diese Funktion funktioniert nicht beim direkten Öffnen der Datei. Bitte verwenden Sie einen lokalen Server (localhost)', 'Fitur ini tidak berfungsi saat file dibuka langsung. Gunakan server lokal (localhost)', 'فائل کو براہ راست کھولنے پر یہ فیچر کام نہیں کرتا۔ مقامی سرور (localhost) استعمال کریں'],
+  ['فشل فتح النافذة:', 'Failed to open window:', 'Impossible d’ouvrir la fenêtre :', 'No se pudo abrir la ventana:', 'Pencere açılamadı:', 'Fenster konnte nicht geöffnet werden:', 'Gagal membuka jendela:', 'ونڈو نہیں کھل سکی:'],
+  ['مفيش صورة متاحة للاسم ده', 'No image available for this name', 'Aucune image disponible pour ce nom', 'No hay ninguna imagen disponible para este nombre', 'Bu isim için görsel bulunamadı', 'Für diesen Namen ist kein Bild verfügbar', 'Tidak ada gambar untuk nama ini', 'اس نام کے لیے کوئی تصویر دستیاب نہیں'],
+  ['مفيش صورة متاحة للفنان ده', 'No image available for this artist', 'Aucune image disponible pour cet artiste', 'No hay ninguna imagen disponible para este artista', 'Bu sanatçı için görsel bulunamadı', 'Für diesen Künstler ist kein Bild verfügbar', 'Tidak ada gambar untuk artis ini', 'اس فنکار کے لیے کوئی تصویر دستیاب نہیں'],
+  ['مفيش صورة غلاف عشان نعمل الصورة', 'No cover image available to create the artwork', 'Aucune pochette disponible pour créer l’image', 'No hay portada disponible para crear la imagen', 'Görsel oluşturmak için kapak resmi bulunamadı', 'Kein Coverbild zum Erstellen des Bildes verfügbar', 'Tidak ada sampul untuk membuat gambar', 'تصویر بنانے کے لیے کوئی کور دستیاب نہیں'],
+  ['أغنية بدون اسم', 'Untitled Song', 'Chanson sans titre', 'Canción sin título', 'İsimsiz Şarkı', 'Unbenannter Song', 'Lagu Tanpa Judul', 'بے نام گانا'],
+  ['فنان غير معروف', 'Unknown Artist', 'Artiste inconnu', 'Artista desconocido', 'Bilinmeyen Sanatçı', 'Unbekannter Künstler', 'Artis Tidak Dikenal', 'نامعلوم فنکار'],
+  ['تم تنزيل الصورة!', 'Image downloaded!', 'Image téléchargée !', '¡Imagen descargada!', 'Görsel indirildi!', 'Bild heruntergeladen!', 'Gambar berhasil diunduh!', 'تصویر ڈاؤن لوڈ ہو گئی!']
+  ['متابعة الموسيقى', 'Music Monitoring', 'Surveillance musicale', 'Seguimiento de música', 'Müzik Takibi', 'Musiküberwachung', 'Pemantauan Musik', 'موسیقی کی نگرانی'],
+  ['متابعة المجلد', 'Folder Monitoring', 'Surveillance du dossier', 'Seguimiento de carpeta', 'Klasör Takibi', 'Ordnerüberwachung', 'Pemantauan Folder', 'فولڈر کی نگرانی'],
+  ['تم تفعيل متابعة المجلد بنجاح', 'Folder monitoring enabled successfully', 'Surveillance du dossier activée', 'Seguimiento de carpeta activado', 'Klasör takibi başarıyla etkinleştirildi', 'Ordnerüberwachung erfolgreich aktiviert', 'Pemantauan folder berhasil diaktifkan', 'فولڈر کی نگرانی کامیابی سے فعال ہو گئی'],
+  ['تم إيقاف متابعة المجلد', 'Folder monitoring stopped', 'Surveillance du dossier arrêtée', 'Seguimiento de carpeta detenido', 'Klasör takibi durduruldu', 'Ordnerüberwachung gestoppt', 'Pemantauan folder dihentikan', 'فولڈر کی نگرانی بند کر دی گئی'],
+);
 
 const EX = new Map(), PT = [];
 ROWS.forEach((r) => { if (!r) return; r[0].includes('{n}') ? PT.push([new RegExp('^' + r[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(.+?)') + '$'), r]) : EX.set(r[0], r); });
@@ -2670,7 +2865,7 @@ function renderSettingsPage() {
     </button>
   </div>
   <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">
-    اختر مجلد الموسيقى وسيتم فحصه تلقائيًا بحثًا عن الأغاني الجديدة كل 15 ثانية.
+    في المتصفحات المدعومة: اختر مجلد الموسيقى وسيتم فحصه تلقائيًا كل 15 ثانية. إذا لم يدعم المتصفح المتابعة، سيتم استيراد الأغاني ويمكنك إعادة اختيار المجلد لإضافة الجديد.
   </small>
 </section>
 
@@ -2883,57 +3078,64 @@ if (toggleWatchBtn) {
       return;
     }
 
-    // افتح نافذة اختيار المجلد
-    if (!window.showDirectoryPicker) {
-      toast('متصفحك لا يدعم اختيار ومتابعة المجلدات. استخدم Chrome أو Edge حديث');
+    // بعض بيئات المتصفح لا توفر File System Access API.
+    // في هذه الحالة نستورد محتويات المجلد كحل بديل بدل إظهار رسالة توقف المستخدم.
+    if (typeof window.showDirectoryPicker !== 'function') {
+      try {
+        const ks = await api.pick('folder');
+        if (!ks || !ks.length) return;
+
+        await importKeys(ks);
+        localStorage.ng_watch = '0';
+        toast('تم استيراد الأغاني. المتابعة التلقائية غير متاحة في هذا المتصفح؛ أعد اختيار المجلد لإضافة الأغاني الجديدة.');
+        renderSettingsPage();
+      } catch (error) {
+        console.error('Folder Import Error:', error);
+        toast('تعذر استيراد المجلد: ' + (error.message || 'خطأ غير معروف'));
+      }
       return;
     }
 
     try {
+      // يجب فتح نافذة الاختيار مباشرة من ضغطة المستخدم.
       const selectedFolder = await window.showDirectoryPicker({
         id: 'nagham-music',
         mode: 'read'
       });
 
-      // طلب صلاحية الوصول للمجلد
-      let permission = await selectedFolder.queryPermission({
-        mode: 'read'
-      });
-
-      if (permission !== 'granted') {
-        permission = await selectedFolder.requestPermission({
-          mode: 'read'
-        });
-      }
-
-      if (permission !== 'granted') {
-        toast('لم يتم السماح بالوصول للمجلد');
-        return;
-      }
-
-      // حفظ المجلد
+      // نحفظ الـ handle أولاً حتى لا يضيع اختيار المجلد.
       DIR = selectedFolder;
       await idbPut('h', 'music', DIR);
 
+      // غالباً يمنح المتصفح صلاحية القراءة عند اختيار المجلد.
+      // لو لم يمنحها، نطلبها من المستخدم بشكل واضح.
+      let permission = await DIR.queryPermission({ mode: 'read' });
+      if (permission !== 'granted') {
+        permission = await DIR.requestPermission({ mode: 'read' });
+      }
+
+      if (permission !== 'granted') {
+        localStorage.ng_watch = '0';
+        $('#perm').hidden = false;
+        toast('المجلد اتحفظ، لكن لازم تسمح للحن بقراءة محتوياته');
+        return;
+      }
+
       toast('تم اختيار المجلد، جاري فحص الأغاني...');
+      await scanDir(DIR, false);
 
-      // فحص المجلد
-      await scanDir(DIR);
-
-      // تشغيل المتابعة التلقائية
       localStorage.ng_watch = '1';
       startAutoWatch();
 
       toast('تم تفعيل متابعة المجلد بنجاح');
-
       renderSettingsPage();
 
     } catch (error) {
-      if (error.name === 'AbortError') {
+      if (error && error.name === 'AbortError') {
         toast('تم إلغاء اختيار المجلد');
       } else {
         console.error('Folder Watch Error:', error);
-        toast('حدث خطأ: ' + error.message);
+        toast('تعذر الوصول للمجلد: ' + (error && error.message ? error.message : 'خطأ غير معروف'));
       }
     }
   };
