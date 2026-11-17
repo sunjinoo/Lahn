@@ -1085,25 +1085,56 @@ function setTint(rgb) {
   try { localStorage.ng_tint = `${r},${g},${b}`; } catch(_) {}
 }
 
+
 function tintFrom(src) {
-  if (!src) return setTint([139, 124, 246]);
+  if (!src) {
+    setTint([139, 124, 246]);
+    return;
+  }
+
   const im = new Image();
-  im.crossOrigin = 'anonymous';
+
   im.onload = () => {
     try {
-      const c = document.createElement('canvas'); c.width = c.height = 24;
-      const x = c.getContext('2d'); x.drawImage(im, 0, 0, 24, 24);
-      const d = x.getImageData(0, 0, 24, 24).data; let r = 0, g = 0, b = 0, w = 0;
+      const c = document.createElement('canvas');
+      c.width = c.height = 24;
+
+      const x = c.getContext('2d');
+      x.drawImage(im, 0, 0, 24, 24);
+
+      const d = x.getImageData(0, 0, 24, 24).data;
+
+      let r = 0, g = 0, b = 0, w = 0;
+
       for (let k = 0; k < d.length; k += 4) {
-        const mx = Math.max(d[k], d[k + 1], d[k + 2]), mn = Math.min(d[k], d[k + 1], d[k + 2]), s = (mx - mn) / (mx || 1);
-        const wt = .1 + s * s * (mx / 255); r += d[k] * wt; g += d[k + 1] * wt; b += d[k + 2] * wt; w += wt;
+        if (d[k + 3] < 128) continue;
+
+        const mx = Math.max(d[k], d[k + 1], d[k + 2]);
+        const mn = Math.min(d[k], d[k + 1], d[k + 2]);
+        const s = (mx - mn) / (mx || 1);
+
+        const wt = .1 + s * s * (mx / 255);
+
+        r += d[k] * wt;
+        g += d[k + 1] * wt;
+        b += d[k + 2] * wt;
+        w += wt;
       }
-      setTint([r / w, g / w, b / w]);
+
+      if (w > 0) {
+        setTint([r / w, g / w, b / w]);
+      } else {
+        setTint([139, 124, 246]);
+      }
+
     } catch (e) {
+      console.warn('Lahn: Could not extract cover colors:', e);
       setTint([139, 124, 246]);
     }
   };
+
   im.onerror = () => setTint([139, 124, 246]);
+
   im.src = src;
 }
 
@@ -1158,9 +1189,18 @@ async function setTrack(i, autoplay) {
   const row = $('.row.cur'); if (row) row.scrollIntoView({ block: 'nearest' });
   
   let cover = null;
-  if (!isRemote) cover = await api.cover(t.path);
-  else if (m && m.cover) cover = m.cover; 
-  else if (isRemote) {
+  
+  // نظهر الصورة الافتراضية فوراً لحد ما صورة الأغنية الجديدة تحمل
+  $('#art').src = ''; 
+  $('#art').style.display = 'none'; 
+  $('#ph').style.display = 'block';
+
+  // بنجيب صورة الغلاف
+  if (!isRemote) {
+    cover = await api.cover(t.path);
+  } else if (m && m.cover) {
+    cover = m.cover; 
+  } else if (isRemote) {
     if (m.album === 'القرآن الكريم') cover = 'https://images.unsplash.com/photo-1585036156171-384164a8c675?q=80&w=500&auto=format&fit=crop';
     else if (m.album === 'بودكاست') cover = 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=500&auto=format&fit=crop';
     else if (m.album === 'راديو') cover = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=500&auto=format&fit=crop';
@@ -1169,10 +1209,10 @@ async function setTrack(i, autoplay) {
   
   if (tracks[cur] !== t) return;
   
+  // بنعرض الصورة الجديدة لما تحمل
   $('#art').src = cover || ''; 
   $('#art').style.display = cover ? 'block' : 'none'; 
-  $('#ph').style.display = cover ? 'none' : 'block';
-  
+  $('#ph').style.display = cover ? 'none' : 'block';  
   const curSkin = localStorage.ng_skin || 'nagham';
   if (SKINS[curSkin] && !SKINS[curSkin][6] && cover) tintFrom(cover);
   
@@ -2781,7 +2821,14 @@ const sumDays = (n) => { let t = 0; for (let i = 0; i < n; i++) t += ST.d[new Da
 const PER = { week: ['الأسبوع', 7], month: ['الشهر', 30], year: ['السنة', 365], all: ['الكل', 1e5] };
 function tops() {
   const s = new Map(), a = new Map(), b = new Map(), lim = Date.now() - PER[HP][1] * 864e5;
-  HIST.filter((x) => x.t > lim).forEach((x) => { s.set(x.k, (s.get(x.k) || 0) + 1); const m = DB.lib[x.k]; if (!m) return; artistsOf(m).forEach((n) => a.set(n, (a.get(n) || 0) + 1)); if (m.album) b.set(m.album, (b.get(m.album) || 0) + 1); });
+ HIST.filter((x) => x.t > lim).forEach((x) => { 
+    const m = DB.lib[x.k]; 
+    if (!m || (!files.has(x.k) && !m.url)) return;
+    s.set(x.k, (s.get(x.k) || 0) + 1); 
+    artistsOf(m).forEach((n) => a.set(n, (a.get(n) || 0) + 1)); 
+    if (m.album) b.set(m.album, (b.get(m.album) || 0) + 1); 
+  });
+
   const top = (mp, n) => [...mp.entries()].sort((x, y) => y[1] - x[1]).slice(0, n); return [top(a, 10), top(s, 5), top(b, 10)];
 }
 const gcard = (pre, n, sub) => `<button class="card" data-g="${pre}${esc(n)}"><div class="av${pre === 'ar:' ? ' rd' : ''}" data-cv="${pre}${esc(n)}" style="background:${hue(n)}">${esc([...n][0].toUpperCase())}</div><b dir="auto">${esc(n)}</b><span>${sub}</span></button>`;
@@ -2907,7 +2954,7 @@ const thGet = (k) => thdb.then((db) => new Promise((res) => { const q = db.trans
 const thPut = (k, v) => thdb.then((db) => db.transaction('t', 'readwrite').objectStore('t').put(v, k)).catch(() => {});
 const shrink = (src) => new Promise((res) => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 96; const s = Math.min(im.width, im.height); c.getContext('2d').drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, 96, 96); res(c.toDataURL('image/jpeg', .72)); }; im.onerror = () => res(null); im.src = src; });
 const THQ = []; let thBusy = 0;
-function thRun() { while (thBusy < 3 && THQ.length) { const j = THQ.shift(); thBusy++; j().finally(() => { thBusy--; thRun(); }); } }
+function thRun() { while (thBusy < 8 && THQ.length) { const j = THQ.shift(); thBusy++; j().finally(() => { thBusy--; thRun(); }); } }
 const thJob = (f) => new Promise((res) => { THQ.push(() => f().then(res, () => res(null))); thRun(); });
 const THC = new Map();
 async function thumbOf(k) {
@@ -2916,7 +2963,8 @@ async function thumbOf(k) {
   if (DB.lib[k] && DB.lib[k].cover) return DB.lib[k].cover;
   if (DB.lib[k] && DB.lib[k].isRemote) return null;
   if (!files.has(k) || window.__scan) return null;
-  const u = await thJob(async () => { const tg = await readTags(k, true); if (!tg.cover) return null; const o = await shrink(tg.cover); if (tagCache.get(k) !== tg) URL.revokeObjectURL(tg.cover); return o; });
+  const u = await thJob(async () => { const tg = await readTags(k, tagCache.has(k) && !tagCache.get(k).cover ? true : false);
+ if (!tg.cover) return null; const o = await shrink(tg.cover); if (tagCache.get(k) !== tg) URL.revokeObjectURL(tg.cover); return o; });
   THC.set(k, u); thPut(k, u || '-'); return u;
 }
 async function fillCover(el) {
