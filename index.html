@@ -694,14 +694,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   </div>
 </div>
 <script>
-// منع الكاش القديم من التدخل
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for(let registration of registrations) {
-      registration.unregister();
-    }
-  });
-}
+
 
 const $ = (s) => document.querySelector(s);
 document.addEventListener('click', (e) => {
@@ -2668,15 +2661,19 @@ function renderSettingsPage() {
         <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.</small>
       </section>
 
-      <section class="settings-section">
-        <h3>${svgIcons.folder} المراقبة التلقائية للمجلد</h3>
-        <div class="chip-grid">
-          <button class="chip ${localStorage.ng_watch === '1' ? 'pri' : ''}" id="toggleWatchBtn">
-            ${localStorage.ng_watch === '1' ? 'إيقاف المراقبة' : 'تفعيل المراقبة'}
-          </button>
-        </div>
-        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيضيف الأغاني الجديدة من الفولدر اللي إنت رابطها أوتوماتيك.</small>
-      </section>
+     
+<section class="settings-section">
+  <h3>${svgIcons.folder} متابعة مجلد الموسيقى</h3>
+  <div class="chip-grid">
+    <button class="chip ${localStorage.ng_watch === '1' ? 'pri' : ''}" id="toggleWatchBtn">
+      ${localStorage.ng_watch === '1' ? 'إيقاف المتابعة' : '📁 اختيار مجلد وبدء المتابعة'}
+    </button>
+  </div>
+  <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">
+    اختر مجلد الموسيقى وسيتم فحصه تلقائيًا بحثًا عن الأغاني الجديدة كل 15 ثانية.
+  </small>
+</section>
+
 
       <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
@@ -2713,7 +2710,7 @@ function renderSettingsPage() {
       <section class="settings-section">
         <h3>${svgIcons.info} حول التطبيق</h3>
         <div class="about-info">
-          <div class="about-row"><span>الإصدار</span><b>2.0</b></div>
+          <div class="about-row"><span>الإصدار</span><b>2.1</b></div>
           <div class="about-row"><span>عدد الأغاني</span><b>${trackCount}</b></div>
           <div class="about-row"><span>عدد القوائم</span><b>${playlistCount}</b></div>
           <div class="about-row"><span>عدد المفضلة</span><b>${favCount}</b></div>
@@ -2864,25 +2861,84 @@ function renderSettingsPage() {
     autoTagBtn.onclick = () => runAutoTagger();
   }
 
-  // --- زرار المراقبة ---
-  const toggleWatchBtn = document.getElementById('toggleWatchBtn');
-  if (toggleWatchBtn) {
-    toggleWatchBtn.onclick = () => {
-      if (!DIR) return toast('اربط مجلد الأول من زرار "مجلد"');
-      
-      const isOn = localStorage.ng_watch === '1';
-      localStorage.ng_watch = isOn ? '0' : '1';
-      
-      if (isOn) {
-        if (watchInterval) clearInterval(watchInterval);
-        toast('تم إيقاف المراقبة');
-      } else {
-        startAutoWatch();
-        toast('تم تفعيل المراقبة');
+
+ 
+// --- زر متابعة المجلد ---
+const toggleWatchBtn = document.getElementById('toggleWatchBtn');
+
+if (toggleWatchBtn) {
+  toggleWatchBtn.onclick = async () => {
+
+    // لو المتابعة شغالة: أوقفها
+    if (localStorage.ng_watch === '1') {
+      localStorage.ng_watch = '0';
+
+      if (watchInterval) {
+        clearInterval(watchInterval);
+        watchInterval = null;
       }
+
+      toast('تم إيقاف متابعة المجلد');
       renderSettingsPage();
-    };
-  }
+      return;
+    }
+
+    // افتح نافذة اختيار المجلد
+    if (!window.showDirectoryPicker) {
+      toast('متصفحك لا يدعم اختيار ومتابعة المجلدات. استخدم Chrome أو Edge حديث');
+      return;
+    }
+
+    try {
+      const selectedFolder = await window.showDirectoryPicker({
+        id: 'nagham-music',
+        mode: 'read'
+      });
+
+      // طلب صلاحية الوصول للمجلد
+      let permission = await selectedFolder.queryPermission({
+        mode: 'read'
+      });
+
+      if (permission !== 'granted') {
+        permission = await selectedFolder.requestPermission({
+          mode: 'read'
+        });
+      }
+
+      if (permission !== 'granted') {
+        toast('لم يتم السماح بالوصول للمجلد');
+        return;
+      }
+
+      // حفظ المجلد
+      DIR = selectedFolder;
+      await idbPut('h', 'music', DIR);
+
+      toast('تم اختيار المجلد، جاري فحص الأغاني...');
+
+      // فحص المجلد
+      await scanDir(DIR);
+
+      // تشغيل المتابعة التلقائية
+      localStorage.ng_watch = '1';
+      startAutoWatch();
+
+      toast('تم تفعيل متابعة المجلد بنجاح');
+
+      renderSettingsPage();
+
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        toast('تم إلغاء اختيار المجلد');
+      } else {
+        console.error('Folder Watch Error:', error);
+        toast('حدث خطأ: ' + error.message);
+      }
+    }
+  };
+}
+
 
   // --- المزامنة السحابية ---
   const syncKeyInput = document.getElementById('syncKeyInput');
