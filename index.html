@@ -3653,46 +3653,64 @@ if (toggleWatchBtn) {
   // --- المزامنة السحابية ---
   const syncKeyInput = document.getElementById('syncKeyInput');
   
+   // رفع للسحابة باستخدام jsonblob
   document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
-    const key = syncKeyInput.value.trim();
+    let key = syncKeyInput.value.trim();
     const btn = document.getElementById('cloudUploadBtn');
     btn.textContent = '⏳ جاري الرفع...';
     
+    // لو مفيش كود، هنولد كود جديد بنفسنا
+    if (!key) {
+      key = crypto.randomUUID();
+      localStorage.ng_sync_key = key;
+      syncKeyInput.value = key;
+    }
+    
     try {
       const dataToSync = { db: DB, stats: ST, hist: HIST };
-      let url = 'https://jsonblob.com/api/jsonBlob';
-      let method = 'POST';
-      
-      if (key) {
-        url = `https://jsonblob.com/api/jsonBlob/${key}`;
-        method = 'PUT';
-      }
+      const url = `https://jsonblob.com/api/jsonBlob/${key}`;
       
       const res = await fetch(url, {
-        method: method,
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSync)
       });
       
       if (res.ok) {
-        if (method === 'POST') {
-          const location = res.headers.get('Location');
-          if (location) {
-            const newKey = location.split('/').pop();
-            localStorage.ng_sync_key = newKey;
-            syncKeyInput.value = newKey;
-            toast('تم الرفع! كود المزامنة بتاعك: ' + newKey);
-          }
-        } else {
-          toast('تم تحديث بياناتك في السحابة! ☁️');
-        }
+        toast('تم الرفع! كود المزامنة بتاعك: ' + key);
       } else {
         throw new Error('فشل الرفع');
       }
     } catch (e) { 
+      console.error(e);
       toast('خطأ في الرفع، تأكد من الإنترنت'); 
     }
     btn.textContent = 'رفع للسحابة ☁️';
+  });
+
+  // تنزيل من السحابة
+  document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
+    const key = syncKeyInput.value.trim();
+    if (!key) return toast('اكتب كود المزامنة الأول');
+    const btn = document.getElementById('cloudDownloadBtn');
+    btn.textContent = '⏳ جاري التنزيل...';
+    
+    try {
+      const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
+        if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
+        if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
+        toast('تم التنزيل! جاري إعادة التحميل...');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        toast('مفيش بيانات بالكود ده، أو الكود غلط');
+      }
+    } catch (e) { 
+      toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); 
+    }
+    btn.textContent = 'تنزيل من السحابة ⬇️';
   });
 
   document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
