@@ -1093,7 +1093,7 @@ function tintFrom(src) {
   }
 
   const im = new Image();
-
+  im.crossOrigin = 'anonymous';
   im.onload = () => {
     try {
       const c = document.createElement('canvas');
@@ -3780,6 +3780,27 @@ async function runAutoTagger() {
       document.body.appendChild(script);
     });
   };
+
+  // دالة بتنزل الصورة وتحولها لـ Base64 عشان تتخزن محلياً
+  const downloadAndCompressImage = (url) => new Promise((resolve) => {
+    if (!url) return resolve(null);
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        const max = 300; // تصغير الصورة عشان متستهلكش مساحة
+        const ratio = Math.min(max / im.width, max / im.height);
+        c.width = im.width * ratio;
+        c.height = im.height * ratio;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(im, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', 0.7)); // ضغط الجودة
+      } catch (e) { resolve(null); }
+    };
+    im.onerror = () => resolve(null);
+    im.src = url;
+  });
   
   for (const k of keys) {
     const m = DB.lib[k];
@@ -3789,7 +3810,12 @@ async function runAutoTagger() {
     progressText.textContent = `${trs('جاري تحديث المعلومات...')} (${processed}/${total})`;
     
     if (m.isRemote || !m.title) { processed++; continue; }
-    if (m.album && m.year && m.genre && DB.covers[k]) { processed++; continue; }
+    
+    // لو الأغنية معاها كل حاجة وصورة محفوظة كـ Base64، تجاهلها
+    if (m.album && m.year && m.genre && DB.covers[k] && DB.covers[k].startsWith('data:image')) { 
+      processed++; 
+      continue; 
+    }
     
     try {
       const query = `${m.artist || ''} ${m.title || ''}`.trim();
@@ -3800,13 +3826,19 @@ async function runAutoTagger() {
         if (!m.year && r.releaseDate) m.year = r.releaseDate.slice(0, 4);
         if (!m.genre && r.primaryGenreName) m.genre = r.primaryGenreName;
         if (!m.album && r.collectionName) m.album = r.collectionName;
-        if (!DB.covers[k] && r.artworkUrl100) DB.covers[k] = r.artworkUrl100.replace('100x100', '500x500');
         
-        if (DB.covers[k] && tagCache.has(k)) {
-          const c = tagCache.get(k);
-          if (c.cover) URL.revokeObjectURL(c.cover);
-          tagCache.delete(k);
+        // لو مفيش صورة محفوظة، بننزل الصورة من النت ونحولها Base64
+        if (!DB.covers[k] && r.artworkUrl100) {
+          const imgUrl = r.artworkUrl100.replace('100x100', '500x500');
+          const base64Img = await downloadAndCompressImage(imgUrl);
+          if (base64Img) {
+            DB.covers[k] = base64Img;
+            // بنمسح الكاش القديم لو موجود
+            if (tagCache.has(k)) tagCache.delete(k);
+            thPut(k, base64Img); // بنحفظها في كاش الصور المصغرة كمان
+          }
         }
+        
         updatedCount++;
       }
       
@@ -3828,7 +3860,6 @@ async function runAutoTagger() {
     toast(trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount));
   }, 1000);
 }
-
 // المراقبة التلقائية للمجلد
 let watchInterval = null;
 function startAutoWatch() {
