@@ -1976,38 +1976,35 @@ $('#lyricFetchBtn').onclick = async () => {
   
   btn.innerHTML = '⏳ جاري البحث...'; btn.disabled = true;
   
-  const headers = { 'User-Agent': 'LahnApp/2.1 (https://lahn.app)' };
+  const fetchWithProxy = async (url) => {
+    try {
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+      const res = await fetch(proxyUrl);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+    return null;
+  };
   
   try {
     let lyrics = null;
-    
-    // 1. المحاولة الأولى: البحث المباشر
     const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(m.artist || '')}&track_name=${encodeURIComponent(m.title || '')}`;
-    const res = await fetch(url, { headers });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && (data.syncedLyrics || data.plainLyrics)) {
-        lyrics = data.syncedLyrics || data.plainLyrics;
-      }
+    const data = await fetchWithProxy(url);
+    if (data && (data.syncedLyrics || data.plainLyrics)) {
+      lyrics = data.syncedLyrics || data.plainLyrics;
     }
     
-    // 2. المحاولة التانية: البحث الذكي (لو الأغنية مش مكتوبة بالظبط)
     if (!lyrics) {
       const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent((m.artist || '') + ' ' + (m.title || ''))}`;
-      const sres = await fetch(searchUrl, { headers });
-      if (sres.ok) {
-        const items = await sres.json();
-        if (Array.isArray(items) && items.length > 0) {
-          const best = items.find(x => x.syncedLyrics) || items.find(x => x.plainLyrics) || items[0];
-          if (best && (best.syncedLyrics || best.plainLyrics)) {
-            lyrics = best.syncedLyrics || best.plainLyrics;
-          }
+      const items = await fetchWithProxy(searchUrl);
+      if (Array.isArray(items) && items.length > 0) {
+        const best = items.find(x => x.syncedLyrics) || items.find(x => x.plainLyrics) || items[0];
+        if (best && (best.syncedLyrics || best.plainLyrics)) {
+          lyrics = best.syncedLyrics || best.plainLyrics;
         }
       }
     }
     
     btn.innerHTML = oldText; btn.disabled = false;
-    
     if (lyrics) {
       $('#lyricInput').value = lyrics;
       toast('تم جلب الكلمات تلقائياً');
