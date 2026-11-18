@@ -593,7 +593,26 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
 
 <div class="app">
 <nav class="side panel">
-  <div class="brand"><img src="icon-192.png" alt=""><span>لحن</span></div>
+<div class="brand">
+  <svg viewBox="0 0 32 32" style="width:30px; height:30px; border-radius:9px; box-shadow: 0 4px 10px rgba(236,72,153,0.4); flex:none;">
+    <defs>
+      <linearGradient id="lahn-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#c084fc" />
+        <stop offset="100%" stop-color="#ec4899" />
+      </linearGradient>
+    </defs>
+    <!-- الخلفية المدرجة -->
+    <rect width="32" height="32" rx="8" fill="url(#lahn-grad)" />
+    
+    <!-- الموجات الصوتية البيضاء -->
+    <rect x="6" y="13" width="3" height="6" rx="1.5" fill="#fff" />
+    <rect x="10.5" y="9" width="3" height="14" rx="1.5" fill="#fff" />
+    <rect x="15" y="6" width="3" height="20" rx="1.5" fill="#fff" />
+    <rect x="19.5" y="11" width="3" height="10" rx="1.5" fill="#fff" />
+    <rect x="24" y="14" width="3" height="4" rx="1.5" fill="#fff" />
+  </svg>
+  <span>لحن</span>
+</div>
   <button class="nv" data-v="home">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>الرئيسية</span>
@@ -1609,8 +1628,7 @@ const metaOf = (k) => {
 };
 
 document.body.insertAdjacentHTML('beforeend', '<div id="menu" hidden></div><div id="toast"></div>');
-let tt; const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
-const hideMenu = () => { $('#menu').hidden = true; };
+let tt; const toast = (m) => { const t = $('#toast'); t.textContent = trs(m); t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };const hideMenu = () => { $('#menu').hidden = true; };
 function showMenu(x, y, items) {
   const m = $('#menu'); m.innerHTML = '';
   items.forEach(([label, fn]) => { const b = document.createElement('button'); b.innerHTML = label; b.onclick = () => { hideMenu(); fn(x, y); }; m.appendChild(b); });
@@ -1951,18 +1969,55 @@ $('#lyricSave').onclick = () => {
   toast('تم حفظ الكلمات بنجاح');
   if (!$('#lyricDisplayPanel').hidden) renderLyricsView();
 };
-$('#lyricFetchBtn').onclick = () => {
+$('#lyricFetchBtn').onclick = async () => {
   const k = $('#lyricModal').dataset.key; if (!k) return;
-  const m = DB.lib[k] || {}; const btn = $('#lyricFetchBtn'); const oldText = btn.innerHTML;
+  const m = DB.lib[k] || {};
+  const btn = $('#lyricFetchBtn'); const oldText = btn.innerHTML;
+  
   btn.innerHTML = '⏳ جاري البحث...'; btn.disabled = true;
-  fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(m.artist || '')}&track_name=${encodeURIComponent(m.title || '')}`)
-    .then(r => r.ok ? r.json() : null)
-    .then(data => {
-      btn.innerHTML = oldText; btn.disabled = false;
+  
+  const headers = { 'User-Agent': 'LahnApp/2.1 (https://lahn.app)' };
+  
+  try {
+    let lyrics = null;
+    
+    // 1. المحاولة الأولى: البحث المباشر
+    const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(m.artist || '')}&track_name=${encodeURIComponent(m.title || '')}`;
+    const res = await fetch(url, { headers });
+    if (res.ok) {
+      const data = await res.json();
       if (data && (data.syncedLyrics || data.plainLyrics)) {
-        $('#lyricInput').value = data.syncedLyrics || data.plainLyrics; toast('تم جلب الكلمات تلقائياً');
-      } else { toast('لم يتم العثور على كلمات'); }
-    }).catch(() => { btn.innerHTML = oldText; btn.disabled = false; toast('فشل الاتصال بالإنترنت'); });
+        lyrics = data.syncedLyrics || data.plainLyrics;
+      }
+    }
+    
+    // 2. المحاولة التانية: البحث الذكي (لو الأغنية مش مكتوبة بالظبط)
+    if (!lyrics) {
+      const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent((m.artist || '') + ' ' + (m.title || ''))}`;
+      const sres = await fetch(searchUrl, { headers });
+      if (sres.ok) {
+        const items = await sres.json();
+        if (Array.isArray(items) && items.length > 0) {
+          const best = items.find(x => x.syncedLyrics) || items.find(x => x.plainLyrics) || items[0];
+          if (best && (best.syncedLyrics || best.plainLyrics)) {
+            lyrics = best.syncedLyrics || best.plainLyrics;
+          }
+        }
+      }
+    }
+    
+    btn.innerHTML = oldText; btn.disabled = false;
+    
+    if (lyrics) {
+      $('#lyricInput').value = lyrics;
+      toast('تم جلب الكلمات تلقائياً');
+    } else {
+      toast('لم يتم العثور على كلمات لهذه الأغنية');
+    }
+  } catch (err) {
+    btn.innerHTML = oldText; btn.disabled = false;
+    toast('فشل الاتصال بالإنترنت');
+  }
 };
 
 let editMode = 'song', editTarget = '', editCoverData = null, editArtistCoverData = null;
@@ -2560,6 +2615,109 @@ ROWS.push(
   ['القرآن الكريم', 'The Holy Quran', 'Le Saint Coran', 'El Sagrado Corán', 'Kutsal Kur\'an', 'Der Heilige Koran', 'Al-Quran', 'قرآن پاک'],
   ['اختر الشيخ والسورة', 'Select reciter and surah', 'Sélectionnez le récitateur et la sourate', 'Seleccione recitador y sura', 'Kâri ve sure seçin', 'Rezitator und Sure auswählen', 'Pilih qari dan surah', 'قاری اور سورہ منتخب کریں'],
   ['اختر الشيخ الأول', 'Select reciter first', 'Sélectionnez d\'abord le récitateur', 'Seleccione primero el recitador', 'Önce kâri seçin', 'Wählen Sie zuerst den Rezitator', 'Pilih qari terlebih dahulu', 'پہلے قاری منتخب کریں']
+);
+
+ROWS.push(
+  ['جلب كلمات الأغاني (Lyrics Fetcher)', 'Fetch Lyrics', 'Récupérer les paroles', 'Obtener letras', 'Şarkı Sözlerini Al', 'Liedtexte abrufen', 'Ambil Lirik', 'بولیاں حاصل کریں'],
+  ['🎤 جلب الكل', '🎤 Fetch All', '🎤 Tout récupérer', '🎤 Obtener todo', '🎤 Tümünü Al', '🎤 Alle abrufen', '🎤 Ambil Semua', '🎤 سب حاصل کریں'],
+  ['إعادة جلب الكلمات الموجودة (يستبدل القديم)', 'Re-fetch existing lyrics (overwrites old)', 'Récupérer les paroles existantes (écrase les anciennes)', 'Volver a obtener letras existentes (sobrescribe las antiguas)', 'Mevcut şarkı sözlerini yeniden al (eskisinin üzerine yazar)', 'Vorhandene Liedtexte erneut abrufen (überschreibt alte)', 'Ambil ulang lirik yang ada (menimpa yang lama)', 'موجودہ بولیاں دوبارہ حاصل کریں (پرانی کو اوور رائٹ کرتا ہے)'],
+  ['بيجيب كلمات الأغاني من lrclib.net تلقائياً. بيجيب الكلمات المتزامنة (LRC) لو متاحة، وإلا بيجيب النص العادي.', 'Fetches lyrics from lrclib.net automatically. Gets synced lyrics (LRC) if available, otherwise plain text.', 'Récupère les paroles depuis lrclib.net. Récupère les paroles synchronisées (LRC) si disponibles, sinon le texte brut.', 'Obtiene letras de lrclib.net automáticamente. Obtiene letras sincronizadas (LRC) si están disponibles, si no, texto plano.', 'lrclib.net üzerinden şarkı sözlerini otomatik olarak alır. Varsa senkronize (LRC) sözleri, yoksa düz metni alır.', 'Ruft Liedtexte automatisch von lrclib.net ab. Holt synchronisierte Texte (LRC), falls verfügbar, sonst reinen Text.', 'Mengambil lirik dari lrclib.net secara otomatis. Mengambil lirik tersinkronisasi (LRC) jika tersedia, jika tidak teks biasa.', 'lrclib.net سے خودکار طور پر بولیاں حاصل کرتا ہے۔ اگر دستیاب ہوں تو ہم آہنگ بولیاں (LRC) حاصل کرتا ہے، ورنہ سادہ متن۔'],
+  ['⏳ جاري جلب الكلمات...', '⏳ Fetching lyrics...', '⏳ Récupération des paroles...', '⏳ Obteniendo letras...', '⏳ Şarkı sözleri alınıyor...', '⏳ Liedtexte werden abgerufen...', '⏳ Mengambil lirik...', '⏳ بولیاں حاصل کی جا رہی ہیں...'],
+  ['تم جلب', 'Fetched', 'Récupéré', 'Obtenido', 'Alındı', 'Abgerufen', 'Diambil', 'حاصل کیا'],
+  ['تم جلب كلمات {n} أغنية بنجاح', 'Successfully fetched lyrics for {n} songs', 'Paroles de {n} chansons récupérées', 'Letras de {n} canciones obtenidas', '{n} şarkının sözleri başarıyla alındı', 'Liedtexte für {n} Songs abgerufen', 'Lirik untuk {n} lagu berhasil diambil', '{n} گانوں کی بولیاں کامیابی سے حاصل ہو گئیں'],
+  ['كود المزامنة:', 'Sync Code:', 'Code de synchronisation :', 'Código de sincronización:', 'Eşitleme Kodu:', 'Sync-Code:', 'Kode Sinkronisasi:', 'سنک کوڈ:'],
+  ['🔑 توليد كود', '🔑 Generate Code', '🔑 Générer le code', '🔑 Generar código', '🔑 Kod Oluştur', '🔑 Code generieren', '🔑 Buat Kode', '🔑 کوڈ بنائیں'],
+  ['لا يوجد كود بعد', 'No code yet', 'Pas encore de code', 'Aún no hay código', 'Henüz kod yok', 'Noch kein Code', 'Belum ada kode', 'ابھی تک کوئی کوڈ نہیں ہے'],
+  ['تم توليد كود مزامنة جديد:', 'New sync code generated:', 'Nouveau code de synchronisation généré :', 'Nuevo código de sincronización generado:', 'Yeni eşitleme kodu oluşturuldu:', 'Neuer Sync-Code generiert:', 'Kode sinkronisasi baru dibuat:', 'نیا سنک کوڈ بنایا گیا:']
+);
+
+ROWS.push(
+  ['كود المزامنة:', 'Sync Code:', 'Code de synchronisation :', 'Código de sincronización:', 'Eşitleme Kodu:', 'Sync-Code:', 'Kode Sinkronisasi:', 'سنک کوڈ:'],
+  ['🔑 توليد كود', '🔑 Generate Code', '🔑 Générer le code', '🔑 Generar código', '🔑 Kod Oluştur', '🔑 Code generieren', '🔑 Buat Kode', '🔑 کوڈ بنائیں']
+);
+ROWS.push(
+  ['جلب تلقائي', 'Auto Fetch', 'Récupération auto', 'Obtención auto', 'Otomatik Al', 'Auto-Abruf', 'Ambil Otomatis', 'خودکار حاصل کریں'],
+  ['🌐 جلب تلقائي', '🌐 Auto Fetch', '🌐 Récupération auto', '🌐 Obtención auto', '🌐 Otomatik Al', '🌐 Auto-Abruf', '🌐 Ambil Otomatis', '🌐 خودکار حاصل کریں']
+);
+
+ROWS.push(
+  ['الملف مش متاح — أضفه تاني', 'File unavailable — add it again', 'Fichier indisponible — ajoutez-le', 'Archivo no disponible — añádelo de nuevo', 'Dosya kullanılamıyor — tekrar ekleyin', 'Datei nicht verfügbar — erneut hinzufügen', 'File tidak tersedia — tambahkan lagi', 'فائل دستیاب نہیں — دوبارہ شامل کریں'],
+  ['اتعملت قايمة «{n}»', 'Playlist "{n}" created', 'Playlist « {n} » créée', 'Lista «{n}» creada', '"{n}" çalma listesi oluşturuldu', 'Playlist "{n}" erstellt', 'Daftar putar "{n}" dibuat', 'پلے لسٹ "{n}" بنائی گئی'],
+  ['اتضافت لـ «{n}»', 'Added to "{n}"', 'Ajouté à « {n} »', 'Añadida a «{n}»', '"{n}" listesine eklendi', 'Zu "{n}" hinzugefügt', 'Ditambahkan ke "{n}"', '"{n}" میں شامل کیا گیا'],
+  ['مينفعش تشيل الأغنية الشغالة', 'Can’t remove the playing track', 'Impossible de retirer le titre en cours', 'No se puede quitar la pista actual', 'Çalan parça kaldırılamaz', 'Laufender Track kann nicht entfernt werden', 'Tidak dapat menghapus lagu yang diputar', 'چل رہا ٹریک نہیں ہٹا سکتے'],
+  ['اتنسخت في الحافظة', 'Copied to clipboard', 'Copié dans le presse-papiers', 'Copiado al portapapeles', 'Panoya kopyalandı', 'In die Zwischenablage kopiert', 'Disalin ke papan klip', 'کلپ بورڈ پر کاپی ہو گیا'],
+  ['اتحمّل الملف على جهازك', 'File downloaded', 'Fichier téléchargé', 'Archivo descargado', 'Dosya indirildi', 'Datei heruntergeladen', 'File diunduh', 'فائل ڈاؤن لوڈ ہو گئی'],
+  ['اتستوردت «{n}»', 'Imported "{n}"', '« {n} » importée', '«{n}» importada', '"{n}" içe aktarıldı', '"{n}" importiert', '"{n}" diimpor', '"{n}" درآمد کیا گیا'],
+  ['الملف ده مش قايمة لحن صالحة', 'Not a valid playlist file', 'Fichier de playlist invalide', 'Archivo de lista no válido', 'Geçerli bir çalma listesi dosyası değil', 'Keine gültige Playlist-Datei', 'Bukan file daftar putar yang valid', 'یہ درست پلے لسٹ فائل نہیں ہے'],
+  ['تم حفظ الكلمات بنجاح', 'Lyrics saved successfully', 'Paroles enregistrées avec succès', 'Letras guardadas con éxito', 'Şarkı sözleri başarıyla kaydedildi', 'Liedtexte erfolgreich gespeichert', 'Lirik berhasil disimpan', 'بولیاں کامیابی سے محفوظ ہو گئیں'],
+  ['⏳ جاري البحث...', '⏳ Searching...', '⏳ Recherche...', '⏳ Buscando...', '⏳ Aranıyor...', '⏳ Suche...', '⏳ Mencari...', '⏳ تلاش کیا جا رہا ہے...'],
+  ['تم جلب الكلمات تلقائياً', 'Lyrics fetched automatically', 'Paroles récupérées automatiquement', 'Letras obtenidas automáticamente', 'Şarkı sözleri otomatik alındı', 'Liedtexte automatisch abgerufen', 'Lirik diambil secara otomatis', 'بولیاں خودکار طور پر حاصل ہو گئیں'],
+  ['لم يتم العثور على كلمات', 'No lyrics found', 'Aucune parole trouvée', 'No se encontraron letras', 'Şarkı sözü bulunamadı', 'Keine Liedtexte gefunden', 'Lirik tidak ditemukan', 'کوئی بولیاں نہیں ملیں'],
+  ['فشل الاتصال بالإنترنت', 'Internet connection failed', 'Échec de la connexion Internet', 'Fallo en la conexión a Internet', 'İnternet bağlantısı başarısız', 'Internetverbindung fehlgeschlagen', 'Koneksi internet gagal', 'انٹرنیٹ کنکشن ناکام ہو گیا'],
+  ['مفيش أغنية شغالة حالياً', 'No track currently playing', 'Aucune piste en lecture', 'Ninguna pista en reproducción', 'Şu anda çalan parça yok', 'Aktuell wird kein Titel abgespielt', 'Tidak ada lagu yang diputar', 'اس وقت کوئی ٹریک نہیں چل رہا'],
+  ['تم تعديل معلومات الأغنية', 'Song info updated', 'Infos du titre mises à jour', 'Información de la canción actualizada', 'Şarkı bilgileri güncellendi', 'Songinformationen aktualisiert', 'Info lagu diperbarui', 'گانے کی معلومات اپ ڈیٹ ہو گئیں'],
+  ['تم تعديل اسم الفنان', 'Artist name updated', 'Nom de l’artiste mis à jour', 'Nombre del artista actualizado', 'Sanatçı adı güncellendi', 'Künstlername aktualisiert', 'Nama artis diperbarui', 'فنکار کا نام اپ ڈیٹ ہو گیا'],
+  ['الملف مش موجود أو مش محلي', 'File not found or not local', 'Fichier introuvable ou non local', 'Archivo no encontrado o no local', 'Dosya bulunamadı veya yerel değil', 'Datei nicht gefunden oder nicht lokal', 'File tidak ditemukan atau bukan lokal', 'فائل نہیں ملی یا مقامی نہیں ہے'],
+  ['الميزة دي بتدعم MP3 بس حالياً', 'This feature only supports MP3 currently', 'Cette fonctionnalité ne prend en charge que le MP3', 'Esta función solo admite MP3 actualmente', 'Bu özellik şu anda yalnızca MP3 destekler', 'Diese Funktion unterstützt derzeit nur MP3', 'Fitur ini hanya mendukung MP3 saat ini', 'یہ خصوصیت فی الحال صرف MP3 کو سپورٹ کرتی ہے'],
+  ['تم تعديل الملف الأصلي بنجاح!', 'Original file updated successfully!', 'Fichier original mis à jour avec succès !', '¡Archivo original actualizado con éxito!', 'Orijinal dosya başarıyla güncellendi!', 'Originaldatei erfolgreich aktualisiert!', 'File asli berhasil diperbarui!', 'اصل فائل کامیابی سے اپ ڈیٹ ہو گئی!'],
+  ['تم تحميل الملف المعدل', 'Modified file downloaded', 'Fichier modifié téléchargé', 'Archivo modificado descargado', 'Değiştirilmiş dosya indirildi', 'Geänderte Datei heruntergeladen', 'File yang dimodifikasi diunduh', 'ترمیم شدہ فائل ڈاؤن لوڈ ہو گئی'],
+  ['فشل التعديل: ', 'Update failed: ', 'Échec de la mise à jour : ', 'Error al actualizar: ', 'Güncelleme başarısız: ', 'Aktualisierung fehlgeschlagen: ', 'Pembaruan gagal: ', 'اپ ڈیٹ ناکام: '],
+  ['شغل أغنية الأول عشان تقدر تستخدم المؤثرات', 'Play a song first to use effects', 'Lisez une chanson d’abord pour utiliser les effets', 'Reproduce una canción primero para usar efectos', 'Efektleri kullanmak için önce bir şarkı çalın', 'Spielen Sie zuerst einen Song, um Effekte zu nutzen', 'Putar lagu terlebih dahulu untuk menggunakan efek', 'اثرات استعمال کرنے کے لیے پہلے گانا چلائیں'],
+  ['شغل أغنية الأول', 'Play a song first', 'Lisez une chanson d’abord', 'Reproduce una canción primero', 'Önce bir şarkı çalın', 'Spielen Sie zuerst einen Song', 'Putar lagu terlebih dahulu', 'پہلے گانا چلائیں'],
+  ['المعالج غير متاح في متصفحك', 'Processor not available in your browser', 'Processeur non disponible dans votre navigateur', 'Procesador no disponible en tu navegador', 'İşlemci tarayıcınızda kullanılamıyor', 'Prozessor in Ihrem Browser nicht verfügbar', 'Prosesor tidak tersedia di browser Anda', 'پروسیسر آپ کے براؤزر میں دستیاب نہیں ہے'],
+  ['هذه الميزة غير مدعومة في متصفحك', 'This feature is not supported in your browser', 'Cette fonctionnalité n’est pas prise en charge par votre navigateur', 'Esta función no es compatible con tu navegador', 'Bu özellik tarayıcınızda desteklenmiyor', 'Diese Funktion wird in Ihrem Browser nicht unterstützt', 'Fitur ini tidak didukung di browser Anda', 'یہ خصوصیت آپ کے براؤزر میں معاون نہیں ہے'],
+  ['تم تفعيل صوت 8D', '8D audio enabled', 'Audio 8D activé', 'Audio 8D activado', '8D ses etkinleştirildi', '8D-Audio aktiviert', 'Audio 8D diaktifkan', '8D آڈیو فعال ہو گئی'],
+  ['تم إيقاف صوت 8D', '8D audio disabled', 'Audio 8D désactivé', 'Audio 8D desactivado', '8D ses devre dışı', '8D-Audio deaktiviert', 'Audio 8D dinonaktifkan', '8D آڈیو غیر فعال ہو گئی'],
+  ['تم تفعيل Nightcore', 'Nightcore enabled', 'Nightcore activé', 'Nightcore activado', 'Nightcore etkinleştirildi', 'Nightcore aktiviert', 'Nightcore diaktifkan', 'Nightcore فعال ہو گیا'],
+  ['تم إيقاف Nightcore', 'Nightcore disabled', 'Nightcore désactivé', 'Nightcore desactivado', 'Nightcore devre dışı', 'Nightcore deaktiviert', 'Nightcore dinonaktifkan', 'Nightcore غیر فعال ہو گیا'],
+  ['تم تفعيل Slowed + Reverb', 'Slowed + Reverb enabled', 'Slowed + Reverb activé', 'Slowed + Reverb activado', 'Slowed + Reverb etkinleştirildi', 'Slowed + Reverb aktiviert', 'Slowed + Reverb diaktifkan', 'Slowed + Reverb فعال ہو گیا'],
+  ['تم إيقاف Slowed + Reverb', 'Slowed + Reverb disabled', 'Slowed + Reverb désactivé', 'Slowed + Reverb desactivado', 'Slowed + Reverb devre dışı', 'Slowed + Reverb deaktiviert', 'Slowed + Reverb dinonaktifkan', 'Slowed + Reverb غیر فعال ہو گیا'],
+  ['تم تفعيل الكاريوكي', 'Karaoke enabled', 'Karaoké activé', 'Karaoke activado', 'Karaoke etkinleştirildi', 'Karaoke aktiviert', 'Karaoke diaktifkan', 'کراوکی فعال ہو گئی'],
+  ['تم إيقاف الكاريوكي', 'Karaoke disabled', 'Karaoké désactivé', 'Karaoke desactivado', 'Karaoke devre dışı', 'Karaoke deaktiviert', 'Karaoke dinonaktifkan', 'کراوکی غیر فعال ہو گئی'],
+  ['قص النغمة متاح للأغاني المحلية فقط', 'Ringtone cutting is only available for local songs', 'La découpe de sonnerie n’est disponible que pour les chansons locales', 'El corte de tonos solo está disponible para canciones locales', 'Zil sesi kesme yalnızca yerel şarkılar için geçerlidir', 'Klingelton-Schneiden ist nur für lokale Songs verfügbar', 'Pemotongan nada dering hanya tersedia untuk lagu lokal', 'رنگ ٹون کاٹنا صرف مقامی گانوں کے لیے دستیاب ہے'],
+  ['جاري تجهيز الأغنية...', 'Preparing song...', 'Préparation de la chanson...', 'Preparando canción...', 'Şarkı hazırlanıyor...', 'Song wird vorbereitet...', 'Menyiapkan lagu...', 'گانا تیار کیا جا رہا ہے...'],
+  ['تعذر تجهيز الأغنية للقص', 'Could not prepare song for cutting', 'Impossible de préparer la chanson pour la découpe', 'No se pudo preparar la canción para cortar', 'Şarkı kesim için hazırlanamadı', 'Song konnte nicht zum Schneiden vorbereitet werden', 'Tidak dapat menyiapkan lagu untuk dipotong', 'کاٹنے کے لیے گانا تیار نہیں ہو سکا'],
+  ['افتح أغنية أولاً', 'Open a song first', 'Ouvrez d’abord une chanson', 'Abre una canción primero', 'Önce bir şarkı açın', 'Öffnen Sie zuerst einen Song', 'Buka lagu terlebih dahulu', 'پہلے گانا کھولیں'],
+  ['حدد بداية ونهاية صحيحتين', 'Select valid start and end', 'Sélectionnez un début et une fin valides', 'Selecciona un inicio y fin válidos', 'Geçerli bir başlangıç ve bitiş seçin', 'Wählen Sie einen gültigen Anfang und ein gültiges Ende', 'Pilih awal dan akhir yang valid', 'درست آغاز اور اختتام منتخب کریں'],
+  ['تعذرت معاينة المقطع', 'Could not preview segment', 'Impossible de prévisualiser le segment', 'No se pudo previsualizar el segmento', 'Segment önizlenemedi', 'Segment konnte nicht in der Vorschau angezeigt werden', 'Tidak dapat mempratinjau segmen', 'سیگمنٹ کا پیش نظارہ نہیں ہو سکا'],
+  ['تم تنزيل نغمة الرنين بنجاح', 'Ringtone downloaded successfully', 'Sonnerie téléchargée avec succès', 'Tono descargado con éxito', 'Zil sesi başarıyla indirildi', 'Klingelton erfolgreich heruntergeladen', 'Nada dering berhasil diunduh', 'رنگ ٹون کامیابی سے ڈاؤن لوڈ ہو گیا'],
+  ['مفيش صورة غلاف عشان نعمل الصورة', 'No cover image to generate the picture', 'Pas d’image de couverture pour générer l’image', 'No hay imagen de portada para generar la imagen', 'Resmi oluşturmak için kapak resmi yok', 'Kein Cover-Bild zum Generieren des Bildes', 'Tidak ada gambar sampul untuk membuat gambar', 'تصویر بنانے کے لیے کوئی کور تصویر نہیں ہے'],
+  ['تم تنزيل الصورة!', 'Image downloaded!', 'Image téléchargée !', '¡Imagen descargada!', 'Resim indirildi!', 'Bild heruntergeladen!', 'Gambar diunduh!', 'تصویر ڈاؤن لوڈ ہو گئی!'],
+  ['متصفحك لا يدعم هذه الميزة (تتطلب Chrome أو Edge حديث)', 'Your browser doesn\'t support this feature (requires modern Chrome or Edge)', 'Votre navigateur ne prend pas en charge cette fonctionnalité (nécessite Chrome ou Edge récent)', 'Tu navegador no admite esta función (requiere Chrome o Edge modernos)', 'Tarayıcınız bu özelliği desteklemiyor (modern Chrome veya Edge gerektirir)', 'Ihr Browser unterstützt diese Funktion nicht (erfordert modernes Chrome oder Edge)', 'Browser Anda tidak mendukung fitur ini (memerlukan Chrome atau Edge terbaru)', 'آپ کا براؤزر اس خصوصیت کو سپورٹ نہیں کرتا (جدید Chrome یا Edge درکار ہے)'],
+  ['هذه الميزة لا تعمل عند فتح الملف مباشرة. يرجى استخدام سيرفر محلي (localhost)', 'This feature doesn\'t work when opening the file directly. Please use a local server (localhost)', 'Cette fonctionnalité ne fonctionne pas en ouvrant le fichier directement. Veuillez utiliser un serveur local (localhost)', 'Esta función no funciona al abrir el archivo directamente. Usa un servidor local (localhost)', 'Bu özellik dosyayı doğrudan açarken çalışmaz. Lütfen yerel bir sunucu (localhost) kullanın', 'Diese Funktion funktioniert nicht beim direkten Öffnen der Datei. Bitte verwenden Sie einen lokalen Server (localhost)', 'Fitur ini tidak berfungsi saat membuka file secara langsung. Harap gunakan server lokal (localhost)', 'یہ خصوصیت فائل کو براہ راست کھولنے پر کام نہیں کرتی۔ براہ کرم لوکل سرور (localhost) استعمال کریں'],
+  ['فشل فتح النافذة: ', 'Failed to open window: ', 'Échec de l’ouverture de la fenêtre : ', 'Error al abrir la ventana: ', 'Pencere açılamadı: ', 'Fenster konnte nicht geöffnet werden: ', 'Gagal membuka jendela: ', 'ونڈو کھولنے میں ناکام: '],
+  ['اتربط الفولدر — بيتم فحص الأغاني…', 'Folder linked — scanning songs...', 'Dossier lié — analyse des chansons...', 'Carpeta vinculada — escaneando canciones...', 'Klasör bağlandı — şarkılar taranıyor...', 'Ordner verknüpft — Songs werden gescannt...', 'Folder ditautkan — memindai lagu...', 'فولڈر لنک ہو گیا — گانے اسکین کیے جا رہے ہیں...'],
+  ['اتحفظت الأغاني داخل التطبيق', 'Songs saved inside the app', 'Chansons enregistrées dans l’application', 'Canciones guardadas dentro de la aplicación', 'Şarkılar uygulama içine kaydedildi', 'Songs in der App gespeichert', 'Lagu disimpan di dalam aplikasi', 'گانے ایپ کے اندر محفوظ ہو گئے'],
+  ['تم تغيير الصورة', 'Image changed', 'Image modifiée', 'Imagen cambiada', 'Resim değiştirildi', 'Bild geändert', 'Gambar diubah', 'تصویر تبدیل ہو گئی'],
+  ['تم تصدير النسخة الاحتياطية', 'Backup exported', 'Sauvegarde exportée', 'Copia de seguridad exportada', 'Yedek dışa aktarıldı', 'Backup exportiert', 'Cadangan diekspor', 'بیک اپ ایکسپورٹ ہو گیا'],
+  ['تمت الاستعادة بنجاح! جاري إعادة التحميل...', 'Restored successfully! Reloading...', 'Restauré avec succès ! Rechargement...', '¡Restaurado con éxito! Recargando...', 'Başarıyla geri yüklendi! Yeniden yükleniyor...', 'Erfolgreich wiederhergestellt! Wird neu geladen...', 'Berhasil dipulihkan! Memuat ulang...', 'کامیابی سے بحال ہو گیا! دوبارہ لوڈ کیا جا رہا ہے...'],
+  ['ملف غير صالح', 'Invalid file', 'Fichier invalide', 'Archivo no válido', 'Geçersiz dosya', 'Ungültige Datei', 'File tidak valid', 'غلط فائل'],
+  ['⚠️ مساحة التخزين امتلت! امسح بعض الصور أو الكلمات القديمة عشان تقدر تحفظ الجديد.', '⚠️ Storage full! Delete some images or old lyrics to save new ones.', '⚠️ Stockage plein ! Supprimez des images ou des paroles pour enregistrer les nouvelles.', '⚠️ ¡Almacenamiento lleno! Elimina imágenes o letras antiguas para guardar nuevas.', '⚠️ Depolama doldu! Yenilerini kaydetmek için bazı resimleri veya eski şarkı sözlerini silin.', '⚠️ Speicher voll! Löschen Sie einige Bilder oder alte Liedtexte, um neue zu speichern.', '⚠️ Penyimpanan penuh! Hapus beberapa gambar atau lirik lama untuk menyimpan yang baru.', '⚠️ اسٹوریج بھر گئی! نئی محفوظ کرنے کے لیے کچھ تصاویر یا پرانی بولیاں حذف کریں۔'],
+  ['جاري تشغيل: ', 'Playing: ', 'Lecture : ', 'Reproduciendo: ', 'Çalınıyor: ', 'Wird abgespielt: ', 'Memutar: ', 'چل رہا ہے: '],
+  ['جاري التحميل...', 'Downloading...', 'Téléchargement...', 'Descargando...', 'İndiriliyor...', 'Wird heruntergeladen...', 'Mengunduh...', 'ڈاؤن لوڈ ہو رہا ہے...'],
+  ['فشل تحميل البيانات. تأكد من الإنترنت.', 'Failed to load data. Check internet.', 'Échec du chargement des données. Vérifiez Internet.', 'Error al cargar datos. Comprueba Internet.', 'Veriler yüklenemedi. İnterneti kontrol edin.', 'Daten konnten nicht geladen werden. Prüfen Sie das Internet.', 'Gagal memuat data. Periksa internet.', 'ڈیٹا لوڈ کرنے میں ناکام۔ انٹرنیٹ چیک کریں۔'],
+  ['اتكلم دلوقتي…', 'Speak now...', 'Parlez maintenant...', 'Habla ahora...', 'Şimdi konuşun...', 'Sprechen Sie jetzt...', 'Bicaralah sekarang...', 'ابھی بولیں...'],
+  ['اسمح باستخدام الميكروفون أولاً', 'Allow microphone access first', 'Autorisez d’abord l’accès au microphone', 'Permite el acceso al micrófono primero', 'Önce mikrofon erişimine izin verin', 'Erlauben Sie zuerst den Mikrofonzugriff', 'Izinkan akses mikrofon terlebih dahulu', 'پہلے مائیکروفون تک رسائی کی اجازت دیں'],
+  ['خطأ في التعرف الصوتي: ', 'Speech recognition error: ', 'Erreur de reconnaissance vocale : ', 'Error de reconocimiento de voz: ', 'Ses tanıma hatası: ', 'Spracherkennungsfehler: ', 'Kesalahan pengenalan suara: ', 'اسپیچ ریکگنیشن کی غلطی: '],
+  ['تعذر تشغيل الميكروفون', 'Could not start microphone', 'Impossible de démarrer le microphone', 'No se pudo iniciar el micrófono', 'Mikrofon başlatılamadı', 'Mikrofon konnte nicht gestartet werden', 'Tidak dapat memulai mikrofon', 'مائیکروفون شروع نہیں ہو سکا'],
+  ['الرابط غير متاح', 'Link unavailable', 'Lien indisponible', 'Enlace no disponible', 'Bağlantı kullanılamıyor', 'Link nicht verfügbar', 'Tautan tidak tersedia', 'لنک دستیاب نہیں ہے'],
+  ['مفيش نتائج.', 'No results.', 'Aucun résultat.', 'Sin resultados.', 'Sonuç yok.', 'Keine Ergebnisse.', 'Tidak ada hasil.', 'کوئی نتیجہ نہیں۔'],
+  ['فشل الاتصال، تأكد من الإنترنت.', 'Connection failed, check internet.', 'Échec de la connexion, vérifiez Internet.', 'Conexión fallida, comprueba Internet.', 'Bağlantı başarısız, interneti kontrol edin.', 'Verbindung fehlgeschlagen, Internet prüfen.', 'Koneksi gagal, periksa internet.', 'کنکشن ناکام، انٹرنیٹ چیک کریں۔'],
+  ['مفيش أغاني اتقريت من الملف', 'No songs read from file', 'Aucune chanson lue à partir du fichier', 'No se leyó ninguna canción del archivo', 'Dosyadan şarkı okunamadı', 'Keine Songs aus der Datei gelesen', 'Tidak ada lagu yang dibaca dari file', 'فائل سے کوئی گانا نہیں پڑھا گیا'],
+  ['الملف فاضي أو غير صالح', 'File is empty or invalid', 'Le fichier est vide ou invalide', 'El archivo está vacío o no es válido', 'Dosya boş veya geçersiz', 'Datei ist leer oder ungültig', 'File kosong atau tidak valid', 'فائل خالی یا غلط ہے'],
+  ['مش قادر ألاقي عمود اسم الأغنية في الملف', 'Can\'t find track name column in file', 'Impossible de trouver la colonne du nom du titre dans le fichier', 'No se puede encontrar la columna del nombre de la canción en el archivo', 'Dosyada şarkı adı sütunu bulunamıyor', 'Spalte für den Songnamen in der Datei nicht gefunden', 'Tidak dapat menemukan kolom nama lagu di file', 'فائل میں گانے کے نام کا کالم نہیں مل رہا'],
+  ['تم استيراد {n} أغنية (منهم {m} ناقصين)', 'Imported {n} songs ({m} missing)', '{n} chansons importées ({m} manquantes)', '{n} canciones importadas ({m} faltantes)', '{n} şarkı içe aktarıldı ({m} eksik)', '{n} Songs importiert ({m} fehlen)', '{n} lagu diimpor ({m} hilang)', '{n} گانے درآمد کیے گئے ({m} غائب)'],
+  ['مفيش صورة متاحة للاسم ده', 'No image available for this name', 'Aucune image disponible pour ce nom', 'No hay imagen disponible para este nombre', 'Bu isim için resim yok', 'Kein Bild für diesen Namen verfügbar', 'Tidak ada gambar untuk nama ini', 'اس نام کے لیے کوئی تصویر دستیاب نہیں'],
+  ['اكتب اسم الفنان الأول', 'Type artist name first', 'Saisissez d’abord le nom de l’artiste', 'Escribe el nombre del artista primero', 'Önce sanatçı adını yazın', 'Geben Sie zuerst den Künstlernamen ein', 'Ketik nama artis terlebih dahulu', 'پہلے فنکار کا نام لکھیں'],
+  ['تم جلب صورة الفنان', 'Artist image fetched', 'Image de l’artiste récupérée', 'Imagen del artista obtenida', 'Sanatçı resmi alındı', 'Künstlerbild abgerufen', 'Gambar artis diambil', 'فنکار کی تصویر حاصل ہو گئی'],
+  ['مفيش صورة متاحة للفنان ده', 'No image available for this artist', 'Aucune image disponible pour cet artiste', 'No hay imagen disponible para este artista', 'Bu sanatçı için resim yok', 'Kein Bild für diesen Künstler verfügbar', 'Tidak ada gambar untuk artis ini', 'اس فنکار کے لیے کوئی تصویر دستیاب نہیں'],
+  ['اكتب اسم الأغنية أو الألبوم الأول', 'Type song or album name first', 'Saisissez d’abord le nom de la chanson ou de l’album', 'Escribe el nombre de la canción o álbum primero', 'Önce şarkı veya albüm adını yazın', 'Geben Sie zuerst den Song- oder Albumnamen ein', 'Ketik nama lagu atau album terlebih dahulu', 'پہلے گانے یا البم کا نام لکھیں'],
+  ['تم جلب الصورة بنجاح', 'Image fetched successfully', 'Image récupérée avec succès', 'Imagen obtenida con éxito', 'Resim başarıyla alındı', 'Bild erfolgreich abgerufen', 'Gambar berhasil diambil', 'تصویر کامیابی سے حاصل ہو گئی'],
+  ['شغل أغنية الأول عشان تقدر تستخدم الصوت 8D', 'Play a song first to use 8D audio', 'Lisez une chanson d’abord pour utiliser l’audio 8D', 'Reproduce una canción primero para usar audio 8D', '8D sesi kullanmak için önce bir şarkı çalın', 'Spielen Sie zuerst einen Song, um 8D-Audio zu nutzen', 'Putar lagu terlebih dahulu untuk menggunakan audio 8D', '8D آڈیو استعمال کرنے کے لیے پہلے گانا چلائیں'],
+  ['تم تنفيذ الأمر.', 'Command executed.', 'Commande exécutée.', 'Comando ejecutado.', 'Komut uygulandı.', 'Befehl ausgeführt.', 'Perintah dijalankan.', 'حکم مکمل ہو گیا۔'],
+  ['لم أفهم الأمر.', 'I did not understand the command.', 'Je n’ai pas compris la commande.', 'No entendí el comando.', 'Komutu anlayamadım.', 'Ich habe den Befehl nicht verstanden.', 'Saya tidak mengerti perintahnya.', 'میں حکم نہیں سمجھ سکا۔'],
+  ['اكتب مساعدة لعرض الأوامر.', 'Type help to see commands.', 'Tapez aide pour voir les commandes.', 'Escribe ayuda para ver los comandos.', 'Komutları görmek için yardım yazın.', 'Schreibe Hilfe, um die Befehle zu sehen.', 'Ketik bantuan untuk melihat perintah.', 'کمانڈز دیکھنے کے لیے مدد لکھیں۔'],
+  ['اكتب رسالتك...', 'Type your message...', 'Écrivez votre message...', 'Escribe tu mensaje...', 'Mesajınızı yazın...', 'Nachricht eingeben...', 'Ketik pesan Anda...', 'اپنا پیغام لکھیں...']
 );
 
 ROWS.push(
@@ -3390,10 +3548,28 @@ function renderSettingsPage() {
         <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.</small>
       </section>
 
+      <section class="settings-section">
+        <h3>${svgIcons.lyrics} جلب كلمات الأغاني (Lyrics Fetcher)</h3>
+        <div class="chip-grid">
+          <button class="chip" id="lyricsFetchBtn" style="background:var(--tint); color:#fff;">🎤 جلب الكل</button>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);margin-top:10px;cursor:pointer;">
+          <input type="checkbox" id="lyricsOverwrite" style="width:14px;height:14px;cursor:pointer;">
+          إعادة جلب الكلمات الموجودة (يستبدل القديم)
+        </label>
+        <div id="lyricsFetchProgressContainer" style="display: none; margin-top: 15px;">
+          <div style="width: 100%; height: 8px; background: rgba(var(--w), .1); border-radius: 10px; overflow: hidden;">
+            <div id="lyricsFetchProgressBar" style="width: 0%; height: 100%; background: var(--tint); transition: width 0.3s ease; border-radius: 10px;"></div>
+          </div>
+          <div id="lyricsFetchProgressText" style="font-size: 12px; color: var(--mute); margin-top: 8px; text-align: center;"></div>
+        </div>
+        <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب كلمات الأغاني من lrclib.net تلقائياً.</small>
+      </section>
+
 <section class="settings-section">
   <h3>${svgIcons.lyrics} جلب كلمات الأغاني (Lyrics Fetcher)</h3>
   <div class="chip-grid">
-    <button class="chip" id="lyricsFetchBtn" style="background:var(--tint); color:#fff;">🎤 جلب الكل</button>
+    <button class="chip" id="lyricsFetchBtn" onclick="runLyricsFetcher()" style="background:var(--tint); color:#fff;">🎤 جلب الكل</button>
   </div>
   <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);margin-top:10px;cursor:pointer;">
     <input type="checkbox" id="lyricsOverwrite" style="width:14px;height:14px;cursor:pointer;">
@@ -3421,13 +3597,14 @@ function renderSettingsPage() {
   </small>
 </section>
 
-
       <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <label class="field-lbl">كود المزامنة (هيتولد تلقائياً لما ترفع):</label>
+          <label class="field-lbl">كود المزامنة:</label>
           <div style="display:flex; gap:8px;">
-            <input type="text" id="syncKeyInput" readonly style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(var(--w),.05); color:var(--text); text-align:center; font-weight:bold; letter-spacing:1px;" value="${localStorage.ng_sync_key || ''}" placeholder="لا يوجد كود بعد">
+            <input type="text" id="syncKeyInput" style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(var(--w),.05); color:var(--text); text-align:center; font-weight:bold; letter-spacing:1px;" value="${localStorage.ng_sync_key || ''}" placeholder="لا يوجد كود بعد">
+            <!-- ✨ الزر الجديد هنا -->
+            <button class="chip" id="generateSyncBtn" onclick="generateSyncCode()" style="background:var(--tint); color:#fff; white-space:nowrap;">🔑 توليد كود</button>
           </div>
           <div style="display:flex; gap:10px; margin-top:5px;">
             <button class="chip" id="cloudUploadBtn" style="flex:1; background:var(--tint); color:#fff;">رفع للسحابة ☁️</button>
@@ -3648,6 +3825,7 @@ function renderSettingsPage() {
     autoTagBtn.onclick = () => runAutoTagger();
   }
 
+
 // --- زرار جلب الكلمات ---
 const lyricsFetchBtn = document.getElementById('lyricsFetchBtn');
 if (lyricsFetchBtn) {
@@ -3734,6 +3912,17 @@ if (toggleWatchBtn) {
 
   // --- المزامنة السحابية ---
   const syncKeyInput = document.getElementById('syncKeyInput');
+
+  // --- زر توليد كود المزامنة ---
+  const generateSyncBtn = document.getElementById('generateSyncBtn');
+  if (generateSyncBtn) {
+    generateSyncBtn.onclick = () => {
+      const newKey = crypto.randomUUID().replace(/-/g, '').substring(0, 12);
+      localStorage.ng_sync_key = newKey;
+      if (syncKeyInput) syncKeyInput.value = newKey;
+      toast('تم توليد كود مزامنة جديد: ' + newKey);
+    };
+  }
   
    // رفع للسحابة باستخدام jsonblob
   document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
@@ -5187,6 +5376,91 @@ if (document.readyState === 'loading') {
   initLahnAI();
 }
 
+
+async function runLyricsFetcher() {
+  const btn = document.getElementById('lyricsFetchBtn');
+  const progressContainer = document.getElementById('lyricsFetchProgressContainer');
+  const progressBar = document.getElementById('lyricsFetchProgressBar');
+  const progressText = document.getElementById('lyricsFetchProgressText');
+  
+  if (!btn || !progressContainer) return;
+  
+  const overwrite = document.getElementById('lyricsOverwrite')?.checked || false;
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressText.textContent = '⏳ جاري جلب الكلمات...';
+  
+  let addedCount = 0;
+  let processed = 0;
+  const keys = Object.keys(DB.lib);
+  const total = keys.length;
+  
+  if (total === 0) {
+    progressContainer.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = originalText;
+    return;
+  }
+  
+  const fetchOneLyrics = async (artist, title) => {
+    const headers = { 'User-Agent': 'LahnApp/2.1 (https://lahn.app)' };
+    try {
+      const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.syncedLyrics || data.plainLyrics)) return data.syncedLyrics || data.plainLyrics;
+      }
+    } catch (_) {}
+    
+    try {
+      const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent((artist || '') + ' ' + (title || ''))}`;
+      const sres = await fetch(searchUrl, { headers });
+      if (sres.ok) {
+        const items = await sres.json();
+        if (Array.isArray(items) && items.length > 0) {
+          const best = items.find(x => x.syncedLyrics) || items.find(x => x.plainLyrics) || items[0];
+          if (best && (best.syncedLyrics || best.plainLyrics)) return best.syncedLyrics || best.plainLyrics;
+        }
+      }
+    } catch (_) {}
+    return null;
+  };
+  
+  for (const k of keys) {
+    const m = DB.lib[k];
+    progressBar.style.width = Math.round((processed / total) * 100) + '%';
+    progressText.textContent = `⏳ جاري جلب الكلمات... (${processed}/${total}) — تم جلب ${addedCount}`;
+    
+    if (m.isRemote || !m.title) { processed++; continue; }
+    if (!overwrite && DB.lyrics[k] && DB.lyrics[k].trim()) { processed++; continue; }
+    
+    try {
+      const lyrics = await fetchOneLyrics(m.artist || '', m.title || '');
+      if (lyrics) {
+        DB.lyrics[k] = lyrics;
+        addedCount++;
+        if (addedCount % 3 === 0) persist();
+      }
+      await new Promise(r => setTimeout(r, 200));
+    } catch (e) { console.warn(e); }
+    processed++;
+  }
+  
+  persist();
+  progressBar.style.width = '100%';
+  progressText.textContent = `✅ تم جلب كلمات ${addedCount} أغنية بنجاح`;
+  
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    btn.textContent = originalText;
+    btn.disabled = false;
+    if (view === 'settings') renderSettingsPage();
+    toast(`تم جلب كلمات ${addedCount} أغنية بنجاح`);
+  }, 1500);
+}
 </script>
 
 <!-- LAHN AI FLOATING BUTTON -->
