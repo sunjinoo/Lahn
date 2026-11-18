@@ -1031,11 +1031,6 @@ const dur = (url) => new Promise((res) => {
 
 const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, albumCovers: {}, listCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
 
-// === إعدادات المزامنة عبر GitHub Gist ===
-const GIST_ID = '6ead12aa743bc31edc94a1dc68fee5cd';
-const GH_TOKEN = atob('Z2hwX3d6eG16VmNaUHhWXQ1loS0JITnM0NFJMZE9TMEpvTDNYT01rbw==');
-const GIST_API = `https://api.github.com/gists/${GIST_ID}`;
-
 if (!DB.artistCovers) DB.artistCovers = {};
 if (!DB.albumCovers) DB.albumCovers = {};
 if (!DB.lyrics) DB.lyrics = {};
@@ -3936,59 +3931,58 @@ if (toggleWatchBtn) {
   }
   
    // رفع للسحابة باستخدام jsonblob
- // كود الرفع
-document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
-  const btn = document.getElementById('cloudUploadBtn');
-  btn.textContent = '⏳ جاري الرفع...';
-  try {
-    const dataToSync = { db: DB, stats: ST, hist: HIST };
-    const res = await fetch(GIST_API, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${GH_TOKEN}`,
-        'Accept': 'application/vnd.github+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        files: { 'lahn-sync.json': { content: JSON.stringify(dataToSync, null, 2) } }
-      })
-    });
-    if (res.ok) toast('تم رفع البيانات بنجاح إلى السحابة!');
-    else throw new Error('فشل الرفع');
-  } catch (e) {
-    console.error(e);
-    toast('خطأ: ' + e.message);
-  }
-  btn.textContent = 'رفع للسحابة ☁️';
-});
+  // دالة توليد كود فريد للمزامنة
+  const generateSyncCode = () => {
+    return 'lahn_' + Math.random().toString(36).substring(2, 9) + Math.random().toString(36).substring(2, 9);
+  };
 
-// كود التنزيل
-document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
-  const btn = document.getElementById('cloudDownloadBtn');
-  btn.textContent = '⏳ جاري التنزيل...';
-  try {
-    const res = await fetch(GIST_API, {
-      headers: {
-        'Authorization': `Bearer ${GH_TOKEN}`,
-        'Accept': 'application/vnd.github+json'
-      },
-      cache: 'no-store'
-    });
-    if (res.ok) {
-      const gist = await res.json();
-      const content = JSON.parse(gist.files['lahn-sync.json'].content);
-      if (content.db) localStorage.ng2 = JSON.stringify(content.db);
-      if (content.stats) localStorage.ng_stats = JSON.stringify(content.stats);
-      if (content.hist) localStorage.ng_hist = JSON.stringify(content.hist);
-      toast('تم التنزيل بنجاح! جاري إعادة التحميل...');
-      setTimeout(() => location.reload(), 1500);
-    } else throw new Error('فشل التنزيل');
-  } catch (e) {
-    console.error(e);
-    toast('خطأ: ' + e.message);
-  }
-  btn.textContent = 'تنزيل من السحابة ⬇️';
-});
+  // رفع للسحابة باستخدام BrewPage API
+  document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
+    let key = syncKeyInput.value.trim();
+    const btn = document.getElementById('cloudUploadBtn');
+    btn.textContent = '⏳ جاري الرفع...';
+    
+    // لو مفيش كود، هنولد كود جديد
+    if (!key) {
+      key = 'lahn_' + Math.random().toString(36).substring(2, 9) + Math.random().toString(36).substring(2, 9);
+      localStorage.ng_sync_key = key;
+      syncKeyInput.value = key;
+    }
+    
+    try {
+      // بناخد نسخة من الداتا ونشيل الصور الثقيلة عشان الملف يصغر
+      const dbClone = JSON.parse(JSON.stringify(DB));
+      dbClone.covers = {}; 
+      dbClone.artistCovers = {};
+      dbClone.albumCovers = {};
+      
+      const dataToSync = { db: dbClone, stats: ST, hist: HIST, updatedAt: new Date().toISOString() };
+      
+      // بنستخدم BrewPage API
+      const url = `https://brewpage.app/api/json?ns=${key}`;
+      
+      const res = await fetch(url, {
+        method: 'POST', // BrewPage بيستخدم POST عشان ينشئ أو يحدث
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSync)
+      });
+      
+      if (res.ok) {
+        const result = await res.json();
+        // BrewPage بيرجع لينك، بس إحنا محتاجين نتأكد إنه اترفع
+        toast('تم الرفع! كود المزامنة بتاعك: ' + key);
+        console.log('BrewPage Response:', result);
+      } else {
+        const errText = await res.text();
+        console.error('BrewPage Error:', res.status, errText);
+        throw new Error('السيرفر رفض الطلب (كود: ' + res.status + ')');
+      }
+    } catch (e) { 
+      console.error('Upload Error:', e);
+      toast('فشل الرفع: ' + e.message); 
+    }
+    btn.textContent = 'رفع للسحابة ☁️';
+  });
 
   // تنزيل من السحابة
   document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
@@ -3998,48 +3992,34 @@ document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () 
     btn.textContent = '⏳ جاري التنزيل...';
     
     try {
-      const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
+      // BrewPage بيستخدم نفس اللينك للقراءة
+      const res = await fetch(`https://brewpage.app/api/json?ns=${key}`);
+      
       if (res.ok) {
         const data = await res.json();
-        if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
+        if (data.db) {
+          // بنحافظ على الصور اللي عندك في الجهاز
+          data.db.covers = { ...DB.covers, ...(data.db.covers || {}) };
+          data.db.artistCovers = { ...DB.artistCovers, ...(data.db.artistCovers || {}) };
+          data.db.albumCovers = { ...DB.albumCovers, ...(data.db.albumCovers || {}) };
+          localStorage.ng2 = JSON.stringify(data.db); 
+        }
         if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
         if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
+        
+        localStorage.ng_sync_key = key;
         toast('تم التنزيل! جاري إعادة التحميل...');
         setTimeout(() => location.reload(), 1500);
       } else {
         toast('مفيش بيانات بالكود ده، أو الكود غلط');
       }
     } catch (e) { 
-      toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); 
-    }
-    btn.textContent = 'تنزيل من السحابة ⬇️';
-  });
-
-  document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
-    const key = syncKeyInput.value.trim();
-    if (!key) return toast('اكتب كود المزامنة الأول');
-    const btn = document.getElementById('cloudDownloadBtn');
-    btn.textContent = '⏳ جاري التنزيل...';
-    
-    try {
-      const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.db) { localStorage.ng2 = JSON.stringify(data.db); }
-        if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
-        if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
-        toast('تم التنزيل! جاري إعادة التحميل...');
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        toast('مفيش بيانات بالكود ده، أو الكود غلط');
-      }
-    } catch (e) { 
-      toast('خطأ في التنزيل، تأكد من الكود والإنترنت'); 
+      console.error('Download Error:', e);
+      toast('فشل التنزيل: ' + e.message); 
     }
     btn.textContent = 'تنزيل من السحابة ⬇️';
   });
 }
-
 // دالة التحديث
 async function runLyricsFetcher() {
   const btn = document.getElementById('lyricsFetchBtn');
@@ -5398,7 +5378,9 @@ function startAutoWatch() {
     } catch (e) {}
   }, 15000);
 }
+
 setTimeout(startAutoWatch, 3000);
+
 </script>
 
 <!-- LAHN AI FLOATING BUTTON -->
