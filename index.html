@@ -711,7 +711,7 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
     <input id="advGenre" type="text" placeholder="النوع (Genre)..." dir="auto">
     <button class="chip" id="advClear" style="padding: 8px 12px; font-size: 13px;">مسح الفلاتر</button>
   </div>
-  <div class="hero"><h1 id="vt"></h1><div class="sub"><span id="count"></span> <span>أغنية</span></div></div>
+  <div class="hero"><h1 id="vt"></h1><div class="sub"><span id="count"></span> <span id="countLabel">أغنية</span></div></div>
   <select id="view" hidden></select>
   <div id="list"></div>
 </main>
@@ -923,6 +923,17 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
       <input type="range" id="trimEnd"
         min="0" max="100" value="30" step="0.1">
 
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px">
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--mute)">
+          <span>تلاشي تدريجي في البداية <b id="trimFadeInLabel" style="color:var(--text)">0:00</b></span>
+          <input type="range" id="trimFadeIn" min="0" max="5" value="0" step="0.1">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--mute)">
+          <span>تلاشي تدريجي في النهاية <b id="trimFadeOutLabel" style="color:var(--text)">0:00</b></span>
+          <input type="range" id="trimFadeOut" min="0" max="5" value="0" step="0.1">
+        </label>
+      </div>
+
       <div style="text-align:center;margin-top:15px;color:var(--mute);font-size:12px">
         مدة النغمة:
         <b id="trimDuration" style="color:var(--text)">30 ثانية</b>
@@ -947,6 +958,22 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   </div>
 </div>
 
+
+<div id="dupModal" class="modal-overlay" hidden>
+  <div class="modal-card" style="width:min(720px,94vw);max-height:88vh">
+    <div class="eqh">
+      <b>كشف الأغاني المكررة</b>
+      <button class="chip" id="dupClose">✕</button>
+    </div>
+    <p id="dupStatus" style="color:var(--mute);font-size:13px">جارٍ فحص الملفات المتشابهة في الحجم...</p>
+    <div id="dupResults" style="display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="chip" id="dupRescan">أعد الفحص</button>
+      <button class="chip pri" id="dupRemoveSelected" style="flex:1">إزالة المحدد من مكتبة لحن</button>
+    </div>
+    <small style="color:var(--mute);text-align:center">حدد النسخ التي تريد إزالتها من مكتبة لحن. لا يتم حذف الملفات الأصلية من الكمبيوتر.</small>
+  </div>
+</div>
 
 <div id="shortcutsModal" class="modal-overlay" hidden>
   <div class="modal-card" style="text-align:center;">
@@ -981,7 +1008,12 @@ const files = new Map(), tagCache = new Map();
 const rel = (f) => f.webkitRelativePath || f.name;
 const reg = (list) => [...list].filter((f) => AUD.test(f.name))
   .sort((a, b) => rel(a).localeCompare(rel(b), undefined, { numeric: true }))
-  .map((f) => { const k = f.name + '|' + f.size; files.set(k, f); return k; });
+  .map((f) => {
+    const k = f.name + '|' + f.size;
+    DB.ignored = (DB.ignored || []).filter((x) => x !== k);
+    files.set(k, f);
+    return k;
+  });
 const txt = (d) => {
   const e = d[0], lab = e === 0 ? 'windows-1256' : e === 3 ? 'utf-8' : e === 1 ? 'utf-16le' : 'utf-16be';
   return new TextDecoder(lab).decode(d.subarray(1)).replace(/\0[\s\S]*$/, '').trim();
@@ -1029,7 +1061,8 @@ const dur = (url) => new Promise((res) => {
   a.src = url;
 });
 
-const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, albumCovers: {}, listCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
+const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, albumCovers: {}, listCovers: {}, ignored: [] }, JSON.parse(localStorage.ng2 || '{}'));
+if (!Array.isArray(DB.ignored)) DB.ignored = [];
 
 if (!DB.artistCovers) DB.artistCovers = {};
 if (!DB.albumCovers) DB.albumCovers = {};
@@ -1676,6 +1709,7 @@ function render() {
   s.value = view;
   const keys = keysOfView(), ck = curKey();
   $('#count').textContent = keys.length;
+  updateCountLabel(view === 'artists' ? 'artist' : view === 'albums' ? 'album' : 'song');
   const subEl = document.querySelector('.hero .sub');
   if (subEl) subEl.style.display = view === 'settings' ? 'none' : '';
 
@@ -1811,6 +1845,11 @@ function updateTrimUI() {
 
   document.getElementById('trimDuration').textContent =
     trimTime(Math.max(0, e - s));
+
+  const fadeInLabel = document.getElementById('trimFadeInLabel');
+  const fadeOutLabel = document.getElementById('trimFadeOutLabel');
+  if (fadeInLabel) fadeInLabel.textContent = trimTime(Number(document.getElementById('trimFadeIn').value));
+  if (fadeOutLabel) fadeOutLabel.textContent = trimTime(Number(document.getElementById('trimFadeOut').value));
 }
 
 document.getElementById('trimStart').addEventListener('input', function() {
@@ -1853,6 +1892,9 @@ function createTrimWav() {
   const from = Math.floor(start * rate);
   const to = Math.floor(end * rate);
   const length = to - from;
+  const segmentDuration = end - start;
+  const fadeIn = Math.min(segmentDuration, Math.max(0, Number(document.getElementById('trimFadeIn').value) || 0));
+  const fadeOut = Math.min(segmentDuration, Math.max(0, Number(document.getElementById('trimFadeOut').value) || 0));
 
   const dataSize = length * channels * 2;
   const buffer = new ArrayBuffer(44 + dataSize);
@@ -1881,10 +1923,16 @@ function createTrimWav() {
   let offset = 44;
 
   for (let i = 0; i < length; i++) {
+    const elapsed = i / rate;
+    const remaining = (length - i) / rate;
+    const fadeInGain = fadeIn > 0 ? Math.min(1, elapsed / fadeIn) : 1;
+    const fadeOutGain = fadeOut > 0 ? Math.min(1, remaining / fadeOut) : 1;
+    const gain = Math.min(fadeInGain, fadeOutGain);
+
     for (let ch = 0; ch < channels; ch++) {
       let sample = trimBuffer.getChannelData(ch)[from + i];
 
-      sample = Math.max(-1, Math.min(1, sample));
+      sample = Math.max(-1, Math.min(1, sample)) * gain;
 
       view.setInt16(
         offset,
@@ -1929,7 +1977,9 @@ document.getElementById('trimDownloadBtn').onclick = function() {
   const a = document.createElement('a');
 
   a.href = url;
-  a.download = 'Lahn-Ringtone.wav';
+  const ringtoneName = (document.getElementById('trimTrackName').textContent || 'Lahn-Ringtone')
+    .replace(/[\\/:*?"<>|]/g, '_').trim() || 'Lahn-Ringtone';
+  a.download = ringtoneName + '-Ringtone.wav';
 
   document.body.appendChild(a);
   a.click();
@@ -2421,6 +2471,16 @@ addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('#npv').hidden 
 
 const LANGS = { ar: ['العربية', 'rtl'], en: ['English', 'ltr'], fr: ['Français', 'ltr'], es: ['Español', 'ltr'], tr: ['Türkçe', 'ltr'], de: ['Deutsch', 'ltr'], id: ['Bahasa Indonesia', 'ltr'], ur: ['اردو', 'rtl'] }, LI = ['ar', 'en', 'fr', 'es', 'tr', 'de', 'id', 'ur'];
 let LG = localStorage.ng_lang || 'ar'; if (!LANGS[LG]) LG = 'ar';
+const COUNT_LABELS = {
+  song: ['أغنية', 'tracks', 'titres', 'canciones', 'şarkı', 'Titel', 'lagu', 'گانے'],
+  artist: ['فنان', 'Artist', 'Artiste', 'Artista', 'Sanatçı', 'Künstler', 'Artis', 'فنکار'],
+  album: ['ألبوم', 'Album', 'Album', 'Álbum', 'Albüm', 'Album', 'Album', 'البم']
+};
+function updateCountLabel(type) {
+  const el = document.getElementById('countLabel');
+  const labels = COUNT_LABELS[type] || COUNT_LABELS.song;
+  if (el) el.textContent = labels[Math.max(0, LI.indexOf(LG))] || labels[0];
+}
 const ROWS = [
  ['قايمة التشغيل', 'Queue', 'File d’attente', 'Cola'], ['المفضلة', 'Favorites', 'Favoris', 'Favoritos'], ['قوائمي', 'Playlists', 'Playlists', 'Listas'],
  ['ملفات', 'Files', 'Fichiers', 'Archivos'], ['مجلد', 'Folder', 'Dossier', 'Carpeta'], ['ابحث في القايمة…', 'Search…', 'Rechercher…', 'Buscar…'], ['أغنية', 'tracks', 'titres', 'canciones'],
@@ -2843,6 +2903,24 @@ ROWS.push(
 );
 
 
+ROWS.push(
+  ['تلاشي تدريجي في البداية', 'Fade in', 'Fondu d’entrée', 'Fundido de entrada', 'Yavaş açılma', 'Einblenden', 'Fade in', 'آہستہ آغاز'],
+  ['تلاشي تدريجي في النهاية', 'Fade out', 'Fondu de sortie', 'Fundido de salida', 'Yavaş kapanma', 'Ausblenden', 'Fade out', 'آہستہ اختتام'],
+  ['فحص الأغاني المكررة', 'Find duplicate songs', 'Rechercher les doublons', 'Buscar canciones duplicadas', 'Yinelenen şarkıları bul', 'Doppelte Songs finden', 'Cari lagu duplikat', 'ڈپلیکیٹ گانے تلاش کریں'],
+  ['اكتشف الملفات المتطابقة من محتواها، ويمكنك إزالة النسخ من مكتبة لحن دون حذف الملفات الأصلية.', 'Find identical audio files by content and remove copies from the Lahn library without deleting the original files.', 'Détectez les fichiers audio identiques par leur contenu et retirez les copies de la bibliothèque Lahn sans supprimer les fichiers originaux.', 'Detecta archivos de audio idénticos por su contenido y elimina copias de la biblioteca Lahn sin borrar los archivos originales.', 'Aynı ses dosyalarını içeriklerine göre bulun ve orijinal dosyaları silmeden Lahn kitaplığındaki kopyaları kaldırın.', 'Finden Sie identische Audiodateien anhand ihres Inhalts und entfernen Sie Kopien aus der Lahn-Bibliothek, ohne die Originaldateien zu löschen.', 'Temukan file audio yang identik berdasarkan isinya dan hapus salinan dari pustaka Lahn tanpa menghapus file asli.', 'مواد کے مطابق ایک جیسی آڈیو فائلیں تلاش کریں اور اصل فائلیں حذف کیے بغیر لحن لائبریری سے نقول ہٹائیں۔'],
+  ['كشف الأغاني المكررة', 'Duplicate song scan', 'Analyse des doublons', 'Escaneo de duplicados', 'Yinelenen şarkı taraması', 'Suche nach doppelten Songs', 'Pemindaian lagu duplikat', 'ڈپلیکیٹ گانوں کی جانچ'],
+  ['جارٍ فحص الملفات المتشابهة في الحجم...', 'Checking files with matching sizes...', 'Vérification des fichiers de même taille...', 'Comprobando archivos del mismo tamaño...', 'Aynı boyuttaki dosyalar kontrol ediliyor...', 'Dateien gleicher Größe werden geprüft...', 'Memeriksa file dengan ukuran sama...', 'ایک جیسے سائز والی فائلیں چیک ہو رہی ہیں...'],
+  ['لم يتم العثور على أغاني مكررة.', 'No duplicate songs were found.', 'Aucun doublon trouvé.', 'No se encontraron canciones duplicadas.', 'Yinelenen şarkı bulunamadı.', 'Keine doppelten Songs gefunden.', 'Tidak ditemukan lagu duplikat.', 'کوئی ڈپلیکیٹ گانا نہیں ملا۔'],
+  ['مجموعة مكررة', 'Duplicate group', 'Groupe de doublons', 'Grupo duplicado', 'Yinelenen grup', 'Doppelte Gruppe', 'Grup duplikat', 'ڈپلیکیٹ گروپ'],
+  ['حدد النسخ التي تريد إزالتها من مكتبة لحن', 'Select copies to remove from the Lahn library', 'Sélectionnez les copies à retirer de la bibliothèque Lahn', 'Selecciona las copias que quieres quitar de la biblioteca Lahn', 'Lahn kitaplığından kaldırılacak kopyaları seçin', 'Wählen Sie Kopien aus, die aus der Lahn-Bibliothek entfernt werden sollen', 'Pilih salinan untuk dihapus dari pustaka Lahn', 'لحن لائبریری سے ہٹانے کے لیے نقول منتخب کریں'],
+  ['إزالة المحدد من مكتبة لحن', 'Remove selected from Lahn library', 'Retirer la sélection de la bibliothèque Lahn', 'Quitar selección de la biblioteca Lahn', 'Seçilenleri Lahn kitaplığından kaldır', 'Ausgewählte aus der Lahn-Bibliothek entfernen', 'Hapus pilihan dari pustaka Lahn', 'منتخب نقول لحن لائبریری سے ہٹائیں'],
+  ['اترك نسخة واحدة على الأقل في كل مجموعة.', 'Keep at least one copy in each group.', 'Conservez au moins une copie dans chaque groupe.', 'Conserva al menos una copia en cada grupo.', 'Her grupta en az bir kopya bırakın.', 'Lassen Sie mindestens eine Kopie in jeder Gruppe.', 'Simpan setidaknya satu salinan di setiap grup.', 'ہر گروپ میں کم از کم ایک نقل رہنے دیں۔'],
+  ['إزالة النسخ المحددة من مكتبة لحن؟ الملفات الأصلية على الكمبيوتر لن تُحذف.', 'Remove the selected copies from the Lahn library? The original files on your computer will not be deleted.', 'Retirer les copies sélectionnées de la bibliothèque Lahn ? Les fichiers originaux sur votre ordinateur ne seront pas supprimés.', '¿Quitar las copias seleccionadas de la biblioteca Lahn? Los archivos originales de tu ordenador no se eliminarán.', 'Seçilen kopyalar Lahn kitaplığından kaldırılsın mı? Bilgisayarınızdaki orijinal dosyalar silinmez.', 'Ausgewählte Kopien aus der Lahn-Bibliothek entfernen? Die Originaldateien auf Ihrem Computer werden nicht gelöscht.', 'Hapus salinan yang dipilih dari pustaka Lahn? File asli di komputer Anda tidak akan dihapus.', 'منتخب نقول لحن لائبریری سے ہٹا دیں؟ کمپیوٹر پر موجود اصل فائلیں حذف نہیں ہوں گی۔'],
+  ['تمت إزالة النسخ المحددة من مكتبة لحن. الملفات الأصلية لم تُحذف.', 'Selected copies were removed from the Lahn library. Original files were not deleted.', 'Les copies sélectionnées ont été retirées de la bibliothèque Lahn. Les fichiers originaux n’ont pas été supprimés.', 'Se quitaron las copias seleccionadas de la biblioteca Lahn. Los archivos originales no se eliminaron.', 'Seçilen kopyalar Lahn kitaplığından kaldırıldı. Orijinal dosyalar silinmedi.', 'Ausgewählte Kopien wurden aus der Lahn-Bibliothek entfernt. Originaldateien wurden nicht gelöscht.', 'Salinan yang dipilih dihapus dari pustaka Lahn. File asli tidak dihapus.', 'منتخب نقول لحن لائبریری سے ہٹا دی گئیں۔ اصل فائلیں حذف نہیں ہوئیں۔'],
+  ['تعذر فحص الملفات. تأكد من استخدام متصفح حديث يدعم SHA-256.', 'Could not scan files. Make sure you are using a modern browser that supports SHA-256.', 'Impossible d’analyser les fichiers. Utilisez un navigateur récent compatible avec SHA-256.', 'No se pudieron analizar los archivos. Usa un navegador moderno compatible con SHA-256.', 'Dosyalar taranamadı. SHA-256 destekleyen güncel bir tarayıcı kullandığınızdan emin olun.', 'Dateien konnten nicht geprüft werden. Verwenden Sie einen modernen Browser mit SHA-256-Unterstützung.', 'Tidak dapat memindai file. Pastikan Anda menggunakan browser modern yang mendukung SHA-256.', 'فائلیں اسکین نہیں ہو سکیں۔ یقینی بنائیں کہ جدید براؤزر SHA-256 کو سپورٹ کرتا ہے۔'],
+  ['أعد الفحص', 'Scan again', 'Analyser à nouveau', 'Volver a escanear', 'Yeniden tara', 'Erneut prüfen', 'Pindai lagi', 'دوبارہ اسکین کریں']
+);
+
 const EX = new Map(), PT = [];
 ROWS.forEach((r) => { if (!r) return; r[0].includes('{n}') ? PT.push([new RegExp('^' + r[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(.+?)') + '$'), r]) : EX.set(r[0], r); });
 function trs(s) {
@@ -2877,6 +2955,135 @@ const tx = (s, m, f) => idb.then((db) => new Promise((res, rej) => { const t = d
 const idbPut = (s, k, v) => tx(s, 'readwrite', (o) => o.put(v, k));
 const idbGet = (s, k) => tx(s, 'readonly', (o) => o.get(k));
 const idbAll = async (s) => { const ks = await tx(s, 'readonly', (o) => o.getAllKeys()), vs = await tx(s, 'readonly', (o) => o.getAll()); return ks.map((k, i) => [k, vs[i]]); };
+
+let duplicateScanResults = [];
+const duplicateFileSize = (bytes) => {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+};
+
+async function openDuplicateScanner() {
+  const modal = document.getElementById('dupModal');
+  const status = document.getElementById('dupStatus');
+  const results = document.getElementById('dupResults');
+  if (!modal || !status || !results) return;
+  modal.hidden = false;
+  results.innerHTML = '';
+  status.textContent = trs('جارٍ فحص الملفات المتشابهة في الحجم...');
+  duplicateScanResults = [];
+
+  if (!crypto || !crypto.subtle || !crypto.subtle.digest) {
+    status.textContent = trs('تعذر فحص الملفات. تأكد من استخدام متصفح حديث يدعم SHA-256.');
+    return;
+  }
+
+  try {
+    const bySize = new Map();
+    for (const [k, file] of files.entries()) {
+      if (!file || !AUD.test(file.name)) continue;
+      if (!bySize.has(file.size)) bySize.set(file.size, []);
+      bySize.get(file.size).push({ k, file });
+    }
+
+    const candidates = [...bySize.values()].filter((group) => group.length > 1);
+    const total = candidates.reduce((sum, group) => sum + group.length, 0);
+    if (!total) {
+      status.textContent = trs('لم يتم العثور على أغاني مكررة.');
+      return;
+    }
+
+    const byHash = new Map();
+    let checked = 0;
+    for (const group of candidates) {
+      for (const item of group) {
+        checked++;
+        status.textContent = trs('جارٍ فحص الملفات المتشابهة في الحجم...') + ' ' + checked + '/' + total;
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const bytes = await item.file.arrayBuffer();
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        const hash = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join('');
+        const hashKey = item.file.size + ':' + hash;
+        if (!byHash.has(hashKey)) byHash.set(hashKey, []);
+        byHash.get(hashKey).push(item);
+      }
+    }
+
+    duplicateScanResults = [...byHash.values()].filter((group) => group.length > 1);
+    if (!duplicateScanResults.length) {
+      status.textContent = trs('لم يتم العثور على أغاني مكررة.');
+      return;
+    }
+
+    const copyLabel = trs('نسخة');
+    results.innerHTML = duplicateScanResults.map((group, groupIndex) => `
+      <section style="padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(var(--w),.03)">
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px">
+          <b>${trs('مجموعة مكررة')} ${groupIndex + 1}</b>
+          <span style="color:var(--mute);font-size:12px">${group.length} ${copyLabel} · ${duplicateFileSize(group[0].file.size)}</span>
+        </div>
+        ${group.map((item, itemIndex) => `
+          <label style="display:flex;gap:9px;align-items:flex-start;padding:7px 2px;border-top:1px solid var(--line);cursor:pointer">
+            <input type="checkbox" data-duplicate-key="${esc(item.k)}" style="margin-top:4px;flex:none">
+            <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
+              <b style="font-size:13px;overflow-wrap:anywhere">${esc(item.file.name)}</b>
+              <small style="color:var(--mute);font-size:11px;overflow-wrap:anywhere">${esc(item.file.webkitRelativePath || item.file.name)}</small>
+            </span>
+          </label>`).join('')}
+      </section>`).join('');
+
+    status.textContent = duplicateScanResults.length + ' ' + trs('مجموعة مكررة') + ' · ' + duplicateScanResults.reduce((sum, group) => sum + group.length, 0) + ' ' + copyLabel;
+  } catch (error) {
+    console.error('Lahn duplicate scan error:', error);
+    status.textContent = trs('تعذر فحص الملفات. تأكد من استخدام متصفح حديث يدعم SHA-256.');
+  }
+}
+
+async function removeSelectedDuplicates() {
+  const results = document.getElementById('dupResults');
+  const selected = [...results.querySelectorAll('[data-duplicate-key]:checked')].map((input) => input.dataset.duplicateKey);
+  const removeSet = new Set(selected);
+  if (!removeSet.size) return toast('حدد النسخ التي تريد إزالتها من مكتبة لحن');
+  if (removeSet.has(curKey())) return toast('مينفعش تشيل الأغنية الشغالة');
+  for (const group of duplicateScanResults) {
+    if (group.every((item) => removeSet.has(item.k))) return toast('اترك نسخة واحدة على الأقل في كل مجموعة.');
+  }
+  if (!confirm(trs('إزالة النسخ المحددة من مكتبة لحن؟ الملفات الأصلية على الكمبيوتر لن تُحذف.'))) return;
+
+  const currentPath = curKey();
+  DB.ignored = [...new Set([...(DB.ignored || []), ...selected])];
+  for (const key of selected) {
+    delete DB.lib[key];
+    delete DB.covers[key];
+    delete DB.lyrics[key];
+    DB.favs = DB.favs.filter((value) => value !== key);
+    Object.keys(DB.lists).forEach((name) => {
+      DB.lists[name] = DB.lists[name].filter((value) => value !== key);
+    });
+    files.delete(key);
+    tagCache.delete(key);
+    metaCache.delete(key);
+    if (ST.t) delete ST.t[key];
+    HIST = HIST.filter((entry) => entry.k !== key);
+    await tx('blobs', 'readwrite', (store) => store.delete(key)).catch(() => {});
+  }
+
+  tracks = tracks.filter((track) => !removeSet.has(track.path));
+  cur = currentPath ? tracks.findIndex((track) => track.path === currentPath) : -1;
+  try { localStorage.ng_hist = JSON.stringify(HIST); } catch (_) {}
+  persist();
+  save();
+  render();
+  renderQ();
+  document.getElementById('dupModal').hidden = true;
+  toast('تمت إزالة النسخ المحددة من مكتبة لحن. الملفات الأصلية لم تُحذف.');
+}
+
+document.getElementById('dupClose').onclick = () => { document.getElementById('dupModal').hidden = true; };
+document.getElementById('dupRescan').onclick = () => openDuplicateScanner();
+document.getElementById('dupRemoveSelected').onclick = () => removeSelectedDuplicates();
+document.getElementById('dupModal').addEventListener('click', (event) => {
+  if (event.target.id === 'dupModal') event.currentTarget.hidden = true;
+});
 let DIR = null, scanning = false, restored = false, fd = false;
 document.querySelector('.hero').insertAdjacentHTML('afterend', '<div style="padding:0 24px"><button class="chip pri" id="perm" hidden>اسمح بالوصول لمكتبتك</button></div>');
 async function* walk(dh, path = '') { for await (const [name, h] of dh.entries()) { if (h.kind === 'directory') yield* walk(h, path + name + '/'); else if (AUD.test(name)) yield [h, path + name]; } }
@@ -2885,7 +3092,9 @@ async function scanDir(dh, quiet) {
   let n = 0;
   try {
     for await (const [fh] of walk(dh)) {
-      const f = await fh.getFile(), k = f.name + '|' + f.size, old = DB.lib[k]; files.set(k, f);
+      const f = await fh.getFile(), k = f.name + '|' + f.size;
+      if ((DB.ignored || []).includes(k)) continue;
+      const old = DB.lib[k]; files.set(k, f);
       if (!old || old.mt !== f.lastModified) { const tg = await readTags(k); DB.lib[k] = { title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, year: tg.year || '', genre: tg.genre || '', duration: old ? old.duration : 0, mt: f.lastModified, src: 'dir', added: old ? old.added : Date.now() }; }
       if (++n % 200 === 0) render();
     }
@@ -3078,7 +3287,7 @@ function customView() {
   if (v === 'artists' || v === 'albums') {
     const g = groups(v === 'artists' ? 'artist' : 'album'), ns = [...g.keys()].sort((a, b) => a.localeCompare(b));
     $('#vt').textContent = v === 'artists' ? 'الفنانون' : 'الألبومات'; $('#count').textContent = ns.length;
-    L.innerHTML = ns.length ? `<div class="grid">${ns.map((n) => gcard(v === 'artists' ? 'ar:' : 'al:', n, g.get(n).length)).join('')}</div>` : `<div class="empty">${EMPTY[3]}</div>`;
+    L.innerHTML = ns.length ? `<div class="grid">${ns.map((n) => gcard(v === 'artists' ? 'ar:' : 'al:', n, v === 'artists' ? ['فنان', 'Artist', 'Artiste', 'Artista', 'Sanatçı', 'Künstler', 'Artis', 'فنکار'][LI.indexOf(LG)] : g.get(n).length)).join('')}</div>` : `<div class="empty">${EMPTY[3]}</div>`;
     if (v === 'albums') { const sg = Object.keys(DB.lib).filter((k) => !DB.lib[k].album); if (sg.length) L.insertAdjacentHTML('beforeend', '<h3>فردي</h3><div class="grid">' + sg.map((k) => `<button class="card" data-play="${esc(k)}"><div class="av" data-cvk="${esc(k)}" style="background:${hue(DB.lib[k].title || k)}">♪</div><b dir="auto">${esc(DB.lib[k].title)}</b><span dir="auto">${esc(DB.lib[k].artist || '')}</span></button>`).join('') + '</div>'); }
   } else if (v === 'home') {
     $('#vt').textContent = 'الرئيسية'; $('#count').textContent = Object.keys(DB.lib).length;
@@ -3622,6 +3831,10 @@ function renderSettingsPage() {
       <section class="settings-section">
         <h3>${svgIcons.database} البيانات</h3>
         <div class="settings-actions">
+          <button class="settings-action" id="dupScanBtn">
+            <span>⌕</span>
+            <div><b>فحص الأغاني المكررة</b><small>اكتشف النسخ المتطابقة واحذفها من مكتبة لحن فقط</small></div>
+          </button>
           <button class="settings-action" id="backupBtnSet">
             <span>${svgIcons.upload}</span>
             <div><b>تصدير نسخة احتياطية</b><small>احفظ كل بياناتك في ملف JSON</small></div>
@@ -3795,6 +4008,8 @@ function renderSettingsPage() {
   
   const backupBtn = document.getElementById('backupBtnSet');
   if (backupBtn) backupBtn.onclick = backupData;
+  const dupScanBtn = document.getElementById('dupScanBtn');
+  if (dupScanBtn) dupScanBtn.onclick = () => openDuplicateScanner();
   
   const restoreBtn = document.getElementById('restoreBtnSet');
   if (restoreBtn) restoreBtn.onclick = () => $('#restoreInput').click();
