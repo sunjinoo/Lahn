@@ -49,13 +49,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 main{grid-row:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-radius:18px;background:linear-gradient(rgba(var(--tint-rgb),.24),transparent 280px),rgba(var(--w),.03);border:1px solid var(--line)}
 .top{display:flex;gap:10px;align-items:center;padding:16px 22px 0;flex-wrap:wrap}
 .search-wrap{flex:1;display:flex;position:relative;min-width:200px}
-#q{flex:1;min-width:0;padding:11px 104px 11px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(var(--w),.07);color:var(--text);font:inherit;font-size:14px}
+#q{
+  flex:1; min-width:0; 
+  padding-block: 11px; 
+  padding-inline-start: 16px; 
+  padding-inline-end: 104px; 
+  border-radius:999px; border:1px solid var(--line); background:rgba(var(--w),.07); color:var(--text); font:inherit; font-size:14px;
+}
 .adv-toggle{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--mute);cursor:pointer;font-size:18px;padding:4px;border-radius:50%;display:grid;place-items:center}
 .adv-toggle:hover{color:var(--text);background:rgba(var(--w),.1)}
 .adv-toggle.on{color:var(--tint)}
-#advBtn{left:6px;}
-#globeBtn{left:40px;}
-#voiceBtn{left:74px;}
+#advBtn{inset-inline-end:6px;}
+#globeBtn{inset-inline-end:40px;}
+#voiceBtn{inset-inline-end:74px;}
 #voiceBtn.listening{color:#ef4444;animation:voicePulse 1s infinite;}
 @keyframes voicePulse{50%{opacity:.45;transform:translateY(-50%) scale(1.18)}}
 .adv-panel{display:flex;gap:8px;padding:8px 22px 0;flex-wrap:wrap;animation:fadeIn .2s ease}
@@ -2477,6 +2483,19 @@ ROWS.push(
  ['تحكم في التشغيل والصوت بالأوامر العربية أو الإنجليزية. يتطلب اتصالًا بالإنترنت وإذن الميكروفون.', 'Control playback and volume using Arabic or English voice commands. Internet access and microphone permission are required.', 'Contrôlez la lecture et le volume en arabe ou en anglais. Une connexion Internet et l’autorisation du microphone sont requises.', 'Controla la reproducción y el volumen con comandos de voz en árabe o inglés. Se requiere Internet y permiso del micrófono.', 'Arapça veya İngilizce sesli komutlarla oynatmayı ve sesi kontrol edin. İnternet ve mikrofon izni gerekir.', 'Steuern Sie Wiedergabe und Lautstärke mit arabischen oder englischen Sprachbefehlen. Internet und Mikrofonberechtigung erforderlich.', 'Kontrol pemutaran dan volume dengan perintah suara Arab atau Inggris. Memerlukan internet dan izin mikrofon.', 'عربی یا انگریزی صوتی احکامات سے پلے بیک اور آواز کنٹرول کریں۔ انٹرنیٹ اور مائیکروفون کی اجازت درکار ہے.']
 );
 
+ROWS.push(
+  ['اختر مجلد الموسيقى وسيتم فحصه تلقائيًا بحثًا عن الأغاني الجديدة كل 15 ثانية.', 'Select the music folder and it will be automatically scanned for new songs every 15 seconds.', 'Sélectionnez le dossier de musique et il sera automatiquement analysé pour les nouveaux titres toutes les 15 secondes.', 'Selecciona la carpeta de música y se escaneará automáticamente en busca de nuevas canciones cada 15 segundos.', 'Müzik klasörünü seçin; her 15 saniyede bir yeni şarkılar için otomatik olarak taranacaktır.', 'Wählen Sie den Musikordner aus, der alle 15 Sekunden automatisch nach neuen Songs durchsucht wird.', 'Pilih folder musik dan folder tersebut akan dipindai secara otomatis untuk mencari lagu baru setiap 15 detik.', 'میوزک فولڈر منتخب کریں اور یہ ہر 15 سیکنڈ میں نئے گانے تلاش کرنے کے لیے خودکار طور پر اسکین ہوگا۔'],
+  ['اختيار مجلد وبدء المتابعة', 'Select Folder & Start Monitoring', 'Sélectionner le dossier et démarrer la surveillance', 'Seleccionar carpeta e iniciar monitoreo', 'Klasör Seç ve İzlemeyi Başlat', 'Ordner auswählen & Überwachung starten', 'Pilih Folder & Mulai Pantau', 'فولڈر منتخب کریں اور نگرانی شروع کریں'],
+  ['تحديث معلومات الأغاني', 'Update Song Info', 'Mettre à jour les infos du titre', 'Actualizar información de la canción', 'Şarkı Bilgilerini Güncelle', 'Songinformationen aktualisieren', 'Perbarui Info Lagu', 'گانے کی معلومات اپ ڈیٹ کریں'],
+  ['بيخلي كل الأغاني بنفس مستوى الصوت (مفيد جداً لو الأغاني بتحملها من النت).', 'Makes all songs have the same volume level (very useful if you download songs from the internet).', 'Rend toutes les chansons au même niveau de volume (très utile si vous téléchargez des chansons sur Internet).', 'Hace que todas las canciones tengan el mismo nivel de volumen (muy útil si descargas canciones de internet).', 'Tüm şarkıları aynı ses seviyesine getirir (şarkıları internetten indiriyorsanız çok kullanışlıdır).', 'Bringt alle Songs auf die gleiche Lautstärke (sehr nützlich, wenn Sie Songs aus dem Internet herunterladen).', 'Membuat semua lagu memiliki tingkat volume yang sama (sangat berguna jika Anda mengunduh lagu dari internet).', 'تمام گانوں کو ایک ہی والیوم لیول پر لاتا ہے (بہت مفید ہے اگر آپ انٹرنیٹ سے گانے ڈاؤن لوڈ کرتے ہیں)۔'],
+  ['التحكم في ظهور أيقونة مساعد لحن على الشاشة.', 'Control the visibility of the Lahn Assistant icon on the screen.', 'Contrôler la visibilité de l\'icône de l\'assistant Lahn sur l\'écran.', 'Controlar la visibilidad del icono del asistente Lahn en la pantalla.', 'Lahn Asistan simgesinin ekrandaki görünürlüğünü kontrol edin.', 'Sichtbarkeit des Lahn-Assistenten-Symbols auf dem Bildschirm steuern.', 'Kontrol visibilitas ikon Asisten Lahn di layar.', 'اسکرین پر لحن اسسٹنٹ آئیکن کی نمائش کو کنٹرول کریں۔']
+);
+
+ROWS.push(
+  ['تحديث معلومات الأغاني', 'Update Song Info', 'Mettre à jour les infos du titre', 'Actualizar información de la canción', 'Şarkı Bilgilerini Güncelle', 'Songinformationen aktualisieren', 'Perbarui Info Lagu', 'گانے کی معلومات اپ ڈیٹ کریں'],
+  ['📸 مشاركة كصورة', '📸 Share as Image', '📸 Partager en tant qu\'image', '📸 Compartir como imagen', '📸 Resim olarak paylaş', '📸 Als Bild teilen', '📸 Bagikan sebagai gambar', '📸 بطور تصویر شیئر کریں'],
+  ['السطر الأول هنا', 'First line here', 'Première ligne ici', 'Primera línea aquí', 'İlk satır buraya', 'Erste Zeile hier', 'Baris pertama di sini', 'پہلی سطر یہاں']
+);
 
 ROWS.push(
   // Voice Assistant
@@ -2502,6 +2521,46 @@ ROWS.push(
   ['تكرار الأغنية', 'Repeat song', 'Répéter la chanson', 'Repetir canción', 'Şarkıyı tekrarla', 'Lied wiederholen', 'Ulangi lagu', 'گانا دہرائیں']
 );
 
+ROWS.push(
+  ['جلب كلمات الأغاني (Lyrics Fetcher)', 'Fetch Lyrics', 'Récupérer les paroles', 'Obtener letras', 'Şarkı Sözlerini Al', 'Liedtexte abrufen', 'Ambil Lirik', 'بولیاں حاصل کریں'],
+  ['🎤 جلب الكل', '🎤 Fetch All', '🎤 Tout récupérer', '🎤 Obtener todo', '🎤 Tümünü Al', '🎤 Alle abrufen', '🎤 Ambil Semua', '🎤 سب حاصل کریں'],
+  ['إعادة جلب الكلمات الموجودة (يستبدل القديم)', 'Re-fetch existing lyrics (overwrites old)', 'Récupérer les paroles existantes (écrase les anciennes)', 'Volver a obtener letras existentes (sobrescribe las antiguas)', 'Mevcut şarkı sözlerini yeniden al (eskisinin üzerine yazar)', 'Vorhandene Liedtexte erneut abrufen (überschreibt alte)', 'Ambil ulang lirik yang ada (menimpa yang lama)', 'موجودہ بولیاں دوبارہ حاصل کریں (پرانی کو اوور رائٹ کرتا ہے)'],
+  ['بيجيب كلمات الأغاني من lrclib.net تلقائياً. بيجيب الكلمات المتزامنة (LRC) لو متاحة، وإلا بيجيب النص العادي.', 'Fetches lyrics from lrclib.net automatically. Gets synced lyrics (LRC) if available, otherwise plain text.', 'Récupère les paroles depuis lrclib.net. Récupère les paroles synchronisées (LRC) si disponibles, sinon le texte brut.', 'Obtiene letras de lrclib.net automáticamente. Obtiene letras sincronizadas (LRC) si están disponibles, si no, texto plano.', 'lrclib.net üzerinden şarkı sözlerini otomatik olarak alır. Varsa senkronize (LRC) sözleri, yoksa düz metni alır.', 'Ruft Liedtexte automatisch von lrclib.net ab. Holt synchronisierte Texte (LRC), falls verfügbar, sonst reinen Text.', 'Mengambil lirik dari lrclib.net secara otomatis. Mengambil lirik tersinkronisasi (LRC) jika tersedia, jika tidak teks biasa.', 'lrclib.net سے خودکار طور پر بولیاں حاصل کرتا ہے۔ اگر دستیاب ہوں تو ہم آہنگ بولیاں (LRC) حاصل کرتا ہے، ورنہ سادہ متن۔'],
+  ['⏳ جاري جلب الكلمات...', '⏳ Fetching lyrics...', '⏳ Récupération des paroles...', '⏳ Obteniendo letras...', '⏳ Şarkı sözleri alınıyor...', '⏳ Liedtexte werden abgerufen...', '⏳ Mengambil lirik...', '⏳ بولیاں حاصل کی جا رہی ہیں...'],
+  ['تم جلب', 'Fetched', 'Récupéré', 'Obtenido', 'Alındı', 'Abgerufen', 'Diambil', 'حاصل کیا'],
+  ['تم جلب كلمات {n} أغنية بنجاح', 'Successfully fetched lyrics for {n} songs', 'Paroles de {n} chansons récupérées', 'Letras de {n} canciones obtenidas', '{n} şarkının sözleri başarıyla alındı', 'Liedtexte für {n} Songs abgerufen', 'Lirik untuk {n} lagu berhasil diambil', '{n} گانوں کی بولیاں کامیابی سے حاصل ہو گئیں']
+);
+
+ROWS.push(
+  ['🌐 جلب تلقائي', '🌐 Auto Fetch', '🌐 Récupération auto', '🌐 Obtención auto', '🌐 Otomatik Al', '🌐 Auto-Abruf', '🌐 Ambil Otomatis', '🌐 خودکار حاصل کریں']
+);
+
+ROWS.push(
+  ['حفظ', 'Save', 'Enregistrer', 'Guardar', 'Kaydet', 'Speichern', 'Simpan', 'محفوظ کریں'],
+  ['اسم الإعداد', 'Preset name', 'Nom du préréglage', 'Nombre del preajuste', 'Ayar adı', 'Name der Voreinstellung', 'Nama pengaturan', 'پریسیٹ کا نام'],
+  ['تحديث معلومات الأغاني', 'Update Song Info', 'Mettre à jour les infos du titre', 'Actualizar información de la canción', 'Şarkı Bilgilerini Güncelle', 'Songinformationen aktualisieren', 'Perbarui Info Lagu', 'گانے کی معلومات اپ ڈیٹ کریں'],
+  ['اسم الاعداد...', 'Preset name...', 'Nom du préréglage...', 'Nombre del preajuste...', 'Ayar adı...', 'Name der Voreinstellung...', 'Nama pengaturan...', 'پریسیٹ کا نام...']
+);
+
+ROWS.push(
+  ['التحكم في ظهور أيقونة مساعد لحن على الشاشة', 'Control the visibility of the Lahn Assistant icon', 'Contrôler la visibilité de l’icône de l’assistant Lahn', 'Controlar la visibilidad del icono del asistente Lahn', 'Lahn Asistan simgesinin görünürlüğünü kontrol edin', 'Sichtbarkeit des Lahn-Assistenten-Symbols steuern', 'Kontrol visibilitas ikon Asisten Lahn', 'اسکرین پر لحن اسسٹنٹ آئیکن کی نمائش کو کنٹرول کریں'],
+  ['توحيد مستوى الصوت (Normalization)', 'Volume Normalization', 'Normalisation du volume', 'Normalización de volumen', 'Ses Düzeyi Normalizasyonu', 'Lautstärkenormalisierung', 'Normalisasi Volume', 'والیوم نارملائزیشن'],
+  ['بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.', 'Fetches album, year, genre, and cover art for all songs missing information.', 'Récupère l’album, l’année, le genre et la pochette pour toutes les chansons manquant d’informations.', 'Obtiene el álbum, año, género y portada para todas las canciones que carecen de información.', 'Bilgisi eksik olan tüm şarkılar için albüm, yıl, tür ve kapak resmini getirir.', 'Ruft Album, Jahr, Genre und Cover für alle Songs ab, bei denen Informationen fehlen.', 'Mengambil album, tahun, genre, dan sampul untuk semua lagu yang kekurangan informasi.', 'ان تمام گانوں کے لیے البم، سال، صنف اور کور آرٹ حاصل کرتا ہے جن میں معلومات کی کمی ہے۔'],
+  ['متابعة مجلد الموسيقى', 'Monitor Music Folder', 'Surveiller le dossier de musique', 'Monitorear carpeta de música', 'Müzik Klasörünü İzle', 'Musikordner überwachen', 'Pantau Folder Musik', 'میوزک فولڈر کی نگرانی کریں'],
+  ['📁 اختيار مجلد وبدء المتابعة', '📁 Select Folder & Start Monitoring', '📁 Sélectionner le dossier et démarrer la surveillance', '📁 Seleccionar carpeta e iniciar monitoreo', '📁 Klasör Seç ve İzlemeyi Başlat', '📁 Ordner auswählen & Überwachung starten', '📁 Pilih Folder & Mulai Pantau', '📁 فولڈر منتخب کریں اور نگرانی شروع کریں'],
+  ['المزامنة السحابية', 'Cloud Sync', 'Synchronisation cloud', 'Sincronización en la nube', 'Bulut Eşitleme', 'Cloud-Synchronisierung', 'Sinkronisasi Cloud', 'کلاؤڈ سنک'],
+  ['رفع للسحابة ☁️', 'Upload to Cloud ☁️', 'Téléverser vers le cloud ☁️', 'Subir a la nube ☁️', 'Buluta Yükle ☁️', 'In die Cloud hochladen ☁️', 'Unggah ke Cloud ☁️', 'کلاؤڈ پر اپ لوڈ کریں ☁️'],
+  ['تنزيل من السحابة ⬇️', 'Download from Cloud ⬇️', 'Télécharger depuis le cloud ⬇️', 'Descargar de la nube ⬇️', 'Buluttan İndir ⬇️', 'Aus der Cloud herunterladen ⬇️', 'Unduh dari Cloud ⬇️', 'کلاؤڈ سے ڈاؤن لوڈ کریں ⬇️'],
+  ['كود المزامنة (هيتولد تلقائياً لما ترفع):', 'Sync Code (auto-generated on upload):', 'Code de synchronisation (généré lors du téléversement) :', 'Código de sincronización (se genera al subir):', 'Eşitleme Kodu (yükleme sırasında otomatik oluşturulur):', 'Sync-Code (wird beim Hochladen generiert):', 'Kode Sinkronisasi (dibuat otomatis saat mengunggah):', 'سنک کوڈ (اپ لوڈ پر خودکار طور پر بنایا جائے گا):'],
+  ['السطر الأول هنا', 'First line here', 'Première ligne ici', 'Primera línea aquí', 'İlk satır buraya', 'Erste Zeile hier', 'Baris pertama di sini', 'پہلی سطر یہاں'],
+  ['📻 راديو مباشر', '📻 Live Radio', '📻 Radio en direct', '📻 Radio en vivo', '📻 Canlı Radyo', '📻 Live-Radio', '📻 Radio Langsung', '📻 لائیو ریڈیو'],
+  ['🎵 أغاني مجانية (Audius)', '🎵 Free Music (Audius)', '🎵 Musique gratuite (Audius)', '🎵 Música gratis (Audius)', '🎵 Ücretsiz Müzik (Audius)', '🎵 Kostenlose Musik (Audius)', '🎵 Musik Gratis (Audius)', '🎵 مفت موسیقی (Audius)'],
+  ['🎙️ بودكاست', '🎙️ Podcast', '🎙️ Podcast', '🎙️ Podcast', '🎙️ Podcast', '🎙️ Podcast', '🎙️ Podcast', '🎙️ پوڈکاسٹ'],
+  ['اكتب حاجة فوق عشان تبحث...', 'Type something above to search...', 'Tapez quelque chose ci-dessus pour rechercher...', 'Escribe algo arriba para buscar...', 'Aramak için yukarıya bir şey yazın...', 'Gib oben etwas ein, um zu suchen...', 'Ketik sesuatu di atas untuk mencari...', 'تلاش کرنے کے لیے اوپر کچھ لکھیں...'],
+  ['القرآن الكريم', 'The Holy Quran', 'Le Saint Coran', 'El Sagrado Corán', 'Kutsal Kur\'an', 'Der Heilige Koran', 'Al-Quran', 'قرآن پاک'],
+  ['اختر الشيخ والسورة', 'Select reciter and surah', 'Sélectionnez le récitateur et la sourate', 'Seleccione recitador y sura', 'Kâri ve sure seçin', 'Rezitator und Sure auswählen', 'Pilih qari dan surah', 'قاری اور سورہ منتخب کریں'],
+  ['اختر الشيخ الأول', 'Select reciter first', 'Sélectionnez d\'abord le récitateur', 'Seleccione primero el recitador', 'Önce kâri seçin', 'Wählen Sie zuerst den Rezitator', 'Pilih qari terlebih dahulu', 'پہلے قاری منتخب کریں']
+);
 
 ROWS.push(
 ['مساعد لحن الذكي','Lahn AI Assistant','Assistant intelligent Lahn','Asistente inteligente Lahn','Lahn AI Asistanı','Lahn KI-Assistent','Asisten Lahn AI','لحن AI اسسٹنٹ'],
@@ -3318,7 +3377,7 @@ function renderSettingsPage() {
       </section>
 
       <section class="settings-section">
-        <h3>${svgIcons.database} تحديث معلومات الأغاني (Auto-Tagger)</h3>
+        <h3>${svgIcons.database} تحديث معلومات الأغاني</h3>
         <div class="chip-grid">
           <button class="chip" id="autoTagBtn" style="background:var(--tint); color:#fff;">تحديث الكل</button>
         </div>
@@ -3330,6 +3389,24 @@ function renderSettingsPage() {
         </div>
         <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب الألبوم والسنة والنوع وصورة الغلاف لكل الأغاني اللي ناقصها معلومات.</small>
       </section>
+
+<section class="settings-section">
+  <h3>${svgIcons.lyrics} جلب كلمات الأغاني (Lyrics Fetcher)</h3>
+  <div class="chip-grid">
+    <button class="chip" id="lyricsFetchBtn" style="background:var(--tint); color:#fff;">🎤 جلب الكل</button>
+  </div>
+  <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);margin-top:10px;cursor:pointer;">
+    <input type="checkbox" id="lyricsOverwrite" style="width:14px;height:14px;cursor:pointer;">
+    إعادة جلب الكلمات الموجودة (يستبدل القديم)
+  </label>
+  <div id="lyricsFetchProgressContainer" style="display: none; margin-top: 15px;">
+    <div style="width: 100%; height: 8px; background: rgba(var(--w), .1); border-radius: 10px; overflow: hidden;">
+      <div id="lyricsFetchProgressBar" style="width: 0%; height: 100%; background: var(--tint); transition: width 0.3s ease; border-radius: 10px;"></div>
+    </div>
+    <div id="lyricsFetchProgressText" style="font-size: 12px; color: var(--mute); margin-top: 8px; text-align: center;"></div>
+  </div>
+  <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">بيجيب كلمات الأغاني من lrclib.net تلقائياً. بيجيب الكلمات المتزامنة (LRC) لو متاحة، وإلا بيجيب النص العادي.</small>
+</section>
 
      
 <section class="settings-section">
@@ -3571,6 +3648,11 @@ function renderSettingsPage() {
     autoTagBtn.onclick = () => runAutoTagger();
   }
 
+// --- زرار جلب الكلمات ---
+const lyricsFetchBtn = document.getElementById('lyricsFetchBtn');
+if (lyricsFetchBtn) {
+  lyricsFetchBtn.onclick = () => runLyricsFetcher();
+}
 
  
 // --- زر متابعة المجلد ---
@@ -3860,6 +3942,113 @@ async function runAutoTagger() {
     toast(trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount));
   }, 1000);
 }
+
+// --- جلب كلمات كل الأغاني ---
+async function runLyricsFetcher() {
+  const btn = document.getElementById('lyricsFetchBtn');
+  const progressContainer = document.getElementById('lyricsFetchProgressContainer');
+  const progressBar = document.getElementById('lyricsFetchProgressBar');
+  const progressText = document.getElementById('lyricsFetchProgressText');
+  
+  if (!btn || !progressContainer) return;
+  
+  const overwrite = document.getElementById('lyricsOverwrite')?.checked || false;
+  
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressText.textContent = '⏳ جاري جلب الكلمات...';
+  
+  let addedCount = 0;
+  let processed = 0;
+  const keys = Object.keys(DB.lib);
+  const total = keys.length;
+  
+  if (total === 0) {
+    progressContainer.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = originalText;
+    return;
+  }
+  
+  // دالة مساعدة لجلب كلمات أغنية واحدة (مع fallback للبحث)
+  const fetchOneLyrics = async (artist, title) => {
+    const headers = { 'User-Agent': 'LahnApp/2.1 (https://lahn.app)' };
+    
+    // محاولة 1: /api/get المباشر (أسرع وأدق)
+    try {
+      const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.syncedLyrics || data.plainLyrics)) {
+          return data.syncedLyrics || data.plainLyrics;
+        }
+      }
+    } catch (_) {}
+    
+    // محاولة 2: /api/search كـ fallback
+    try {
+      const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent((artist || '') + ' ' + (title || ''))}`;
+      const sres = await fetch(searchUrl, { headers });
+      if (sres.ok) {
+        const items = await sres.json();
+        if (Array.isArray(items) && items.length > 0) {
+          // نختار أفضل نتيجة: اللي عندها syncedLyrics، وإلا أول نتيجة
+          const withSynced = items.find(x => x.syncedLyrics);
+          const best = withSynced || items.find(x => x.plainLyrics) || items[0];
+          if (best && (best.syncedLyrics || best.plainLyrics)) {
+            return best.syncedLyrics || best.plainLyrics;
+          }
+        }
+      }
+    } catch (_) {}
+    
+    return null;
+  };
+  
+  for (const k of keys) {
+    const m = DB.lib[k];
+    
+    const percent = Math.round((processed / total) * 100);
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `⏳ جاري جلب الكلمات... (${processed}/${total}) — تم جلب ${addedCount}`;
+    
+    // تخطي: بعيد (راديو/قرآن)، أو بدون عنوان، أو عنده كلمات بالفعل (لو مش overwrite)
+    if (m.isRemote || !m.title) { processed++; continue; }
+    if (!overwrite && DB.lyrics[k] && DB.lyrics[k].trim()) { processed++; continue; }
+    
+    try {
+      const lyrics = await fetchOneLyrics(m.artist || '', m.title || '');
+      if (lyrics) {
+        DB.lyrics[k] = lyrics;
+        addedCount++;
+        if (addedCount % 3 === 0) persist();
+      }
+      // تأخير بسيط لاحترام الـ rate limit (lrclib متساهل بس نكون محترمين)
+      await new Promise(r => setTimeout(r, 200));
+    } catch (e) {
+      console.warn('Lyrics fetch error for:', m.title, e);
+    }
+    
+    processed++;
+  }
+  
+  persist();
+  progressBar.style.width = '100%';
+  progressText.textContent = `✅ تم جلب كلمات ${addedCount} أغنية من أصل ${total}`;
+  
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    btn.textContent = originalText;
+    btn.disabled = false;
+    if (view === 'settings') renderSettingsPage();
+    toast(`تم جلب كلمات ${addedCount} أغنية بنجاح`);
+  }, 1500);
+}
+
 // المراقبة التلقائية للمجلد
 let watchInterval = null;
 function startAutoWatch() {
