@@ -1030,6 +1030,12 @@ const dur = (url) => new Promise((res) => {
 });
 
 const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, albumCovers: {}, listCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
+
+// === إعدادات المزامنة عبر GitHub Gist ===
+const GIST_ID = '6ead12aa743bc31edc94a1dc68fee5cd';
+const GH_TOKEN = atob('Z2hwX3d6eG16VmNaUHhWXQ1loS0JITnM0NFJMZE9TMEpvTDNYT01rbw==');
+const GIST_API = `https://api.github.com/gists/${GIST_ID}`;
+
 if (!DB.artistCovers) DB.artistCovers = {};
 if (!DB.albumCovers) DB.albumCovers = {};
 if (!DB.lyrics) DB.lyrics = {};
@@ -1647,6 +1653,7 @@ let sortBy = localStorage.ng_sort || 'default';
 const keysOfView = () => {
   let ks = [];
   if (view === 'queue') ks = tracks.map((t) => t.path);
+  else if (view === 'home') ks = histKeys();
   else if (view === 'recent') ks = Object.keys(DB.lib).sort((a, b) => (DB.lib[b].added || 0) - (DB.lib[a].added || 0));
   else if (view === 'mostplayed') ks = Object.keys(DB.lib).filter(k => ST.t[k] && ST.t[k].p > 0).sort((a, b) => (ST.t[b].p || 0) - (ST.t[a].p || 0));
   else if (view.startsWith('ar:')) ks = (groups('artist').get(view.slice(3)) || []);
@@ -1694,8 +1701,14 @@ async function startQueue(keys, startKey) {
 }
 function playFrom(k) {
   if (!files.has(k) && !(DB.lib[k] && DB.lib[k].url)) return toast('الملف مش متاح — أضفه تاني');
-  if (view === 'queue') { const i = tracks.findIndex((t) => t.path === k); if (i >= 0) setTrack(i, true); }
-  else startQueue(keysOfView(), k);
+  if (view === 'queue') { 
+    const i = tracks.findIndex((t) => t.path === k); 
+    if (i >= 0) setTrack(i, true); 
+  } else {
+    let ks = keysOfView();
+    if (!ks.includes(k)) ks.push(k); // ضيف الأغنية للقايمة لو مش موجودة
+    startQueue(ks, k);
+  }
 }
 function newList(k) {
   const n = (prompt('اسم القايمة الجديدة:') || '').trim(); if (!n) return;
@@ -1977,11 +1990,19 @@ $('#lyricFetchBtn').onclick = async () => {
   btn.innerHTML = '⏳ جاري البحث...'; btn.disabled = true;
   
   const fetchWithProxy = async (url) => {
+    // 1. المحاولة المباشرة (الأسرع)
     try {
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+      const res = await fetch(url);
+      if (res.ok) return await res.json();
+    } catch (_) {}
+
+    // 2. المحاولة بوسيط AllOrigins (لو المباشرة فشلت)
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
       const res = await fetch(proxyUrl);
       if (res.ok) return await res.json();
     } catch (_) {}
+    
     return null;
   };
   
@@ -2571,6 +2592,16 @@ ROWS.push(
   ['افتح الصوت', 'Unmute', 'Réactiver le son', 'Activar sonido', 'Sesi aç', 'Ton einschalten', 'Aktifkan suara', 'آواز کھولیں'],
   ['تشغيل عشوائي', 'Shuffle', 'Lecture aléatoire', 'Reproducción aleatoria', 'Karışık çal', 'Zufallswiedergabe', 'Putar acak', 'بے ترتیب چلائیں'],
   ['تكرار الأغنية', 'Repeat song', 'Répéter la chanson', 'Repetir canción', 'Şarkıyı tekrarla', 'Lied wiederholen', 'Ulangi lagu', 'گانا دہرائیں']
+);
+
+ROWS.push(
+  ['اسمح باستخدام الميكروفون أولاً', 'Allow microphone access first', 'Autorisez l’accès au microphone d’abord', 'Permitir acceso al micrófono primero', 'Önce mikrofon erişimine izin verin', 'Erlauben Sie zuerst den Mikrofonzugriff', 'Izinkan akses mikrofon terlebih dahulu', 'پہلے مائیکروفون تک رسائی کی اجازت دیں'],
+  ['خطأ في الشبكة. تأكد من الإنترنت، وأوقف مانع الإعلانات أو الـ VPN.', 'Network error. Check internet, disable adblock or VPN.', 'Erreur réseau. Vérifiez Internet, désactivez Adblock ou le VPN.', 'Error de red. Comprueba Internet, desactiva Adblock o VPN.', 'Ağ hatası. İnterneti kontrol edin, reklam engelleyiciyi veya VPN\'i kapatın.', 'Netzwerkfehler. Prüfen Sie das Internet, deaktivieren Sie Adblock oder VPN.', 'Kesalahan jaringan. Periksa internet, nonaktifkan adblock atau VPN.', 'نیٹ ورک کی خرابی۔ انٹرنیٹ چیک کریں، ایڈ بلاکر یا VPN بند کریں۔'],
+  ['خطأ في التعرف الصوتي: ', 'Voice recognition error: ', 'Erreur de reconnaissance vocale : ', 'Error de reconocimiento de voz: ', 'Ses tanıma hatası: ', 'Spracherkennungsfehler: ', 'Kesalahan pengenalan suara: ', 'اسپیچ ریکگنیشن کی خرابی: '],
+  ['تعذر تشغيل الميكروفون', 'Could not start microphone', 'Impossible de démarrer le microphone', 'No se pudo iniciar el micrófono', 'Mikrofon başlatılamadı', 'Mikrofon konnte nicht gestartet werden', 'Tidak dapat memulai mikrofon', 'مائیکروفون شروع نہیں ہو سکا'],
+  ['جاري الاستماع… اضغط للإيقاف', 'Listening… click to stop', 'Écoute… cliquez pour arrêter', 'Escuchando… haz clic para detener', 'Dinliyor… durdurmak için tıklayın', 'Höre zu… klicken zum Stoppen', 'Mendengarkan… klik untuk berhenti', 'سن رہا ہے… روکنے کے لیے کلک کریں'],
+  ['اتكلم دلوقتي…', 'Speak now…', 'Parlez maintenant…', 'Habla ahora…', 'Şimdi konuşun…', 'Sprechen Sie jetzt…', 'Bicaralah sekarang…', 'ابھی بولیں…'],
+  ['الأوامر الصوتية', 'Voice commands', 'Commandes vocales', 'Comandos de voz', 'Sesli komutlar', 'Sprachbefehle', 'Perintah suara', 'صوتی احکامات']
 );
 
 ROWS.push(
@@ -3905,39 +3936,59 @@ if (toggleWatchBtn) {
   }
   
    // رفع للسحابة باستخدام jsonblob
-  document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
-    let key = syncKeyInput.value.trim();
-    const btn = document.getElementById('cloudUploadBtn');
-    btn.textContent = '⏳ جاري الرفع...';
-    
-    // لو مفيش كود، هنولد كود جديد بنفسنا
-    if (!key) {
-      key = crypto.randomUUID();
-      localStorage.ng_sync_key = key;
-      syncKeyInput.value = key;
-    }
-    
-    try {
-      const dataToSync = { db: DB, stats: ST, hist: HIST };
-      const url = `https://jsonblob.com/api/jsonBlob/${key}`;
-      
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSync)
-      });
-      
-      if (res.ok) {
-        toast('تم الرفع! كود المزامنة بتاعك: ' + key);
-      } else {
-        throw new Error('فشل الرفع');
-      }
-    } catch (e) { 
-      console.error(e);
-      toast('خطأ في الرفع، تأكد من الإنترنت'); 
-    }
-    btn.textContent = 'رفع للسحابة ☁️';
-  });
+ // كود الرفع
+document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
+  const btn = document.getElementById('cloudUploadBtn');
+  btn.textContent = '⏳ جاري الرفع...';
+  try {
+    const dataToSync = { db: DB, stats: ST, hist: HIST };
+    const res = await fetch(GIST_API, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${GH_TOKEN}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: { 'lahn-sync.json': { content: JSON.stringify(dataToSync, null, 2) } }
+      })
+    });
+    if (res.ok) toast('تم رفع البيانات بنجاح إلى السحابة!');
+    else throw new Error('فشل الرفع');
+  } catch (e) {
+    console.error(e);
+    toast('خطأ: ' + e.message);
+  }
+  btn.textContent = 'رفع للسحابة ☁️';
+});
+
+// كود التنزيل
+document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
+  const btn = document.getElementById('cloudDownloadBtn');
+  btn.textContent = '⏳ جاري التنزيل...';
+  try {
+    const res = await fetch(GIST_API, {
+      headers: {
+        'Authorization': `Bearer ${GH_TOKEN}`,
+        'Accept': 'application/vnd.github+json'
+      },
+      cache: 'no-store'
+    });
+    if (res.ok) {
+      const gist = await res.json();
+      const content = JSON.parse(gist.files['lahn-sync.json'].content);
+      if (content.db) localStorage.ng2 = JSON.stringify(content.db);
+      if (content.stats) localStorage.ng_stats = JSON.stringify(content.stats);
+      if (content.hist) localStorage.ng_hist = JSON.stringify(content.hist);
+      toast('تم التنزيل بنجاح! جاري إعادة التحميل...');
+      setTimeout(() => location.reload(), 1500);
+    } else throw new Error('فشل التنزيل');
+  } catch (e) {
+    console.error(e);
+    toast('خطأ: ' + e.message);
+  }
+  btn.textContent = 'تنزيل من السحابة ⬇️';
+});
 
   // تنزيل من السحابة
   document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
@@ -3990,129 +4041,6 @@ if (toggleWatchBtn) {
 }
 
 // دالة التحديث
-async function runAutoTagger() {
-  const btn = document.getElementById('autoTagBtn');
-  const progressContainer = document.getElementById('autoTagProgressContainer');
-  const progressBar = document.getElementById('autoTagProgressBar');
-  const progressText = document.getElementById('autoTagProgressText');
-  
-  if (!btn || !progressContainer) return;
-  
-  btn.disabled = true;
-  const originalText = btn.textContent;
-  
-  progressContainer.style.display = 'block';
-  progressBar.style.width = '0%';
-  progressText.textContent = trs('جاري تحديث المعلومات...');
-  
-  let updatedCount = 0;
-  let processed = 0;
-  const keys = Object.keys(DB.lib);
-  const total = keys.length;
-  
-  if (total === 0) {
-    progressContainer.style.display = 'none';
-    btn.disabled = false;
-    return;
-  }
-  
-  const fetchItunesJSONP = (query) => {
-    return new Promise((resolve) => {
-      const callbackName = 'itunesCb_' + Math.random().toString(36).substring(2, 9);
-      window[callbackName] = (data) => {
-        resolve(data);
-        delete window[callbackName];
-        document.getElementById(callbackName)?.remove();
-      };
-      const script = document.createElement('script');
-      script.id = callbackName;
-      script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=1&callback=${callbackName}`;
-      script.onerror = () => { resolve({ results: [] }); delete window[callbackName]; };
-      document.body.appendChild(script);
-    });
-  };
-
-  // دالة بتنزل الصورة وتحولها لـ Base64 عشان تتخزن محلياً
-  const downloadAndCompressImage = (url) => new Promise((resolve) => {
-    if (!url) return resolve(null);
-    const im = new Image();
-    im.crossOrigin = 'anonymous';
-    im.onload = () => {
-      try {
-        const c = document.createElement('canvas');
-        const max = 300; // تصغير الصورة عشان متستهلكش مساحة
-        const ratio = Math.min(max / im.width, max / im.height);
-        c.width = im.width * ratio;
-        c.height = im.height * ratio;
-        const ctx = c.getContext('2d');
-        ctx.drawImage(im, 0, 0, c.width, c.height);
-        resolve(c.toDataURL('image/jpeg', 0.7)); // ضغط الجودة
-      } catch (e) { resolve(null); }
-    };
-    im.onerror = () => resolve(null);
-    im.src = url;
-  });
-  
-  for (const k of keys) {
-    const m = DB.lib[k];
-    
-    const percent = Math.round((processed / total) * 100);
-    progressBar.style.width = percent + '%';
-    progressText.textContent = `${trs('جاري تحديث المعلومات...')} (${processed}/${total})`;
-    
-    if (m.isRemote || !m.title) { processed++; continue; }
-    
-    // لو الأغنية معاها كل حاجة وصورة محفوظة كـ Base64، تجاهلها
-    if (m.album && m.year && m.genre && DB.covers[k] && DB.covers[k].startsWith('data:image')) { 
-      processed++; 
-      continue; 
-    }
-    
-    try {
-      const query = `${m.artist || ''} ${m.title || ''}`.trim();
-      const itunesData = await fetchItunesJSONP(query);
-      
-      if (itunesData.results && itunesData.results[0]) {
-        const r = itunesData.results[0];
-        if (!m.year && r.releaseDate) m.year = r.releaseDate.slice(0, 4);
-        if (!m.genre && r.primaryGenreName) m.genre = r.primaryGenreName;
-        if (!m.album && r.collectionName) m.album = r.collectionName;
-        
-        // لو مفيش صورة محفوظة، بننزل الصورة من النت ونحولها Base64
-        if (!DB.covers[k] && r.artworkUrl100) {
-          const imgUrl = r.artworkUrl100.replace('100x100', '500x500');
-          const base64Img = await downloadAndCompressImage(imgUrl);
-          if (base64Img) {
-            DB.covers[k] = base64Img;
-            // بنمسح الكاش القديم لو موجود
-            if (tagCache.has(k)) tagCache.delete(k);
-            thPut(k, base64Img); // بنحفظها في كاش الصور المصغرة كمان
-          }
-        }
-        
-        updatedCount++;
-      }
-      
-      if (updatedCount % 5 === 0) { persist(); render(); }
-      await new Promise(r => setTimeout(r, 400));
-      
-    } catch (e) { console.warn(e); }
-    processed++;
-  }
-  
-  progressBar.style.width = '100%';
-  progressText.textContent = trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount);
-  
-  setTimeout(() => {
-    progressContainer.style.display = 'none';
-    btn.textContent = originalText;
-    btn.disabled = false;
-    if (view === 'settings') renderSettingsPage(); 
-    toast(trs('تم تحديث {n} أغنية بنجاح').replace('{n}', updatedCount));
-  }, 1000);
-}
-
-// --- جلب كلمات كل الأغاني ---
 async function runLyricsFetcher() {
   const btn = document.getElementById('lyricsFetchBtn');
   const progressContainer = document.getElementById('lyricsFetchProgressContainer');
@@ -4122,13 +4050,10 @@ async function runLyricsFetcher() {
   if (!btn || !progressContainer) return;
   
   const overwrite = document.getElementById('lyricsOverwrite')?.checked || false;
-  
   btn.disabled = true;
   const originalText = btn.textContent;
-  
   progressContainer.style.display = 'block';
   progressBar.style.width = '0%';
-  progressText.textContent = '⏳ جاري جلب الكلمات...';
   
   let addedCount = 0;
   let processed = 0;
@@ -4142,14 +4067,28 @@ async function runLyricsFetcher() {
     return;
   }
   
-  // دالة مساعدة لجلب كلمات أغنية واحدة (مع fallback للبحث)
   const fetchOneLyrics = async (artist, title) => {
-    const headers = { 'User-Agent': 'LahnApp/2.1 (https://lahn.app)' };
-    
-    // محاولة 1: /api/get المباشر (أسرع وأدق)
+    // 1. تجربة Lyrics.ovh
+    if (artist) {
+      try {
+        const ovhUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
+        const ovhRes = await fetch(ovhUrl);
+        if (ovhRes.ok) {
+          const ovhData = await ovhRes.json();
+          if (ovhData.lyrics) return ovhData.lyrics;
+        }
+      } catch (_) {}
+    }
+
+    // 2. تجربة lrclib باستخدام وسيط corsproxy.io
     try {
-      const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
-      const res = await fetch(url, { headers });
+      const targetUrl = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      
+      // السطر ده عشان نتأكد في الكونسول إننا بنستخدم الوسيط
+      console.log('Fetching via Proxy:', proxyUrl); 
+      
+      const res = await fetch(proxyUrl);
       if (res.ok) {
         const data = await res.json();
         if (data && (data.syncedLyrics || data.plainLyrics)) {
@@ -4157,17 +4096,17 @@ async function runLyricsFetcher() {
         }
       }
     } catch (_) {}
-    
-    // محاولة 2: /api/search كـ fallback
+
+    // 3. تجربة lrclib (بحث) باستخدام وسيط corsproxy.io
     try {
-      const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent((artist || '') + ' ' + (title || ''))}`;
-      const sres = await fetch(searchUrl, { headers });
+      const searchTarget = `https://lrclib.net/api/search?q=${encodeURIComponent((artist || '') + ' ' + (title || ''))}`;
+      const searchProxy = `https://corsproxy.io/?${encodeURIComponent(searchTarget)}`;
+      
+      const sres = await fetch(searchProxy);
       if (sres.ok) {
         const items = await sres.json();
         if (Array.isArray(items) && items.length > 0) {
-          // نختار أفضل نتيجة: اللي عندها syncedLyrics، وإلا أول نتيجة
-          const withSynced = items.find(x => x.syncedLyrics);
-          const best = withSynced || items.find(x => x.plainLyrics) || items[0];
+          const best = items.find(x => x.syncedLyrics) || items.find(x => x.plainLyrics) || items[0];
           if (best && (best.syncedLyrics || best.plainLyrics)) {
             return best.syncedLyrics || best.plainLyrics;
           }
@@ -4180,12 +4119,9 @@ async function runLyricsFetcher() {
   
   for (const k of keys) {
     const m = DB.lib[k];
-    
-    const percent = Math.round((processed / total) * 100);
-    progressBar.style.width = percent + '%';
+    progressBar.style.width = Math.round((processed / total) * 100) + '%';
     progressText.textContent = `⏳ جاري جلب الكلمات... (${processed}/${total}) — تم جلب ${addedCount}`;
     
-    // تخطي: بعيد (راديو/قرآن)، أو بدون عنوان، أو عنده كلمات بالفعل (لو مش overwrite)
     if (m.isRemote || !m.title) { processed++; continue; }
     if (!overwrite && DB.lyrics[k] && DB.lyrics[k].trim()) { processed++; continue; }
     
@@ -4194,20 +4130,18 @@ async function runLyricsFetcher() {
       if (lyrics) {
         DB.lyrics[k] = lyrics;
         addedCount++;
-        if (addedCount % 3 === 0) persist();
+        if (addedCount % 10 === 0) persist(); // بنحفظ كل 10 أغاني
       }
-      // تأخير بسيط لاحترام الـ rate limit (lrclib متساهل بس نكون محترمين)
-      await new Promise(r => setTimeout(r, 200));
-    } catch (e) {
-      console.warn('Lyrics fetch error for:', m.title, e);
-    }
+      // ⚠️ زودنا التأخير لـ 2.5 ثانية عشان الوسيط مايهنجش
+      await new Promise(r => setTimeout(r, 2500)); 
+    } catch (e) { console.warn(e); }
     
     processed++;
   }
   
   persist();
   progressBar.style.width = '100%';
-  progressText.textContent = `✅ تم جلب كلمات ${addedCount} أغنية من أصل ${total}`;
+  progressText.textContent = `✅ تم جلب كلمات ${addedCount} أغنية بنجاح`;
   
   setTimeout(() => {
     progressContainer.style.display = 'none';
@@ -4216,23 +4150,6 @@ async function runLyricsFetcher() {
     if (view === 'settings') renderSettingsPage();
     toast(`تم جلب كلمات ${addedCount} أغنية بنجاح`);
   }, 1500);
-}
-
-// المراقبة التلقائية للمجلد
-let watchInterval = null;
-function startAutoWatch() {
-  if (watchInterval) clearInterval(watchInterval);
-  if (localStorage.ng_watch !== '1' || !DIR) return;
-  
-  watchInterval = setInterval(async () => {
-    if (!DIR) return;
-    try {
-      const perm = await DIR.queryPermission({ mode: 'read' });
-      if (perm === 'granted') {
-        await scanDir(DIR, true);
-      }
-    } catch (e) {}
-  }, 15000);
 }
 setTimeout(startAutoWatch, 3000);
 
@@ -4733,15 +4650,39 @@ if (globeBtn) {
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    recognition.onstart = () => { btn.classList.add('listening'); btn.title = LG === 'en' ? 'Listening… click to stop' : 'جاري الاستماع… اضغط للإيقاف'; sayToast('اتكلم دلوقتي…', 'Listening…'); };
+
+// ✨ السطر الجديد عشان نمنع تعليق المايك
+setTimeout(() => { if (recognition) { try { recognition.stop(); } catch(e){} } }, 6000);
+
+     recognition.onstart = () => { 
+      btn.classList.add('listening'); 
+      btn.title = trs('جاري الاستماع… اضغط للإيقاف'); 
+      sayToast('اتكلم دلوقتي…', 'Listening…'); 
+    };
+
     recognition.onresult = (e) => runCommand(e.results[0][0].transcript);
-    recognition.onerror = (e) => {
-      const msg = e.error === 'not-allowed' ? (LG === 'en' ? 'Allow microphone access first' : 'اسمح باستخدام الميكروفون أولاً') : (LG === 'en' ? 'Voice recognition error: ' + e.error : 'خطأ في التعرف الصوتي: ' + e.error);
+        recognition.onerror = (e) => {
+      let msg = '';
+      if (e.error === 'not-allowed') {
+        msg = trs('اسمح باستخدام الميكروفون أولاً');
+      } else if (e.error === 'network') {
+        msg = trs('خطأ في الشبكة. تأكد من الإنترنت، وأوقف مانع الإعلانات أو الـ VPN.');
+      } else {
+        msg = trs('خطأ في التعرف الصوتي: ') + e.error;
+      }
       toast(msg);
     };
-    recognition.onend = () => { btn.classList.remove('listening'); btn.title = LG === 'en' ? 'Voice commands' : 'الأوامر الصوتية'; recognition = null; window.__lahnRecognition = null; };
-    try { recognition.start(); } catch (e) { recognition = null; window.__lahnRecognition = null; toast(LG === 'en' ? 'Could not start microphone' : 'تعذر تشغيل الميكروفون'); }
-  });
+
+      recognition.onend = () => { 
+      btn.classList.remove('listening'); 
+      btn.title = trs('الأوامر الصوتية'); 
+      recognition = null; window.__lahnRecognition = null; 
+    };
+    
+    try { recognition.start(); } catch (e) { 
+      recognition = null; window.__lahnRecognition = null; 
+      toast(trs('تعذر تشغيل الميكروفون')); 
+    }  });
 })();
 
 /* ════════ البحث الأونلاين (راديو / أغاني / بودكاست) ════════ */
@@ -5441,6 +5382,23 @@ async function runLyricsFetcher() {
     toast(`تم جلب كلمات ${addedCount} أغنية بنجاح`);
   }, 1500);
 }
+// --- المراقبة التلقائية للمجلد ---
+let watchInterval = null;
+function startAutoWatch() {
+  if (watchInterval) clearInterval(watchInterval);
+  if (localStorage.ng_watch !== '1' || !DIR) return;
+  
+  watchInterval = setInterval(async () => {
+    if (!DIR) return;
+    try {
+      const perm = await DIR.queryPermission({ mode: 'read' });
+      if (perm === 'granted') {
+        await scanDir(DIR, true);
+      }
+    } catch (e) {}
+  }, 15000);
+}
+setTimeout(startAutoWatch, 3000);
 </script>
 
 <!-- LAHN AI FLOATING BUTTON -->
