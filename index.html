@@ -94,6 +94,7 @@ body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
 .ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--mute);position:relative}.ib:hover{color:var(--text);background:rgba(var(--w),.1)}.ib.on{color:var(--tint)}.ib svg{width:20px;height:20px}
 .play{width:46px;height:46px;background:var(--text);color:var(--on)}.play:hover{background:var(--text);color:var(--on);filter:brightness(1.1);transform:scale(1.05)}.play svg{width:24px;height:24px}
 #repeat[data-one="1"]::after{content:"1";position:absolute;font-size:9px;font-weight:700;top:17px;left:50%;transform:translateX(-50%)}
+
 .seekrow {
   display: flex;
   align-items: center;
@@ -108,41 +109,60 @@ body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
   min-width: 0;
 }
 
+#tc {
+  order: 1;
+  flex: none;
+  width: 35px;
+  text-align: left;
+}
+
+#td {
+  order: 3;
+  flex: none;
+  width: 35px;
+  text-align: right;
+}
+
 #seek {
+  order: 2;
+  flex: 1;
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
-  left: 14%;
-  right: auto;
-  width: 72%;
-  height: 100%;
+  bottom: 0;
+  left: 43px;  /* مساحة الوقت الشمال + المسافة */
+  right: 43px; /* مساحة الوقت اليمين + المسافة */
   z-index: 2;
   opacity: 0;
   cursor: pointer;
 }
 
 #waveformCanvas {
-  position: absolute;
-  top: 3px;
-  left: 14%;
-  right: auto;
-  width: 72%;
+  order: 2;
+  flex: 1;
+  position: relative;
+  width: 100%;
   height: 14px;
   z-index: 1;
   pointer-events: none;
 }
 
-body.seek-normal .seekrow {
-  height: auto;
+/* الوضع العادي (شريط بدون موج) */
+body.seek-normal #waveformCanvas {
+  display: none;
 }
 
 body.seek-normal #seek {
-  position: static;
+  position: relative;
   opacity: 1;
-  width: 100%;
   height: 4px;
-  inset: auto;
   left: auto;
   right: auto;
+  top: auto;
+  bottom: auto;
+  inset: auto;
+  margin: auto 0;
   z-index: auto;
 }
 
@@ -3253,23 +3273,33 @@ async function removeSelectedDuplicates() {
   }
   if (!confirm(trs('إزالة النسخ المحددة من مكتبة لحن؟ الملفات الأصلية على الكمبيوتر لن تُحذف.'))) return;
 
-  const currentPath = curKey();
-  DB.ignored = [...new Set([...(DB.ignored || []), ...selected])];
-  for (const key of selected) {
-    delete DB.lib[key];
-    delete DB.covers[key];
-    delete DB.lyrics[key];
-    DB.favs = DB.favs.filter((value) => value !== key);
+const currentPath = curKey();
+DB.ignored = [...new Set([...(DB.ignored || []), ...selected])];
+for (const key of selected) {
+  if (DB.lib) delete DB.lib[key];
+  if (DB.covers) delete DB.covers[key];
+  if (DB.lyrics) delete DB.lyrics[key];
+  
+  // ضفنا || [] عشان لو المفضلة ضاعت ميكسرش
+  DB.favs = (DB.favs || []).filter((value) => value !== key);
+  
+  if (DB.lists) {
     Object.keys(DB.lists).forEach((name) => {
-      DB.lists[name] = DB.lists[name].filter((value) => value !== key);
+      // ضفنا || [] هنا كمان عشان لو قايمة معينة باظت
+      DB.lists[name] = (DB.lists[name] || []).filter((value) => value !== key);
     });
-    files.delete(key);
-    tagCache.delete(key);
-    metaCache.delete(key);
-    if (ST.t) delete ST.t[key];
-    HIST = HIST.filter((entry) => entry.k !== key);
-    await tx('blobs', 'readwrite', (store) => store.delete(key)).catch(() => {});
   }
+  
+  if (files) files.delete(key);
+  if (tagCache) tagCache.delete(key);
+  if (metaCache) metaCache.delete(key);
+  if (ST.t) delete ST.t[key];
+  
+  // ضفنا || [] للسجل عشان لو HIST مش موجود
+  HIST = (HIST || []).filter((entry) => entry.k !== key);
+  
+  await tx('blobs', 'readwrite', (store) => store.delete(key)).catch(() => {});
+}
 
   tracks = tracks.filter((track) => !removeSet.has(track.path));
   cur = currentPath ? tracks.findIndex((track) => track.path === currentPath) : -1;
