@@ -3038,81 +3038,216 @@ const duplicateFileSize = (bytes) => {
   return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
 };
 
+
 async function openDuplicateScanner() {
   const modal = document.getElementById('dupModal');
   const status = document.getElementById('dupStatus');
   const results = document.getElementById('dupResults');
+
   if (!modal || !status || !results) return;
+
   modal.hidden = false;
   results.innerHTML = '';
   status.textContent = trs('جارٍ فحص الملفات المتشابهة في الحجم...');
   duplicateScanResults = [];
 
-  if (!crypto || !crypto.subtle || !crypto.subtle.digest) {
-    status.textContent = trs('تعذر فحص الملفات. تأكد من استخدام متصفح حديث يدعم SHA-256.');
-    return;
+  // بصمة سريعة من أجزاء مختلفة من الملف
+  async function getFileFingerprint(file) {
+    const sampleSize = Math.min(4096, file.size);
+
+    const positions = [
+      0,
+      Math.floor((file.size - sampleSize) / 2),
+      Math.max(0, file.size - sampleSize)
+    ];
+
+    const uniquePositions = [...new Set(positions)];
+
+    let hash = 2166136261;
+
+    for (const position of uniquePositions) {
+      const buffer = await file
+        .slice(position, position + sampleSize)
+        .arrayBuffer();
+
+      const bytes = new Uint8Array(buffer);
+
+      for (let i = 0; i < bytes.length; i++) {
+        hash ^= bytes[i];
+        hash = Math.imul(hash, 16777619);
+      }
+    }
+
+    return file.size + ':' + (hash >>> 0);
+  }
+
+  // مقارنة محتوى ملفين بالكامل، وليس الاسم أو الحجم فقط
+  async function filesAreIdentical(fileA, fileB) {
+    const chunkSize = 1024 * 1024;
+
+    if (fileA.size !== fileB.size) return false;
+
+    for (let offset = 0; offset < fileA.size; offset += chunkSize) {
+      const end = Math.min(offset + chunkSize, fileA.size);
+
+      const [bufferA, bufferB] = await Promise.all([
+        fileA.slice(offset, end).arrayBuffer(),
+        fileB.slice(offset, end).arrayBuffer()
+      ]);
+
+      const bytesA = new Uint8Array(bufferA);
+      const bytesB = new Uint8Array(bufferB);
+
+      if (bytesA.length !== bytesB.length) return false;
+
+      for (let i = 0; i < bytesA.length; i++) {
+        if (bytesA[i] !== bytesB[i]) return false;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    return true;
   }
 
   try {
+    // تجميع الملفات حسب الحجم
     const bySize = new Map();
-    for (const [k, file] of files.entries()) {
+
+    for (const [key, file] of files.entries()) {
       if (!file || !AUD.test(file.name)) continue;
-      if (!bySize.has(file.size)) bySize.set(file.size, []);
-      bySize.get(file.size).push({ k, file });
+
+      if (!bySize.has(file.size)) {
+        bySize.set(file.size, []);
+      }
+
+      bySize.get(file.size).push({ k: key, file });
     }
 
-    const candidates = [...bySize.values()].filter((group) => group.length > 1);
-    const total = candidates.reduce((sum, group) => sum + group.length, 0);
+    const candidates = [...bySize.values()].filter(
+      group => group.length > 1
+    );
+
+    const total = candidates.reduce(
+      (sum, group) => sum + group.length,
+      0
+    );
+
     if (!total) {
       status.textContent = trs('لم يتم العثور على أغاني مكررة.');
       return;
     }
 
-    const byHash = new Map();
+    // تجميع الملفات المتشابهة في البصمة
+    const byFingerprint = new Map();
     let checked = 0;
+
     for (const group of candidates) {
       for (const item of group) {
         checked++;
-        status.textContent = trs('جارٍ فحص الملفات المتشابهة في الحجم...') + ' ' + checked + '/' + total;
-        await new Promise((resolve) => setTimeout(resolve, 0));
-        const bytes = await item.file.arrayBuffer();
-        const digest = await crypto.subtle.digest('SHA-256', bytes);
-        const hash = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join('');
-        const hashKey = item.file.size + ':' + hash;
-        if (!byHash.has(hashKey)) byHash.set(hashKey, []);
-        byHash.get(hashKey).push(item);
+
+        status.textContent =
+          trs('جارٍ فحص الملفات المتشابهة في الحجم...') +
+          ' ' + checked + '/' + total;
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const fingerprint = await getFileFingerprint(item.file);
+
+        if (!byFingerprint.has(fingerprint)) {
+          byFingerprint.set(fingerprint, []);
+        }
+
+        byFingerprint.get(fingerprint).push(item);
       }
     }
 
-    duplicateScanResults = [...byHash.values()].filter((group) => group.length > 1);
+    // التأكد من تطابق محتوى الملفات فعليًا
+    for (const group of byFingerprint.values()) {
+      if (group.length < 2) continue;
+
+      const exactGroups = [];
+
+      for (const item of group) {
+        let matched = false;
+
+        for (const exactGroup of exactGroups) {
+          status.textContent = trs('جارٍ التأكد من تطابق الأغاني...');
+
+          const identical = await filesAreIdentical(
+            item.file,
+            exactGroup[0].file
+          );
+
+          if (identical) {
+            exactGroup.push(item);
+            matched = true;
+            break;
+          }
+        }
+
+        if (!matched) {
+          exactGroups.push([item]);
+        }
+      }
+
+      duplicateScanResults.push(
+        ...exactGroups.filter(exactGroup => exactGroup.length > 1)
+      );
+    }
+
     if (!duplicateScanResults.length) {
       status.textContent = trs('لم يتم العثور على أغاني مكررة.');
       return;
     }
 
     const copyLabel = trs('نسخة');
+
     results.innerHTML = duplicateScanResults.map((group, groupIndex) => `
       <section style="padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(var(--w),.03)">
         <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px">
           <b>${trs('مجموعة مكررة')} ${groupIndex + 1}</b>
-          <span style="color:var(--mute);font-size:12px">${group.length} ${copyLabel} · ${duplicateFileSize(group[0].file.size)}</span>
+          <span style="color:var(--mute);font-size:12px">
+            ${group.length} ${copyLabel} · ${duplicateFileSize(group[0].file.size)}
+          </span>
         </div>
-        ${group.map((item, itemIndex) => `
+
+        ${group.map(item => `
           <label style="display:flex;gap:9px;align-items:flex-start;padding:7px 2px;border-top:1px solid var(--line);cursor:pointer">
-            <input type="checkbox" data-duplicate-key="${esc(item.k)}" style="margin-top:4px;flex:none">
+            <input
+              type="checkbox"
+              data-duplicate-key="${esc(item.k)}"
+              style="margin-top:4px;flex:none"
+            >
+
             <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
               <b style="font-size:13px;overflow-wrap:anywhere">${esc(item.file.name)}</b>
-              <small style="color:var(--mute);font-size:11px;overflow-wrap:anywhere">${esc(item.file.webkitRelativePath || item.file.name)}</small>
+              <small style="color:var(--mute);font-size:11px;overflow-wrap:anywhere">
+                ${esc(item.file.webkitRelativePath || item.file.name)}
+              </small>
             </span>
-          </label>`).join('')}
-      </section>`).join('');
+          </label>
+        `).join('')}
+      </section>
+    `).join('');
 
-    status.textContent = duplicateScanResults.length + ' ' + trs('مجموعة مكررة') + ' · ' + duplicateScanResults.reduce((sum, group) => sum + group.length, 0) + ' ' + copyLabel;
+    status.textContent =
+      duplicateScanResults.length + ' ' +
+      trs('مجموعة مكررة') + ' · ' +
+      duplicateScanResults.reduce(
+        (sum, group) => sum + group.length,
+        0
+      ) + ' ' + copyLabel;
+
   } catch (error) {
     console.error('Lahn duplicate scan error:', error);
-    status.textContent = trs('تعذر فحص الملفات. تأكد من استخدام متصفح حديث يدعم SHA-256.');
+
+    status.textContent = trs(
+      'تعذر فحص الملفات. تأكد من استخدام متصفح حديث يدعم SHA-256.'
+    );
   }
 }
+
 
 async function removeSelectedDuplicates() {
   const results = document.getElementById('dupResults');
@@ -4194,7 +4329,15 @@ function renderSettingsPage() {
     el.onclick = () => { setLang(el.dataset.lang); renderSettingsPage(); };
   });
 
+
   L.querySelectorAll('[data-viz]').forEach(el => {
+    el.onclick = () => {
+      vizStyle = el.dataset.viz;
+      localStorage.ng_viz = vizStyle;
+      renderSettingsPage();
+    };
+  });
+
   L.querySelectorAll('[data-seek]').forEach(el => {
     el.onclick = () => {
       const mode = el.dataset.seek;
@@ -4203,8 +4346,7 @@ function renderSettingsPage() {
       renderSettingsPage();
     };
   });
-    el.onclick = () => { vizStyle = el.dataset.viz; localStorage.ng_viz = vizStyle; renderSettingsPage(); };
-  });
+
 
   L.querySelectorAll('[data-speed]').forEach(el => {
     el.onclick = () => { setSpeed(+el.dataset.speed); };
@@ -4316,8 +4458,21 @@ function renderSettingsPage() {
   
   const backupBtn = document.getElementById('backupBtnSet');
   if (backupBtn) backupBtn.onclick = backupData;
-  const dupScanBtn = document.getElementById('dupScanBtn');
-  if (dupScanBtn) dupScanBtn.onclick = () => openDuplicateScanner();
+ const dupScanBtn = L.querySelector('#dupScanBtn');
+
+if (dupScanBtn) {
+  dupScanBtn.onclick = (e) => {
+    e.preventDefault();
+    console.log('Lahn: Duplicate scan button clicked');
+
+    if (typeof openDuplicateScanner !== 'function') {
+      console.error('openDuplicateScanner is not defined');
+      return;
+    }
+
+    openDuplicateScanner();
+  };
+}
   
   const restoreBtn = document.getElementById('restoreBtnSet');
   if (restoreBtn) restoreBtn.onclick = () => $('#restoreInput').click();
