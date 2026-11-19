@@ -107,7 +107,19 @@ body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
   height: 20px;
   min-width: 0;
 }
-#seek{position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:0;cursor:pointer;}
+
+#seek {
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: auto;
+  width: 72%;
+  height: 100%;
+  z-index: 2;
+  opacity: 0;
+  cursor: pointer;
+}
+
 #waveformCanvas {
   position: absolute;
   top: 3px;
@@ -118,9 +130,26 @@ body.drag main{box-shadow:inset 0 0 0 2px var(--tint)}
   z-index: 1;
   pointer-events: none;
 }
-body.seek-normal .seekrow { height: auto; }
-body.seek-normal #seek { position: static; opacity: 1; height: 4px; inset: auto; z-index: auto; }
-body.seek-normal #waveformCanvas { display: none; }
+
+body.seek-normal .seekrow {
+  height: auto;
+}
+
+body.seek-normal #seek {
+  position: static;
+  opacity: 1;
+  width: 100%;
+  height: 4px;
+  inset: auto;
+  left: auto;
+  right: auto;
+  z-index: auto;
+}
+
+body.seek-normal #waveformCanvas {
+  display: none;
+}
+
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;width:100%;height:4px;border-radius:4px;cursor:pointer;background:linear-gradient(to right,var(--text) var(--p,0%),rgba(var(--w),.2) var(--p,0%))}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--text);opacity:0;transition:opacity .15s}
 input[type=range]:hover::-webkit-slider-thumb,input[type=range]:focus-visible::-webkit-slider-thumb{opacity:1}
@@ -1061,10 +1090,11 @@ const dur = (url) => new Promise((res) => {
   a.src = url;
 });
 
-const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, albumCovers: {}, listCovers: {}, ignored: [] }, JSON.parse(localStorage.ng2 || '{}'));
+const DB = Object.assign({ lib: {}, lists: {}, favs: [], lyrics: {}, covers: {}, artistCovers: {}, artistAliases: {}, albumCovers: {}, listCovers: {} }, JSON.parse(localStorage.ng2 || '{}'));
 if (!Array.isArray(DB.ignored)) DB.ignored = [];
 
 if (!DB.artistCovers) DB.artistCovers = {};
+if (!DB.artistAliases || typeof DB.artistAliases !== 'object') DB.artistAliases = {};
 if (!DB.albumCovers) DB.albumCovers = {};
 if (!DB.lyrics) DB.lyrics = {};
 if (!DB.covers) DB.covers = {};
@@ -1702,6 +1732,7 @@ const listName = () => view === 'fav' ? 'المفضلة' : view.slice(3);
 const EMPTY = ['اسحب الموسيقى هنا أو اضغط «ملفات»', 'لسه مفيش مفضلة. اضغط ♡ على أي أغنية.', 'القايمة فاضية. أضف أغاني من ⋯', 'مكتبتك فاضية. اضغط «مجلد» لربط فولدر الموسيقى.'];
 
 function render() {
+invalidateArtistLabels();
   if (tracks.map(remember).some(Boolean)) persist();
   if (view.startsWith('pl:') && !DB.lists[view.slice(3)]) view = 'queue';
   const s = $('#view');
@@ -2921,6 +2952,51 @@ ROWS.push(
   ['أعد الفحص', 'Scan again', 'Analyser à nouveau', 'Volver a escanear', 'Yeniden tara', 'Erneut prüfen', 'Pindai lagi', 'دوبارہ اسکین کریں']
 );
 
+
+ROWS.push(
+  [
+    'ربط اسم آخر بنفس الفنان',
+    'Link another name to this artist',
+    'Associer un autre nom au même artiste',
+    'Vincular otro nombre al mismo artista',
+    'Aynı sanatçıya başka bir ad bağla',
+    'Weiteren Namen demselben Künstler zuordnen',
+    'Hubungkan nama lain ke artis yang sama',
+    'اسی فنکار کے ساتھ دوسرا نام جوڑیں'
+  ],
+  [
+    'اكتب الاسم الآخر للفنان (عربي أو إنجليزي):',
+    'Enter the other artist name (Arabic or English):',
+    'Saisissez l’autre nom de l’artiste (arabe ou anglais) :',
+    'Escribe el otro nombre del artista (árabe o inglés):',
+    'Sanatçının diğer adını girin (Arapça veya İngilizce):',
+    'Gib den anderen Künstlernamen ein (Arabisch oder Englisch):',
+    'Masukkan nama artis lainnya (Arab atau Inggris):',
+    'فنکار کا دوسرا نام درج کریں (عربی یا انگریزی):'
+  ],
+  [
+    'الاسمان متطابقان بالفعل',
+    'These names already match',
+    'Ces noms correspondent déjà',
+    'Estos nombres ya coinciden',
+    'Bu adlar zaten eşleşiyor',
+    'Diese Namen stimmen bereits überein',
+    'Nama-nama ini sudah cocok',
+    'یہ نام پہلے ہی ایک جیسے ہیں'
+  ],
+  [
+    'تم توحيد أسماء الفنانين',
+    'Artist names have been unified',
+    'Les noms des artistes ont été unifiés',
+    'Los nombres de los artistas se han unificado',
+    'Sanatçı adları birleştirildi',
+    'Künstlernamen wurden zusammengeführt',
+    'Nama artis telah disatukan',
+    'فنکاروں کے نام یکجا کر دیے گئے'
+  ]
+);
+
+
 const EX = new Map(), PT = [];
 ROWS.forEach((r) => { if (!r) return; r[0].includes('{n}') ? PT.push([new RegExp('^' + r[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\{n\\}', '(.+?)') + '$'), r]) : EX.set(r[0], r); });
 function trs(s) {
@@ -3253,14 +3329,175 @@ const addRows = (lines) => lines.forEach((ln) => { const p = ln.split('|'); if (
 addRows(['الرئيسية|Home', 'الفنانون|Artists', 'الألبومات|Albums', 'السجل|History', 'مؤقت النوم|Sleep timer', 'دقيقة|minutes', 'ابدأ|Start', 'حتى نهاية الأغنية|Until the song ends', 'مؤقت النوم: نهاية الأغنية|Sleep timer: end of song', 'تكرار الكل|Repeat all', 'تكرار أغنية واحدة|Repeat one', 'بدون تكرار|No repeat', 'محدد|selected', '{n} محدد|{n} selected', 'تشغيل|Play', 'تشغيل بعد دي|Play next', 'إضافة للقايمة الجاية|Add to queue', 'حذف من المكتبة|Remove from library', 'إلغاء التحديد|Clear selection', 'تحديد الكل|Select all', 'استيراد M3U|Import M3U', 'تصدير M3U|Export M3U', 'مسح السجل|Clear history', 'تمسح السجل كله؟|Clear the entire history?', 'إيقاف التسجيل|Pause recording', 'تشغيل التسجيل|Resume recording', 'ما تفصلش الاسم ده|Don’t split this name', 'لون خاص|Custom color', 'أكتر الفنانين استماعاً|Top artists', 'أكتر الأغاني استماعاً|Top songs', 'أكتر الألبومات استماعاً|Top albums', 'النهاردة|Today', 'إمبارح|Yesterday', 'الأسبوع|This week', 'الشهر|This month', 'السنة|This year', 'الكل|All time', 'د|min', 'مفيش بيانات لسه — الإحصائيات بتبدأ من أول ما تسمع|No data yet — stats start as you listen', 'السجل فاضي|History is empty', 'تشغيل الكل|Play all', 'عشوائي|Shuffle', 'قائمة|List', 'شبكة|Grid', 'مضغوط|Compact', 'مفصّل|Detailed', 'طريقة العرض|View mode', 'الإعدادات|Settings', '🎨 الشكل والمظهر|🎨 Appearance', '🌐 اللغة|🌐 Language', '⚡ السرعة ومؤقت النوم|⚡ Speed & Sleep Timer', 'سرعة التشغيل|Playback speed', '🎚 المعادل الصوتي|🎚 Equalizer', '💾 البيانات|💾 Data', 'تصدير نسخة احتياطية|Export backup', 'احفظ كل بياناتك في ملف JSON|Save all your data to a JSON file', 'استعادة نسخة احتياطية|Restore backup', 'استرجع بياناتك من ملف سابق|Restore your data from a previous file', 'مسح كل البيانات|Clear all data', 'إعادة ضبط التطبيق من جديد|Reset the app from scratch', 'ℹ️ حول التطبيق|ℹ️ About the app', 'الإصدار|Version', 'عدد الأغاني|Number of tracks', 'عدد القوائم|Number of playlists', 'عدد المفضلة|Number of favorites', 'عدد الكلمات المحفوظة|Number of saved lyrics', 'الوضع الكلاسيكي|Classic mode', 'تعديل معلومات الأغنية|Edit song info', 'تعديل اسم وصورة الفنان|Edit artist name and photo', 'اسم الأغنية|Song title', 'اسم الفنان|Artist name', 'الألبوم|Album', 'النوع (Genre)|Genre', 'سنة الإصدار|Release year', 'صورة الغلاف|Cover image', 'مسح|Clear', 'الاسم الجديد للفنان (سيتم تحديثه في جميع أغانيه)|New artist name (will update in all their songs)', 'صورة الفنان|Artist image', 'حفظ التعديلات|Save changes', 'تم تعديل معلومات الأغنية|Song info updated', 'تم تعديل اسم الفنان|Artist name updated', 'إضافة / تعديل الكلمات (ليركس)|Add / Edit Lyrics', 'اكتب الكلمات النصية العادية، أو استخدم صيغة التوقيت (LRC) للكلمات المتزامنة مثل:|Type plain text lyrics, or use LRC format for synced lyrics like:', 'الصق أو اكتب الكلمات هنا...|Paste or type lyrics here...', '🌐 جلب تلقائي|🌐 Auto fetch', 'إلغاء|Cancel', 'حفظ الكلمات|Save lyrics', 'طريقة العرض: متزامن|View mode: Synced', 'طريقة العرض: عادي|View mode: Plain', '📝 تعديل الكلمات|📝 Edit lyrics', 'تعديل الكلمات|Edit lyrics', 'تم حفظ الكلمات بنجاح|Lyrics saved successfully', 'جاري البحث...|Searching...', 'تم جلب الكلمات تلقائياً|Lyrics fetched automatically', 'لم يتم العثور على كلمات|No lyrics found', 'فشل الاتصال بالإنترنت|Internet connection failed', 'مفيش أغنية شغالة حالياً|No track currently playing', 'مفيش كلمات متضافة للأغنية دي.|No lyrics added for this song.', 'اضغط «تعديل الكلمات» لإضافتها بصيغة عادية أو متزامنة.|Click "Edit lyrics" to add them in plain or synced format.']);
 
 var SEL = new Set(), selAnchor = null, lastView = '', HIST = JSON.parse(localStorage.ng_hist || '[]'), HP = localStorage.ng_hp || 'week';
-const SEP = /\s*(?:[,،;؛&\/]|\s(?:feat\.?|ft\.?)\s)\s*/i;
-const artistsOf = (m) => { const s = (m && m.artist) || ''; if (!s) return []; if ((DB.noSplit || []).includes(s)) return [s]; return [...new Set(s.split(SEP).map((x) => x.trim()).filter(Boolean))]; };
+
+const SEP = /\s*(?:[,،;؛&\/]\s*|\s+(?:feat\.?|ft\.?)\s+)/i;
+
+// توحيد شكل أسماء الفنانين
+const normalizeArtistName = (value) => String(value || '')
+  .normalize('NFKD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[\u064B-\u065F\u0670\u0640\s]+/g, '')
+  .replace(/[أإآٱ]/g, 'ا')
+  .replace(/[ىئ]/g, 'ي')
+  .replace(/ؤ/g, 'و')
+  .replace(/ة/g, 'ه')
+  .toLowerCase();
+
+let artistLabelCache = null;
+
+const invalidateArtistLabels = () => {
+  artistLabelCache = null;
+};
+
+const rawArtistsOf = (m) => {
+  const s = String((m && m.artist) || '').trim();
+  if (!s) return [];
+
+  if ((DB.noSplit || []).some(
+    x => normalizeArtistName(x) === normalizeArtistName(s)
+  )) return [s];
+
+  return [...new Set(
+    s.split(SEP).map(x => x.trim()).filter(Boolean)
+  )];
+};
+
+// اختيار أفضل شكل لاسم الفنان
+function buildArtistLabelCache() {
+  if (artistLabelCache) return artistLabelCache;
+
+  const map = new Map();
+  const score = name =>
+    /[a-z]/.test(name) && /[A-Z]/.test(name) ? 2 : 1;
+
+  for (const m of Object.values(DB.lib)) {
+    for (const name of rawArtistsOf(m)) {
+      const key = normalizeArtistName(name);
+      if (!key) continue;
+
+      const old = map.get(key);
+
+      if (!old || score(name) > score(old)) {
+        map.set(key, name);
+      }
+    }
+  }
+
+  artistLabelCache = map;
+  return map;
+}
+
+function artistLabel(name) {
+  const key = normalizeArtistName(name);
+
+  return (
+    (DB.artistAliases && DB.artistAliases[key]) ||
+    buildArtistLabelCache().get(key) ||
+    name
+  );
+}
+
+// الأسماء بعد التوحيد
+const artistsOf = (m) => {
+  const unique = new Map();
+
+  rawArtistsOf(m).map(artistLabel).forEach(name => {
+    const key = normalizeArtistName(name);
+
+    if (key && !unique.has(key)) {
+      unique.set(key, name);
+    }
+  });
+
+  return [...unique.values()];
+};
+
 function groups(kind) {
   const g = new Map();
-  for (const [k, m] of Object.entries(DB.lib)) (kind === 'artist' ? artistsOf(m) : m.album ? [m.album] : []).forEach((n) => { if (!g.has(n)) g.set(n, []); g.get(n).push(k); });
+
+  for (const [k, m] of Object.entries(DB.lib)) {
+    const names = kind === 'artist'
+      ? artistsOf(m)
+      : m.album ? [m.album] : [];
+
+    names.forEach(n => {
+      if (!g.has(n)) g.set(n, []);
+      g.get(n).push(k);
+    });
+  }
+
   return g;
 }
-function noSplit() { const n = view.slice(3), o = [...Object.values(DB.lib)].map((m) => m.artist).find((a) => a && a.includes(n)) || n; DB.noSplit = [...new Set([...(DB.noSplit || []), o])]; persist(); view = 'ar:' + o; render(); }
+
+// ربط الاسم العربي بالإنجليزي أو أي اسم بديل
+function linkArtistAlias(artistName) {
+  const otherName = (
+    prompt('اكتب الاسم الآخر للفنان (عربي أو إنجليزي):') || ''
+  ).trim();
+
+  if (!otherName) return;
+
+  const target = artistLabel(artistName);
+  const otherLabel = artistLabel(otherName);
+
+  const targetKey = normalizeArtistName(target);
+  const otherKey = normalizeArtistName(otherName);
+
+  if (!targetKey || !otherKey || targetKey === otherKey) {
+    return toast(trs('الاسمان متطابقان بالفعل'));
+  }
+
+  // تحويل الروابط القديمة للاسم الموحد
+  for (const key of Object.keys(DB.artistAliases)) {
+    if (
+      normalizeArtistName(DB.artistAliases[key]) ===
+      normalizeArtistName(otherLabel)
+    ) {
+      DB.artistAliases[key] = target;
+    }
+  }
+
+  DB.artistAliases[targetKey] = target;
+  DB.artistAliases[normalizeArtistName(artistName)] = target;
+  DB.artistAliases[otherKey] = target;
+  DB.artistAliases[normalizeArtistName(otherLabel)] = target;
+
+  // الاحتفاظ بصورة الفنان إن كانت موجودة
+  const oldCover =
+    DB.artistCovers[otherLabel] || DB.artistCovers[otherName];
+
+  if (oldCover && !DB.artistCovers[target]) {
+    DB.artistCovers[target] = oldCover;
+  }
+
+  if (otherLabel !== target) {
+    delete DB.artistCovers[otherLabel];
+    delete DB.artistCovers[otherName];
+  }
+
+  invalidateArtistLabels();
+  persist();
+  render();
+
+  toast(trs('تم توحيد أسماء الفنانين'));
+}
+
+function noSplit() {
+  const n = view.slice(3);
+  const o = [...Object.values(DB.lib)]
+    .map(m => m.artist)
+    .find(a => a && a.includes(n)) || n;
+
+  DB.noSplit = [
+    ...new Set([...(DB.noSplit || []), o])
+  ];
+
+  invalidateArtistLabels();
+  persist();
+
+  view = 'ar:' + artistLabel(o);
+  render();
+}
 const histKeys = () => [...new Set([...HIST].reverse().map((x) => x.k))];
 function histAdd(k) { HIST.push({ k, t: Date.now() }); if (HIST.length > 5000) HIST.splice(0, HIST.length - 5000); try { localStorage.ng_hist = JSON.stringify(HIST); } catch (_) {} }
 const hue = (n) => 'hsl(' + ([...n].reduce((a, c) => a + c.charCodeAt(0), 0) % 360) + ',45%,40%)';
@@ -3450,7 +3687,25 @@ const gKeys = (g) => (g.startsWith('ar:') ? groups('artist') : groups('album')).
 const shuf = (ks) => [...ks].sort(() => Math.random() - .5);
 function groupMenu(g, x, y) {
   const ks = gKeys(g), it = [[svgIcons.play + ' تشغيل الكل', () => startQueue(ks, ks[0])], [svgIcons.share + ' عشوائي', () => startQueue(shuf(ks), null)], [svgIcons.next + ' تشغيل بعد دي', async () => { for (const k of [...ks].reverse()) await enqueue(k, true); }], [svgIcons.queue + ' إضافة للقايمة الجاية', async () => { for (const k of ks) await enqueue(k, false); }], [svgIcons.plus + ' إضافة لقايمة…', (x2, y2) => addMenuMulti(ks, x2, y2)], [svgIcons.arrowRight + ' فتح', () => { view = g; render(); }]];
-  if (g.startsWith('ar:')) { it.push([svgIcons.edit + ' تعديل اسم وصورة الفنان', () => openEditArtistModal(g.slice(3))]); it.push([svgIcons.x + ' ما تفصلش الاسم ده', () => { view = g; noSplit(); }]); }
+if (g.startsWith('ar:')) {
+  it.push([
+    svgIcons.edit + ' تعديل اسم وصورة الفنان',
+    () => openEditArtistModal(g.slice(3))
+  ]);
+
+  it.push([
+    '🔗 ' + trs('ربط اسم آخر بنفس الفنان'),
+    () => linkArtistAlias(g.slice(3))
+  ]);
+
+  it.push([
+    svgIcons.x + ' ما تفصلش الاسم ده',
+    () => {
+      view = g;
+      noSplit();
+    }
+  ]);
+}
   showMenu(x, y, it);
 }
 function navMenu(v, x, y) {
@@ -3526,23 +3781,76 @@ $('#restoreInput').onchange = async (e) => {
 };
 
 $('#vm').onclick = (e) => {
-  const p = e.currentTarget.getBoundingClientRect(), it = [[svgIcons.plus + ' قايمة جديدة', () => newList()]];
-  
-  if (view.startsWith('pl:')) {
-    it.push([svgIcons.share + ' مشاركة القايمة بلينك', () => shareListLink(view.slice(3))]);
+  const p = e.currentTarget.getBoundingClientRect(),
+    it = [[svgIcons.plus + ' قايمة جديدة', () => newList()]];
+
+  // خيارات الفنان
+  if (view.startsWith('ar:')) {
+    it.push(
+      [svgIcons.edit + ' تعديل اسم وصورة الفنان', () => openEditArtistModal(view.slice(3))],
+      ['🔗 ' + trs('ربط اسم آخر بنفس الفنان'), () => linkArtistAlias(view.slice(3))],
+      [svgIcons.x + ' ما تفصلش الاسم ده', noSplit]
+    );
   }
-  
+
+  // خيارات قائمة التشغيل والسجل
   if (view === 'queue') {
-    it.push([svgIcons.download + ' احفظ قايمة التشغيل كقايمة', () => { const n = (prompt('اسم القايمة:') || '').trim(); if (!n) return; DB.lists[n] = tracks.map((t) => t.path); view = 'pl:' + n; persist(); render(); }]);
+    it.push([
+      svgIcons.download + ' احفظ قايمة التشغيل كقايمة',
+      () => {
+        const n = (prompt('اسم القايمة:') || '').trim();
+        if (!n) return;
+        DB.lists[n] = tracks.map((t) => t.path);
+        view = 'pl:' + n;
+        persist();
+        render();
+      }
+    ]);
+
   } else if (view === 'hist') {
-    it.push([svgIcons.trash + ' مسح السجل', () => { if (confirm('تمسح السجل كله؟')) { HIST = []; localStorage.ng_hist = '[]'; render(); } }]);
-    it.push([ST.off ? svgIcons.play + ' تشغيل التسجيل' : svgIcons.x + ' إيقاف التسجيل', () => { ST.off = !ST.off; saveStats(); }]);
+    it.push([
+      svgIcons.trash + ' مسح السجل',
+      () => {
+        if (confirm('تمسح السجل كله؟')) {
+          HIST = [];
+          localStorage.ng_hist = '[]';
+          render();
+        }
+      }
+    ]);
+
+    it.push([
+      ST.off ? svgIcons.play + ' تشغيل التسجيل' : svgIcons.x + ' إيقاف التسجيل',
+      () => {
+        ST.off = !ST.off;
+        saveStats();
+      }
+    ]);
+
   } else {
-    it.push([svgIcons.play + ' تشغيل الكل', () => startQueue(keysOfView(), keysOfView()[0])], [svgIcons.share + ' مشاركة القايمة (نص)', shareList], [svgIcons.download + ' تصدير ملف القايمة', exportList]);
-    if (view.startsWith('pl:')) it.push([svgIcons.edit + ' إعادة تسمية', renameList], [svgIcons.trash + ' حذف القايمة', deleteList]);
+    it.push(
+      [svgIcons.play + ' تشغيل الكل', () => startQueue(keysOfView(), keysOfView()[0])],
+      [svgIcons.share + ' مشاركة القايمة (نص)', shareList],
+      [svgIcons.download + ' تصدير ملف القايمة', exportList]
+    );
+
+    if (view.startsWith('pl:')) {
+      it.push(
+        [svgIcons.edit + ' إعادة تسمية', renameList],
+        [svgIcons.trash + ' حذف القايمة', deleteList]
+      );
+    }
   }
-  if (view !== 'hist') it.push([svgIcons.upload + ' استيراد قايمة من ملف', importList], [svgIcons.upload + ' استيراد M3U', importM3U], [svgIcons.download + ' تصدير M3U', exportM3U]);
-  if (view.startsWith('ar:')) it.push([svgIcons.edit + ' تعديل اسم وصورة الفنان', () => openEditArtistModal(view.slice(3))], [svgIcons.x + ' ما تفصلش الاسم ده', noSplit]);
+
+  // استيراد وتصدير القوائم
+  if (view !== 'hist') {
+    it.push(
+      [svgIcons.upload + ' استيراد قايمة من ملف', importList],
+      [svgIcons.upload + ' استيراد M3U', importM3U],
+      [svgIcons.download + ' تصدير M3U', exportM3U]
+    );
+  }
+
   showMenu(p.left, p.bottom + 4, it);
 };
 
