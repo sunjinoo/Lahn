@@ -26,6 +26,7 @@ button svg { pointer-events: none; }
 
 body{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",sans-serif;color:var(--text);overflow:hidden;background:radial-gradient(900px 600px at 70% -10%,rgba(var(--tint-rgb),.28),transparent 60%),var(--bg)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+html,body,button,input,select,textarea{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:8px}
 .app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:minmax(0,1fr) 92px;gap:10px;height:100%;padding:10px}
 .panel{background:rgba(var(--w),.045);border:1px solid var(--line);border-radius:18px}
@@ -670,6 +671,1983 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   .dup-modal-card { padding: 12px; }
   .dup-actions { display: grid; grid-template-columns: 1fr; }
 }
+
+
+/* Display modes: complete visual treatments layered over the original layout. */
+.display-mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-top:12px}
+.display-mode-card{display:flex;flex-direction:column;gap:7px;text-align:start;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(var(--w),.035);color:var(--text);cursor:pointer;transition:transform .18s,border-color .18s,background .18s}
+.display-mode-card:hover{transform:translateY(-2px);border-color:var(--tint)}
+.display-mode-card.selected{border:2px solid var(--tint);background:rgba(var(--tint-rgb),.10)}
+.display-mode-card small{color:var(--mute);font-size:10px}
+.display-mode-preview{height:65px;border-radius:9px;display:flex;align-items:end;gap:5px;padding:8px;overflow:hidden}
+.display-mode-preview i{display:block;border-radius:5px 5px 2px 2px;width:25%;height:65%;background:rgba(255,255,255,.72)}
+.display-mode-preview i:nth-child(2){height:90%}.display-mode-preview i:nth-child(3){height:48%}
+.preview-lahn{background:linear-gradient(130deg,#171327,#49347b 58%,#9b7cf0)}
+.preview-spotify{background:linear-gradient(130deg,#111,#202820 60%,#1ed760)}
+.preview-apple{background:linear-gradient(130deg,#ffe0e8,#ff7e9e 55%,#a43d65)}
+body.display-spotify{--tint:#1ed760!important;--tint-rgb:30,215,96!important;--bg:#101010!important;--panel:#181818!important;--line:rgba(255,255,255,.09)!important;--mute:#a7a7a7!important;--radius:9px}
+body.display-spotify .settings-section,body.display-spotify .card,body.display-spotify .modal-box{border-radius:9px!important}
+body.display-spotify .nv.on,body.display-spotify .chip.pri{background:#1ed760!important;color:#071b0d!important}
+body.display-spotify .row{border-radius:7px!important}
+body.display-apple{--tint:#fa5b83!important;--tint-rgb:250,91,131!important;--bg:#fff7f9!important;--panel:#ffffff!important;--text:#261820!important;--mute:#927e87!important;--line:rgba(90,40,60,.13)!important;--radius:20px}
+body.display-apple{color-scheme:light}
+body.display-apple .settings-section,body.display-apple .card,body.display-apple .modal-box{border-radius:20px!important;box-shadow:0 8px 28px rgba(110,40,70,.07)}
+body.display-apple .nv.on,body.display-apple .chip.pri{background:#fa5b83!important;color:white!important}
+body.display-apple input,body.display-apple select,body.display-apple textarea{background:#fff!important;color:#261820!important;border-color:#ead7df!important}
+body.display-apple .row{border-radius:14px!important;margin-block:4px}
+#lahnRemixModal{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.78);display:grid;place-items:center;padding:18px}
+#lahnRemixModal[hidden]{display:none}
+#lahnRemixModal .remix-panel{width:min(620px,100%);max-height:90vh;overflow:auto;background:var(--panel,#191722);color:var(--text,#fff);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 20px 80px #0008}
+.remix-panel h2{margin:0 0 15px;font-size:20px}.remix-field{display:grid;gap:7px;margin:13px 0}.remix-field label{font-size:13px;color:var(--mute)}
+.remix-field input[type=file]{width:100%;padding:10px;border:1px dashed var(--line);border-radius:10px;color:var(--text);background:rgba(var(--w),.04)}
+.remix-range{width:100%;accent-color:var(--tint)}.remix-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.remix-actions button{padding:10px 14px;border:0;border-radius:10px;background:var(--tint);color:white;cursor:pointer}.remix-actions button.secondary{background:rgba(var(--w),.1);color:var(--text)}
+.remix-status{min-height:22px;color:var(--mute);font-size:12px;margin-top:10px}.settings-hint{font-size:12px;color:var(--mute);line-height:1.7;margin:8px 0 12px}
+body.display-spotify .display-mode-card,body.display-apple .display-mode-card{color:var(--text)}
+@media(max-width:600px){.display-mode-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.display-mode-card{padding:7px}.display-mode-preview{height:48px}.display-mode-card b{font-size:11px}.display-mode-card small{font-size:8px}}
+
+
+
+/* ========================================================================
+   DISPLAY SYSTEM V2
+   Spotify and Apple Music are independent application layouts. The original
+   Lahn layout remains the default and is not restyled by these selectors.
+   ======================================================================== */
+
+/* Shared display-mode transitions and sizing */
+body.display-lahn .app {
+  direction: rtl;
+}
+body.display-spotify,
+body.display-apple {
+  min-height: 100%;
+}
+body.display-spotify .app,
+body.display-apple .app {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  gap: 8px;
+  padding: 8px;
+  grid-template-columns: 258px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) 96px;
+  direction: ltr;
+}
+body.display-spotify main,
+body.display-apple main {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  direction: rtl;
+}
+body.display-spotify .side,
+body.display-apple .side {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  direction: ltr;
+}
+body.display-spotify .bar,
+body.display-apple .bar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  direction: ltr;
+  min-width: 0;
+}
+body.display-spotify .side,
+body.display-spotify main,
+body.display-spotify .bar,
+body.display-apple .side,
+body.display-apple main,
+body.display-apple .bar {
+  transition: background-color .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+body.display-spotify .side,
+body.display-apple .side {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+body.display-spotify .brand,
+body.display-apple .brand {
+  direction: ltr;
+  justify-content: flex-start;
+}
+body.display-spotify .nv,
+body.display-apple .nv {
+  direction: ltr;
+  text-align: left;
+  justify-content: flex-start;
+}
+body.display-spotify .sh,
+body.display-apple .sh {
+  direction: ltr;
+  text-align: left;
+}
+body.display-spotify .top,
+body.display-apple .top {
+  direction: ltr;
+}
+body.display-spotify .hero,
+body.display-apple .hero {
+  direction: ltr;
+  text-align: left;
+}
+body.display-spotify #vt,
+body.display-apple #vt {
+  text-align: left;
+}
+body.display-spotify .row,
+body.display-apple .row {
+  direction: ltr;
+  text-align: left;
+}
+body.display-spotify .row .t,
+body.display-apple .row .t {
+  direction: ltr;
+  text-align: left;
+}
+body.display-spotify .np,
+body.display-apple .np {
+  direction: ltr;
+}
+body.display-spotify .rt,
+body.display-apple .rt {
+  direction: ltr;
+}
+body.display-spotify .ctl,
+body.display-apple .ctl {
+  direction: ltr;
+}
+body.display-spotify .seekrow,
+body.display-apple .seekrow {
+  direction: ltr;
+}
+body.display-spotify .settings-page,
+body.display-apple .settings-page {
+  direction: rtl;
+}
+body.display-spotify .settings-section,
+body.display-apple .settings-section {
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+/* Spotify-inspired application frame */
+body.display-spotify {
+  --tint: #1ed760 !important;
+  --tint-rgb: 30, 215, 96 !important;
+  --bg: #121212 !important;
+  --panel: #181818 !important;
+  --text: #ffffff !important;
+  --mute: #b3b3b3 !important;
+  --line: rgba(255,255,255,.08) !important;
+  --w: 255,255,255 !important;
+  --on: #000000 !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+body.display-spotify .app {
+  background: #000000;
+}
+body.display-spotify .side {
+  padding: 18px 12px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #121212;
+  box-shadow: none;
+}
+body.display-spotify .brand {
+  padding: 4px 12px 20px;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -.3px;
+  color: #ffffff;
+}
+body.display-spotify .brand svg {
+  filter: grayscale(1) brightness(0) invert(1);
+  box-shadow: none !important;
+}
+body.display-spotify .nv {
+  min-height: 42px;
+  margin: 1px 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  color: #b3b3b3;
+  font-size: 14px;
+  font-weight: 650;
+  gap: 14px;
+  background: transparent;
+}
+body.display-spotify .nv svg {
+  width: 22px;
+  height: 22px;
+  opacity: .9;
+}
+body.display-spotify .nv:hover {
+  color: #ffffff;
+  background: #1a1a1a;
+}
+body.display-spotify .nv.on {
+  color: #ffffff !important;
+  background: #242424 !important;
+}
+body.display-spotify .nv.on svg {
+  color: #1ed760;
+}
+body.display-spotify .side .sh {
+  padding: 20px 12px 9px;
+  color: #b3b3b3;
+  font-size: 13px;
+  font-weight: 700;
+}
+body.display-spotify #pls {
+  margin: 4px 0;
+  padding: 0 2px;
+  gap: 1px;
+}
+body.display-spotify #pls .nv {
+  min-height: 36px;
+  padding: 7px 10px;
+  color: #a7a7a7;
+  font-size: 13px;
+  font-weight: 500;
+}
+body.display-spotify #pls .nv:hover {
+  color: #ffffff;
+  background: #1d1d1d;
+}
+body.display-spotify #pls .nv.on {
+  color: #ffffff !important;
+  background: #242424 !important;
+}
+body.display-spotify .side > [data-v="settings"] {
+  margin-top: 8px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(255,255,255,.08) !important;
+  color: #b3b3b3 !important;
+}
+body.display-spotify main {
+  border: 0;
+  border-radius: 8px;
+  background: #121212;
+  box-shadow: none;
+}
+body.display-spotify .top {
+  min-height: 66px;
+  padding: 14px 24px 8px;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,.18), transparent);
+}
+body.display-spotify .nav-btn {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  color: #ffffff;
+  background: rgba(0,0,0,.55);
+}
+body.display-spotify .nav-btn:hover {
+  background: #303030;
+  transform: none;
+}
+body.display-spotify #q {
+  min-height: 46px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: #242424;
+  color: #ffffff;
+  padding-inline: 48px 16px;
+  font-size: 14px;
+  text-align: left;
+}
+body.display-spotify #q:hover,
+body.display-spotify #q:focus {
+  background: #2a2a2a;
+  border-color: rgba(255,255,255,.28);
+}
+body.display-spotify .chip {
+  border: 0;
+  border-radius: 999px;
+  background: #242424;
+  color: #ffffff;
+  font-weight: 650;
+}
+body.display-spotify .chip:hover {
+  background: #333333;
+}
+body.display-spotify .chip.pri,
+body.display-spotify .nv.on {
+  background: #1ed760;
+  color: #071b0d;
+}
+body.display-spotify .chip.pri:hover {
+  background: #3be477;
+}
+body.display-spotify .hero {
+  padding: 24px 26px 16px;
+}
+body.display-spotify #vt {
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 800;
+  letter-spacing: -.8px;
+  color: #ffffff;
+}
+body.display-spotify .sub {
+  color: #b3b3b3;
+}
+body.display-spotify #list {
+  padding: 4px 22px 26px;
+  background: transparent;
+}
+body.display-spotify #list .row {
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  gap: 14px;
+}
+body.display-spotify #list .row:hover {
+  background: rgba(255,255,255,.075);
+}
+body.display-spotify #list .row.cur {
+  background: rgba(255,255,255,.09);
+  border-inline-start: 0;
+}
+body.display-spotify #list .row.cur b,
+body.display-spotify #list .row.cur span {
+  color: #1ed760;
+}
+body.display-spotify #list .row b {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 550;
+}
+body.display-spotify #list .row span {
+  color: #b3b3b3;
+  font-size: 12px;
+}
+body.display-spotify #list .row i {
+  color: #b3b3b3;
+}
+body.display-spotify #list .row .mini {
+  color: #b3b3b3;
+}
+body.display-spotify #list .row .mini:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,.12);
+}
+body.display-spotify #list.mode-grid .row {
+  background: #181818;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px;
+}
+body.display-spotify #list.mode-grid .row:hover {
+  background: #282828;
+  transform: translateY(-2px);
+}
+body.display-spotify #list .card {
+  border: 0;
+  border-radius: 8px;
+  background: #181818;
+  color: #ffffff;
+}
+body.display-spotify #list .card:hover {
+  background: #282828;
+}
+body.display-spotify #list .card b {
+  color: #ffffff;
+}
+body.display-spotify #list .card span {
+  color: #b3b3b3;
+}
+body.display-spotify .bar {
+  min-height: 88px;
+  padding: 8px 16px;
+  gap: 16px;
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px;
+  background: #181818;
+  box-shadow: none;
+}
+body.display-spotify .thumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 4px;
+  box-shadow: none;
+}
+body.display-spotify #title {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 650;
+}
+body.display-spotify #artist {
+  color: #b3b3b3;
+  font-size: 11px;
+}
+body.display-spotify .bar .mini {
+  color: #b3b3b3;
+}
+body.display-spotify .bar .mini:hover,
+body.display-spotify .bar .mini.on {
+  color: #1ed760;
+}
+body.display-spotify .mid {
+  max-width: 680px;
+  width: 100%;
+  gap: 4px;
+}
+body.display-spotify .ctl {
+  gap: 12px;
+}
+body.display-spotify .ib {
+  color: #b3b3b3;
+}
+body.display-spotify .ib:hover {
+  color: #ffffff;
+  background: transparent;
+}
+body.display-spotify .ib.on {
+  color: #1ed760;
+}
+body.display-spotify .ib.play {
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  color: #000000;
+}
+body.display-spotify .ib.play:hover {
+  background: #ffffff;
+  transform: scale(1.06);
+}
+body.display-spotify .seekrow {
+  height: 20px;
+  max-width: 650px;
+  font-size: 10px;
+  color: #a7a7a7;
+}
+body.display-spotify .seekrow input {
+  accent-color: #1ed760;
+}
+body.display-spotify #waveformCanvas {
+  opacity: .24;
+}
+body.display-spotify .rt {
+  justify-content: flex-end;
+  color: #b3b3b3;
+}
+body.display-spotify .settings-section {
+  padding: 20px;
+  border: 0;
+  border-radius: 9px;
+  background: #181818;
+}
+body.display-spotify .settings-section h3 {
+  color: #ffffff;
+}
+body.display-spotify .settings-hint,
+body.display-spotify .settings-section small {
+  color: #b3b3b3;
+}
+body.display-spotify .skin-item,
+body.display-spotify .display-mode-card,
+body.display-spotify .settings-action {
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  background: #202020;
+  color: #ffffff;
+}
+body.display-spotify .skin-item:hover,
+body.display-spotify .display-mode-card:hover,
+body.display-spotify .settings-action:hover {
+  background: #2a2a2a;
+  border-color: #1ed760;
+}
+body.display-spotify .skin-item.on,
+body.display-spotify .display-mode-card.selected {
+  border: 2px solid #1ed760;
+  background: rgba(30,215,96,.10);
+}
+body.display-spotify input,
+body.display-spotify textarea,
+body.display-spotify select {
+  background-color: #242424;
+  border-color: rgba(255,255,255,.12);
+  color: #ffffff;
+  color-scheme: dark;
+}
+body.display-spotify input::placeholder,
+body.display-spotify textarea::placeholder {
+  color: #a7a7a7;
+}
+body.display-spotify .modal-card,
+body.display-spotify .modal-box,
+body.display-spotify .remix-panel {
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  background: #181818;
+  color: #ffffff;
+}
+body.display-spotify #menu {
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  background: #282828;
+  color: #ffffff;
+}
+body.display-spotify #menu button {
+  color: #ffffff;
+}
+body.display-spotify #menu button:hover {
+  background: #3a3a3a;
+}
+body.display-spotify #toast {
+  border: 1px solid rgba(255,255,255,.08);
+  background: #282828;
+  color: #ffffff;
+}
+body.display-spotify .empty {
+  color: #b3b3b3;
+}
+body.display-spotify .dup-group,
+body.display-spotify .about-row {
+  border-color: rgba(255,255,255,.08);
+  background: #202020;
+}
+body.display-spotify .smart-mix-button {
+  border-radius: 999px;
+}
+
+/* Apple Music-inspired application frame */
+body.display-apple {
+  --tint: #fa2d48 !important;
+  --tint-rgb: 250, 45, 72 !important;
+  --bg: #f5f5f7 !important;
+  --panel: #ffffff !important;
+  --text: #242428 !important;
+  --mute: #77777f !important;
+  --line: rgba(35,35,45,.11) !important;
+  --w: 20,20,28 !important;
+  --on: #ffffff !important;
+  background: #f5f5f7 !important;
+  color: #242428 !important;
+  color-scheme: light;
+}
+body.display-apple .app {
+  background: #f5f5f7;
+}
+body.display-apple .side {
+  padding: 18px 12px 12px;
+  border: 1px solid #e7e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 5px 22px rgba(30,30,45,.04);
+}
+body.display-apple .brand {
+  padding: 5px 12px 20px;
+  color: #27272d;
+  font-size: 20px;
+  font-weight: 750;
+}
+body.display-apple .brand svg {
+  box-shadow: 0 3px 10px rgba(250,45,72,.18) !important;
+}
+body.display-apple .nv {
+  min-height: 40px;
+  margin: 2px 0;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  color: #73737c;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 12px;
+  background: transparent;
+}
+body.display-apple .nv svg {
+  width: 19px;
+  height: 19px;
+}
+body.display-apple .nv:hover {
+  color: #242428;
+  background: #f5f5f7;
+}
+body.display-apple .nv.on {
+  color: #f12b45 !important;
+  background: #fff0f2 !important;
+}
+body.display-apple .side .sh {
+  padding: 20px 12px 8px;
+  color: #8a8a92;
+  font-size: 11px;
+  font-weight: 750;
+}
+body.display-apple #pls {
+  margin: 4px 0;
+  padding: 0 2px;
+  gap: 2px;
+}
+body.display-apple #pls .nv {
+  min-height: 34px;
+  padding: 7px 10px;
+  color: #77777f;
+  font-size: 12px;
+  font-weight: 500;
+}
+body.display-apple #pls .nv:hover {
+  color: #242428;
+  background: #f6f6f8;
+}
+body.display-apple #pls .nv.on {
+  color: #f12b45 !important;
+  background: #fff0f2 !important;
+}
+body.display-apple .side > [data-v="settings"] {
+  margin-top: 8px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #ececf0 !important;
+  color: #e52d49 !important;
+}
+body.display-apple main {
+  border: 1px solid #e7e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 5px 22px rgba(30,30,45,.04);
+}
+body.display-apple .top {
+  min-height: 68px;
+  padding: 14px 24px 8px;
+  gap: 12px;
+  background: #ffffff;
+  border-radius: 14px 14px 0 0;
+}
+body.display-apple .nav-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #e7e7eb;
+  color: #6e6e76;
+  background: #fafafd;
+}
+body.display-apple .nav-btn:hover {
+  background: #fff0f2;
+  border-color: #f4a8b4;
+  color: #e52d49;
+  transform: none;
+}
+body.display-apple #q {
+  min-height: 42px;
+  border: 1px solid #e5e5e9;
+  border-radius: 10px;
+  background: #f5f5f7;
+  color: #242428;
+  padding-inline: 48px 14px;
+  font-size: 13px;
+  text-align: left;
+}
+body.display-apple #q:hover,
+body.display-apple #q:focus {
+  border-color: #f08d9c;
+  background: #ffffff;
+}
+body.display-apple .chip {
+  border: 1px solid #e6e6ea;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #4a4a52;
+  font-weight: 600;
+}
+body.display-apple .chip:hover {
+  background: #fff0f2;
+  border-color: #f2a5b1;
+  color: #e52d49;
+}
+body.display-apple .chip.pri,
+body.display-apple .nv.on {
+  border-color: #fa2d48;
+  background: #fa2d48;
+  color: #ffffff;
+}
+body.display-apple .hero {
+  padding: 24px 28px 18px;
+  background: linear-gradient(180deg, #fff7f8, #ffffff 90%);
+}
+body.display-apple #vt {
+  color: #242428;
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 780;
+  letter-spacing: -.7px;
+}
+body.display-apple .sub {
+  color: #85858d;
+}
+body.display-apple #list {
+  padding: 8px 22px 28px;
+  background: #ffffff;
+}
+body.display-apple #list .row {
+  min-height: 62px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  gap: 14px;
+}
+body.display-apple #list .row:hover {
+  background: #f7f7f9;
+}
+body.display-apple #list .row.cur {
+  background: #fff0f2;
+  border-inline-start: 0;
+}
+body.display-apple #list .row.cur b {
+  color: #e52d49;
+}
+body.display-apple #list .row b {
+  color: #242428;
+  font-size: 14px;
+  font-weight: 650;
+}
+body.display-apple #list .row span {
+  color: #77777f;
+  font-size: 12px;
+}
+body.display-apple #list .row i {
+  color: #86868e;
+}
+body.display-apple #list .row .mini {
+  color: #8a8a92;
+}
+body.display-apple #list .row .mini:hover {
+  color: #e52d49;
+  background: #ffe7eb;
+}
+body.display-apple #list.mode-grid .row {
+  border: 1px solid #eeeeF1;
+  border-radius: 13px;
+  background: #ffffff;
+  padding: 10px;
+  box-shadow: 0 3px 12px rgba(30,30,45,.04);
+}
+body.display-apple #list.mode-grid .row:hover {
+  background: #fffafb;
+  transform: translateY(-2px);
+  box-shadow: 0 9px 22px rgba(30,30,45,.08);
+}
+body.display-apple #list .card {
+  border: 1px solid #eeeeF1;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #242428;
+  box-shadow: 0 4px 14px rgba(30,30,45,.04);
+}
+body.display-apple #list .card:hover {
+  background: #fffafb;
+  box-shadow: 0 9px 22px rgba(30,30,45,.08);
+}
+body.display-apple #list .card b {
+  color: #242428;
+}
+body.display-apple #list .card span {
+  color: #77777f;
+}
+body.display-apple .bar {
+  min-height: 92px;
+  padding: 9px 18px;
+  gap: 18px;
+  border: 1px solid #e5e5e9;
+  border-radius: 14px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 6px 24px rgba(30,30,45,.08);
+  backdrop-filter: blur(22px);
+}
+body.display-apple .thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(40,30,35,.12);
+}
+body.display-apple #title {
+  color: #242428;
+  font-size: 13px;
+  font-weight: 700;
+}
+body.display-apple #artist {
+  color: #77777f;
+  font-size: 11px;
+}
+body.display-apple .bar .mini {
+  color: #898991;
+}
+body.display-apple .bar .mini:hover,
+body.display-apple .bar .mini.on {
+  color: #fa2d48;
+}
+body.display-apple .mid {
+  max-width: 680px;
+  width: 100%;
+  gap: 5px;
+}
+body.display-apple .ctl {
+  gap: 11px;
+}
+body.display-apple .ib {
+  color: #71717a;
+}
+body.display-apple .ib:hover {
+  color: #e52d49;
+  background: #fff0f2;
+}
+body.display-apple .ib.on {
+  color: #fa2d48;
+}
+body.display-apple .ib.play {
+  width: 38px;
+  height: 38px;
+  background: #fa2d48;
+  color: #ffffff;
+}
+body.display-apple .ib.play:hover {
+  background: #e9213d;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+body.display-apple .seekrow {
+  height: 20px;
+  max-width: 650px;
+  font-size: 10px;
+  color: #888890;
+}
+body.display-apple .seekrow input {
+  accent-color: #fa2d48;
+}
+body.display-apple #waveformCanvas {
+  opacity: .18;
+}
+body.display-apple .rt {
+  justify-content: flex-end;
+  color: #77777f;
+}
+body.display-apple .settings-section {
+  padding: 20px;
+  border: 1px solid #e9e9ed;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(30,30,45,.035);
+}
+body.display-apple .settings-section h3 {
+  color: #292930;
+}
+body.display-apple .settings-hint,
+body.display-apple .settings-section small {
+  color: #77777f;
+}
+body.display-apple .skin-item,
+body.display-apple .display-mode-card,
+body.display-apple .settings-action {
+  border: 1px solid #e9e9ed;
+  border-radius: 13px;
+  background: #fafafd;
+  color: #303038;
+  box-shadow: none;
+}
+body.display-apple .skin-item:hover,
+body.display-apple .display-mode-card:hover,
+body.display-apple .settings-action:hover {
+  background: #fff7f8;
+  border-color: #f2a5b1;
+  color: #242428;
+}
+body.display-apple .skin-item.on,
+body.display-apple .display-mode-card.selected {
+  border: 2px solid #fa2d48;
+  background: #fff4f5;
+  color: #242428;
+  box-shadow: 0 0 0 3px rgba(250,45,72,.08);
+}
+body.display-apple .skin-item.on::after {
+  background: #fa2d48;
+}
+body.display-apple input,
+body.display-apple textarea,
+body.display-apple select {
+  background-color: #ffffff;
+  border-color: #dedee4;
+  color: #242428;
+  color-scheme: light;
+}
+body.display-apple input::placeholder,
+body.display-apple textarea::placeholder {
+  color: #9999a1;
+}
+body.display-apple input[type="range"] {
+  accent-color: #fa2d48;
+}
+body.display-apple select option {
+  background: #ffffff;
+  color: #242428;
+}
+body.display-apple .modal-card,
+body.display-apple .modal-box,
+body.display-apple .remix-panel {
+  border: 1px solid #e6e6eb;
+  border-radius: 16px;
+  background: #ffffff !important;
+  color: #242428 !important;
+  box-shadow: 0 18px 60px rgba(25,20,30,.18);
+}
+body.display-apple .modal-card b,
+body.display-apple .modal-box b,
+body.display-apple .remix-panel h2 {
+  color: #242428;
+}
+body.display-apple #menu {
+  border: 1px solid #e6e6eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #242428;
+  box-shadow: 0 10px 32px rgba(25,20,30,.14);
+}
+body.display-apple #menu button {
+  color: #303038;
+}
+body.display-apple #menu button:hover {
+  background: #fff0f2;
+  color: #e52d49;
+}
+body.display-apple #toast {
+  border: 1px solid #ececf0;
+  background: #ffffff;
+  color: #242428;
+  box-shadow: 0 8px 28px rgba(25,20,30,.12);
+}
+body.display-apple .empty {
+  color: #85858d;
+}
+body.display-apple .dup-group,
+body.display-apple .about-row {
+  border-color: #ececf0;
+  background: #fafafd;
+}
+body.display-apple .smart-mix-button {
+  border-radius: 12px;
+}
+
+/* Smart Mix feature cards */
+.smart-mix-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.smart-mix-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(var(--w), .055);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+.smart-mix-button:hover {
+  transform: translateY(-2px);
+  border-color: var(--tint);
+  background: rgba(var(--tint-rgb), .1);
+}
+.smart-mix-button:active {
+  transform: translateY(0);
+}
+.smart-mix-button svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+}
+.smart-mix-primary {
+  border-color: transparent;
+  background: var(--tint);
+  color: #ffffff;
+}
+.smart-mix-primary:hover {
+  background: var(--tint);
+  color: #ffffff;
+  filter: brightness(1.08);
+}
+body.display-spotify .smart-mix-primary {
+  color: #071b0d;
+}
+body.display-apple .smart-mix-primary {
+  color: #ffffff;
+}
+
+/* Visual previews represent whole interfaces rather than palette swatches. */
+.display-mode-preview {
+  position: relative;
+  height: 78px;
+  border-radius: 10px;
+  padding: 7px;
+  display: grid;
+  grid-template-columns: 18% minmax(0, 1fr);
+  grid-template-rows: 1fr 12px;
+  gap: 5px;
+}
+.display-mode-preview::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  border-radius: 4px;
+  background: rgba(0,0,0,.32);
+}
+.display-mode-preview::after {
+  content: '';
+  grid-column: 1 / -1;
+  grid-row: 2;
+  border-radius: 4px;
+  background: rgba(0,0,0,.42);
+}
+.display-mode-preview i {
+  width: auto;
+  height: auto;
+  border-radius: 3px;
+  background: rgba(255,255,255,.72);
+}
+.display-mode-preview i:nth-child(1) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  height: 55%;
+}
+.display-mode-preview i:nth-child(2) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  height: 82%;
+  margin-inline-start: 30%;
+}
+.display-mode-preview i:nth-child(3) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  height: 42%;
+  margin-inline-start: 60%;
+}
+.preview-lahn {
+  background: linear-gradient(130deg,#171327,#49347b 58%,#9b7cf0);
+}
+.preview-spotify {
+  background: linear-gradient(130deg,#121212,#242424 70%,#1ed760);
+}
+.preview-apple {
+  background: linear-gradient(130deg,#fff0f2,#ffffff 60%,#fa2d48);
+}
+
+/* Consistent controls and focus states in both complete layouts */
+body.display-spotify button:focus-visible,
+body.display-spotify input:focus-visible,
+body.display-spotify select:focus-visible,
+body.display-spotify textarea:focus-visible {
+  outline-color: #1ed760;
+}
+body.display-apple button:focus-visible,
+body.display-apple input:focus-visible,
+body.display-apple select:focus-visible,
+body.display-apple textarea:focus-visible {
+  outline-color: #fa2d48;
+}
+body.display-spotify .skin-preview,
+body.display-apple .skin-preview {
+  border-radius: 8px;
+}
+body.display-spotify .settings-action > span,
+body.display-apple .settings-action > span {
+  color: var(--tint);
+}
+body.display-spotify .settings-action b,
+body.display-apple .settings-action b {
+  color: var(--text);
+}
+body.display-spotify .settings-action small,
+body.display-apple .settings-action small {
+  color: var(--mute);
+}
+body.display-spotify .eq-inline-toolbar select option {
+  background: #242424;
+  color: #ffffff;
+}
+body.display-apple .eq-inline-toolbar select option {
+  background: #ffffff;
+  color: #242428;
+}
+body.display-spotify .eq-inline .eqb,
+body.display-spotify .eq-inline small {
+  color: #b3b3b3;
+}
+body.display-apple .eq-inline .eqb,
+body.display-apple .eq-inline small {
+  color: #77777f;
+}
+body.display-spotify .field-lbl {
+  color: #d0d0d0;
+}
+body.display-apple .field-lbl {
+  color: #55555d;
+}
+body.display-spotify .sub,
+body.display-apple .sub {
+  line-height: 1.6;
+}
+body.display-spotify .settings-page,
+body.display-apple .settings-page {
+  gap: 16px;
+}
+body.display-spotify .display-mode-card,
+body.display-apple .display-mode-card {
+  min-width: 0;
+}
+body.display-spotify .display-mode-card small,
+body.display-apple .display-mode-card small {
+  font-size: 11px;
+}
+body.display-spotify .settings-section h3 svg,
+body.display-apple .settings-section h3 svg {
+  opacity: .95;
+}
+
+/* Responsive layouts retain the full navigation and the fixed player. */
+@media (max-width: 980px) {
+  body.display-spotify .app,
+  body.display-apple .app {
+    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 90px;
+  }
+  body.display-spotify .side,
+  body.display-apple .side {
+    padding-inline: 8px;
+  }
+  body.display-spotify .bar,
+  body.display-apple .bar {
+    grid-template-columns: minmax(150px, .9fr) minmax(220px, 1.2fr) minmax(100px, .7fr);
+    gap: 10px;
+  }
+  body.display-spotify .thumb,
+  body.display-apple .thumb {
+    width: 50px;
+    height: 50px;
+  }
+}
+@media (max-width: 720px) {
+  body.display-spotify .app,
+  body.display-apple .app {
+    grid-template-columns: 66px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 118px;
+    gap: 5px;
+    padding: 5px;
+  }
+  body.display-spotify .side,
+  body.display-apple .side {
+    padding: 10px 5px;
+    align-items: center;
+  }
+  body.display-spotify .brand,
+  body.display-apple .brand {
+    justify-content: center;
+    padding: 4px 0 14px;
+  }
+  body.display-spotify .brand span,
+  body.display-apple .brand span,
+  body.display-spotify .nv span,
+  body.display-apple .nv span,
+  body.display-spotify .side .sh span,
+  body.display-apple .side .sh span {
+    display: none;
+  }
+  body.display-spotify .nv,
+  body.display-apple .nv {
+    width: 44px;
+    min-height: 42px;
+    justify-content: center;
+    padding: 9px;
+  }
+  body.display-spotify .nv svg,
+  body.display-apple .nv svg {
+    width: 21px;
+    height: 21px;
+  }
+  body.display-spotify .side .sh,
+  body.display-apple .side .sh {
+    justify-content: center;
+    padding: 9px 0;
+  }
+  body.display-spotify #pls,
+  body.display-apple #pls {
+    width: 100%;
+    align-items: center;
+  }
+  body.display-spotify #pls .nv,
+  body.display-apple #pls .nv {
+    width: 40px;
+    min-height: 36px;
+    justify-content: center;
+  }
+  body.display-spotify .top,
+  body.display-apple .top {
+    padding: 9px 10px 4px;
+    gap: 5px;
+  }
+  body.display-spotify .top > .chip,
+  body.display-apple .top > .chip {
+    padding-inline: 9px;
+  }
+  body.display-spotify .hero,
+  body.display-apple .hero {
+    padding: 16px 14px 10px;
+  }
+  body.display-spotify #list,
+  body.display-apple #list {
+    padding-inline: 8px;
+  }
+  body.display-spotify .bar,
+  body.display-apple .bar {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    padding: 6px 10px;
+    gap: 2px;
+  }
+  body.display-spotify .bar .np,
+  body.display-apple .bar .np {
+    display: none;
+  }
+  body.display-spotify .bar .mid,
+  body.display-apple .bar .mid {
+    grid-row: 1 / -1;
+    justify-self: center;
+    max-width: 100%;
+  }
+  body.display-spotify .bar .rt,
+  body.display-apple .bar .rt {
+    display: none;
+  }
+  .smart-mix-actions {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 420px) {
+  body.display-spotify .app,
+  body.display-apple .app {
+    grid-template-columns: 54px minmax(0, 1fr);
+  }
+  body.display-spotify .side,
+  body.display-apple .side {
+    padding-inline: 3px;
+  }
+  body.display-spotify .nv,
+  body.display-apple .nv {
+    width: 40px;
+    min-height: 39px;
+  }
+  body.display-spotify .top .nav-btns,
+  body.display-apple .top .nav-btns {
+    display: none;
+  }
+  body.display-spotify .top .chip,
+  body.display-apple .top .chip {
+    font-size: 11px;
+    padding: 7px 8px;
+  }
+  body.display-spotify #vt,
+  body.display-apple #vt {
+    font-size: 25px;
+  }
+  body.display-spotify .display-mode-grid,
+  body.display-apple .display-mode-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Avoid horizontal overflow in translated labels and long playlist names. */
+body.display-spotify .brand span,
+body.display-apple .brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.display-spotify .nv span,
+body.display-apple .nv span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body.display-spotify .side .mini,
+body.display-apple .side .mini {
+  flex: none;
+}
+body.display-spotify .search-wrap,
+body.display-apple .search-wrap {
+  min-width: 100px;
+}
+body.display-spotify .adv-panel,
+body.display-apple .adv-panel {
+  direction: ltr;
+  padding-inline: 22px;
+}
+body.display-spotify .adv-panel input,
+body.display-apple .adv-panel input {
+  text-align: left;
+}
+body.display-spotify .hero .sub,
+body.display-apple .hero .sub {
+  text-align: left;
+}
+body.display-spotify .settings-section,
+body.display-apple .settings-section {
+  overflow: hidden;
+}
+body.display-spotify .skin-grid,
+body.display-apple .skin-grid {
+  gap: 10px;
+}
+body.display-spotify .settings-action,
+body.display-apple .settings-action {
+  text-align: left;
+}
+body.display-spotify .about-row,
+body.display-apple .about-row {
+  gap: 12px;
+}
+body.display-spotify .about-row b,
+body.display-apple .about-row b {
+  text-align: right;
+}
+body.display-spotify .remix-field label,
+body.display-apple .remix-field label {
+  text-align: left;
+}
+body.display-spotify .remix-actions,
+body.display-apple .remix-actions {
+  justify-content: flex-start;
+}
+body.display-spotify .settings-section .chip-grid,
+body.display-apple .settings-section .chip-grid {
+  direction: ltr;
+  justify-content: flex-start;
+}
+body.display-spotify .settings-section .chip-grid .chip,
+body.display-apple .settings-section .chip-grid .chip {
+  text-align: center;
+}
+body.display-spotify .settings-section h3,
+body.display-apple .settings-section h3 {
+  direction: ltr;
+  justify-content: flex-end;
+}
+body.display-spotify .settings-section .settings-hint,
+body.display-apple .settings-section .settings-hint {
+  direction: rtl;
+  text-align: right;
+}
+body.display-spotify .display-mode-card,
+body.display-apple .display-mode-card {
+  text-align: left;
+}
+body.display-spotify .display-mode-card b,
+body.display-apple .display-mode-card b,
+body.display-spotify .display-mode-card small,
+body.display-apple .display-mode-card small {
+  direction: ltr;
+}
+
+
+
+/* Full now-playing companion panel: keeps the active library page visible beside it. */
+.now-playing-panel{position:fixed;z-index:43;top:10px;bottom:112px;right:10px;width:min(360px,31vw);min-width:285px;display:flex;flex-direction:column;gap:14px;padding:18px 18px 14px;border:1px solid var(--line);border-radius:20px;background:color-mix(in srgb,var(--panel,var(--bg)) 94%,var(--text));box-shadow:0 22px 70px rgba(0,0,0,.28);overflow:auto;overscroll-behavior:contain;animation:npvIn .22s ease}
+.now-playing-panel[hidden]{display:none!important}
+@keyframes npvIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.npv-head,.npv-track,.npv-section-title,.npv-artist-row,.npv-bottom-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.npv-head>div{display:flex;flex-direction:column;gap:3px}.npv-head b{font-size:17px;font-weight:750}.npv-eyebrow{font-size:11px;color:var(--mute);letter-spacing:.04em}
+.npv-art-wrap{position:relative;width:100%;aspect-ratio:1/1;max-height:310px;display:grid;place-items:center;isolation:isolate;margin:2px auto 0}
+#art2{position:relative;z-index:1;width:min(100%,310px);height:min(100%,310px);object-fit:cover;border-radius:16px;box-shadow:0 16px 38px rgba(0,0,0,.28);background:var(--panel)}
+.npv-art-glow{position:absolute;z-index:-1;inset:18% 12%;background:var(--tint);filter:blur(48px);opacity:.24;border-radius:50%}
+.npv-track{align-items:flex-start}.npv-track-copy{min-width:0;flex:1}.npv-track h2{font-size:20px;line-height:1.35;font-weight:750;overflow-wrap:anywhere}.npv-track p{font-size:14px;color:var(--mute);margin-top:4px}.npv-track small{display:block;color:var(--mute);font-size:11px;margin-top:5px}
+.npv-section-title{font-size:13px;margin-bottom:9px}.npv-section-title b{font-size:14px}.npv-section-title button{font-size:11px;color:var(--tint)}
+.npv-lyrics-block,.npv-artist-block{padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(var(--w),.035)}
+.npv-lyrics{font-size:13px;line-height:1.9;color:var(--mute);max-height:128px;overflow:auto;white-space:pre-line;scrollbar-width:thin}
+.npv-artist-row{justify-content:flex-start}.npv-artist-row img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--line)}.npv-artist-row div{display:flex;flex-direction:column;gap:4px;min-width:0}.npv-artist-row b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.npv-artist-row small{font-size:11px;color:var(--mute)}
+.npv-facts{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.npv-facts span{padding:5px 8px;border-radius:99px;background:rgba(var(--w),.07);color:var(--mute);font-size:10px}
+.npv-bottom-actions{margin-top:auto}.npv-bottom-actions button{flex:1;font-size:12px}
+body.player-open main{margin-right:min(370px,32vw);transition:margin .22s ease}
+body.display-lahn .now-playing-panel{right:auto;left:10px}
+body.player-open.display-lahn main{margin-right:0;margin-left:min(370px,32vw)}
+body.player-open .app{--player-panel-space:370px}
+/* Spotify: compact editorial typography, app-green identity and no dashboard statistics. */
+body.display-spotify{font-family:Inter,"Segoe UI",Arial,sans-serif;letter-spacing:-.012em;--panel:#181818}
+body.display-spotify .brand svg{filter:none}
+body.display-spotify .brand svg rect:first-of-type{fill:#1ed760!important}
+body.display-spotify .brand svg rect:not(:first-of-type){fill:#071b0d!important}
+body.display-spotify .brand{font-size:20px;font-weight:800;letter-spacing:-.04em}
+body.display-spotify .hero{padding-top:26px;padding-bottom:14px}
+body.display-spotify #vt{font-size:30px;font-weight:800;letter-spacing:-.045em}
+body.display-spotify .stats,body.display-spotify .stats+*,body.display-spotify [data-dashboard-stat]{display:none!important}
+body.display-spotify #list .card{border:0;background:transparent;text-align:left;align-items:flex-start;padding:10px;border-radius:8px}
+body.display-spotify #list .card:hover{background:#242424}
+body.display-spotify #list .card .av{border-radius:7px;width:100%;height:auto;aspect-ratio:1;max-width:170px}
+body.display-spotify #list .card b{font-size:14px;font-weight:700;letter-spacing:-.02em}
+body.display-spotify #list .card span{font-size:12px;color:#a7a7a7}
+body.display-spotify .now-playing-panel{background:#181818;border-color:#303030;border-radius:10px;color:#fff}
+body.display-spotify .npv-lyrics-block,body.display-spotify .npv-artist-block{background:#222;border-color:#333;border-radius:9px}
+body.display-spotify .npv-art-glow{background:#1ed760}
+body.display-spotify .npv-track h2{font-size:19px;font-weight:750}
+body.display-spotify .npv-bottom-actions .pri{background:#1ed760!important;color:#071b0d!important}
+body.display-spotify .npv-eyebrow{color:#b3b3b3}
+body.display-spotify .npv-artist-row img{border-radius:50%}
+body.display-spotify .bar{background:#181818;border-color:#303030}
+body.display-spotify .thumb{border-radius:5px}
+body.display-spotify .ib.play{background:#fff;color:#000}
+body.display-spotify .ib.play:hover{transform:scale(1.06)}
+body.display-spotify .nv{font-weight:650;letter-spacing:-.02em}
+body.display-spotify .side{background:#121212;border-color:#121212}
+body.display-spotify main{background:linear-gradient(180deg,#242424 0,#181818 260px);border-color:#242424}
+body.display-spotify .row.cur{background:rgba(30,215,96,.10);border-inline-start-color:#1ed760}
+body.display-spotify .row.cur b{color:#1ed760}
+/* Apple Music: bright neutral surfaces, restrained red accent and spacious album art. */
+body.display-apple{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;letter-spacing:-.018em;--panel:#fff;--tint:#fa243c!important;--tint-rgb:250,36,60!important}
+body.display-apple .brand svg rect:first-of-type{fill:#f1f1f3!important}
+body.display-apple .brand svg rect:not(:first-of-type){fill:#fa243c!important}
+body.display-apple .brand{font-size:20px;font-weight:750;letter-spacing:-.035em}
+body.display-apple .side{background:#f5f5f7;border-color:#e8e8eb}
+body.display-apple .nv{color:#66666d;font-weight:600}
+body.display-apple .nv.on{background:#ffe8eb;color:#e51e36}
+body.display-apple main{background:#fff;border-color:#ececf0}
+body.display-apple .hero{padding-top:28px;padding-bottom:16px}
+body.display-apple #vt{font-size:31px;font-weight:780;letter-spacing:-.045em}
+body.display-apple .stats,body.display-apple .stats+*,body.display-apple [data-dashboard-stat]{display:none!important}
+body.display-apple #list .card{background:transparent;border:0;align-items:flex-start;text-align:left;padding:10px}
+body.display-apple #list .card .av{width:100%;height:auto;aspect-ratio:1;border-radius:12px;max-width:180px;box-shadow:0 5px 18px rgba(0,0,0,.10)}
+body.display-apple #list .card b{font-size:14px;font-weight:700;color:#242428}
+body.display-apple #list .card span{font-size:12px;color:#77777f}
+body.display-apple .bar{background:rgba(255,255,255,.96);border-color:#e6e6ea;box-shadow:0 8px 30px rgba(30,30,40,.08)}
+body.display-apple .npv-lyrics-block,body.display-apple .npv-artist-block{background:#f7f7f9;border-color:#e9e9ed}
+body.display-apple .now-playing-panel{background:#fff;border-color:#e7e7eb;color:#202027;box-shadow:0 16px 50px rgba(30,30,40,.12)}
+body.display-apple .npv-lyrics{color:#77777f}
+body.display-apple .npv-track p,body.display-apple .npv-track small{color:#77777f}
+body.display-apple .npv-art-glow{background:#fa243c;opacity:.13}
+body.display-apple .npv-facts span{background:#f0f0f3;color:#686870}
+body.display-apple .npv-bottom-actions .pri{background:#fa243c!important;color:#fff!important}
+body.display-apple .ib.play{background:#fa243c;color:#fff}
+body.display-apple .row.cur{background:#fff0f1;border-inline-start-color:#fa243c}
+body.display-apple .row.cur b{color:#e51e36}
+/* Brand fonts and player layout adapt without removing existing controls. */
+body.display-spotify .info span:first-child,body.display-spotify #title{font-weight:700;letter-spacing:-.025em}
+body.display-apple .info span:first-child,body.display-apple #title{font-weight:700;letter-spacing:-.025em}
+@media(max-width:1050px){.now-playing-panel{width:300px;min-width:260px}body.player-open main{margin-right:310px}body.player-open.display-lahn main{margin-left:310px}
+body.display-lahn .now-playing-panel{right:auto;left:10px}}
+@media(max-width:760px){.now-playing-panel{left:8px!important;right:8px!important;top:8px;bottom:176px;width:auto;min-width:0;z-index:66}.npv-art-wrap{max-height:220px}body.player-open main,body.player-open.display-lahn main{margin:0}body.player-open main{filter:brightness(.35);pointer-events:none}}
+
+
+
+/* DISPLAY MODE DETAIL POLISH — dedicated component tokens and responsive behavior */
+body.display-spotify .app {
+  background:#0b0b0b;
+}
+body.display-spotify .side {
+  padding:18px 12px;
+}
+body.display-spotify .brand {
+  padding:8px 12px 20px;
+}
+body.display-spotify .brand span {
+  color:#fff;
+}
+body.display-spotify .top {
+  gap:8px;
+}
+body.display-spotify .hero {
+  color:#fff;
+}
+body.display-spotify .sub {
+  color:#b3b3b3;
+}
+body.display-spotify #list {
+  scrollbar-color:#555 transparent;
+}
+body.display-spotify #list h3 {
+  color:#fff;
+}
+body.display-spotify .row {
+  min-height:62px;
+}
+body.display-spotify .row .th {
+  border-radius:5px;
+}
+body.display-spotify .row .t {
+  gap:3px;
+}
+body.display-spotify .row b {
+  font-size:14px;
+}
+body.display-spotify .row span {
+  color:#b3b3b3;
+}
+body.display-spotify .row.cur {
+  background:rgba(30,215,96,.12);
+}
+body.display-spotify .card {
+  transition:background .16s ease;
+}
+body.display-spotify .card .av {
+  box-shadow:0 5px 18px #0005;
+}
+body.display-spotify .chip {
+  font-weight:650;
+}
+body.display-spotify .chip.pri {
+  background:#1ed760;
+}
+body.display-spotify .search-wrap #q {
+  background:#242424;
+}
+body.display-spotify .nav-btn {
+  background:#080808;
+}
+body.display-spotify .bar {
+  padding:10px 16px;
+}
+body.display-spotify .np {
+  gap:12px;
+}
+body.display-spotify .thumb {
+  width:58px;height:58px;
+}
+body.display-spotify .mid {
+  gap:5px;
+}
+body.display-spotify .ctl {
+  gap:12px;
+}
+body.display-spotify .seekrow {
+  gap:9px;
+}
+body.display-spotify .rt {
+  gap:12px;
+}
+body.display-spotify .vol input {
+  accent-color:#1ed760;
+}
+body.display-spotify .settings-page {
+  gap:18px;
+}
+body.display-spotify .settings-section {
+  background:#181818;
+}
+body.display-spotify .settings-section h3 {
+  color:#fff;
+}
+body.display-spotify .settings-action {
+  background:#222;
+}
+body.display-spotify .settings-action b {
+  color:#fff;
+}
+body.display-spotify .settings-action small {
+  color:#b3b3b3;
+}
+body.display-spotify .modal-card {
+  background:#202020;
+}
+body.display-spotify .modal-overlay {
+  backdrop-filter:blur(10px);
+}
+body.display-spotify .empty {
+  color:#b3b3b3;
+}
+body.display-spotify .npv-head b {
+  color:#fff;
+}
+body.display-spotify .npv-lyrics {
+  color:#b3b3b3;
+}
+body.display-spotify .npv-facts span {
+  background:#292929;
+}
+body.display-spotify .npv-track p {
+  color:#b3b3b3;
+}
+body.display-spotify .npv-artist-row small {
+  color:#b3b3b3;
+}
+body.display-spotify .display-mode-card {
+  background:#202020;
+}
+body.display-spotify .skin-item {
+  background:#202020;
+}
+body.display-spotify .adv-panel input {
+  background:#242424;
+}
+body.display-spotify .row .mini {
+  color:#b3b3b3;
+}
+body.display-spotify .row:hover {
+  background:#242424;
+}
+body.display-spotify .side .sh {
+  color:#b3b3b3;
+}
+body.display-spotify #pls .nv {
+  color:#b3b3b3;
+}
+body.display-spotify #pls .nv.on {
+  color:#1ed760;
+}
+body.display-spotify .npv-bottom-actions .chip {
+  border-radius:99px;
+}
+body.display-spotify .lyrics-container {
+  scrollbar-width:thin;
+}
+body.display-spotify .l-line.active {
+  color:#1ed760;
+}
+body.display-spotify .stats div {
+  background:#222;
+}
+body.display-spotify .stats small {
+  color:#b3b3b3;
+}
+body.display-spotify .stats span {
+  color:#b3b3b3;
+}
+body.display-spotify .about-row {
+  border-color:#333;
+}
+body.display-spotify .remix-panel {
+  background:#202020;
+}
+body.display-spotify .remix-field input {
+  background:#292929;
+}
+body.display-spotify .remix-status {
+  color:#b3b3b3;
+}
+body.display-apple .app {
+  background:#f5f5f7;
+}
+body.display-apple .side {
+  padding:18px 12px;
+}
+body.display-apple .brand {
+  padding:8px 12px 20px;
+}
+body.display-apple .brand span {
+  color:#202027;
+}
+body.display-apple .top {
+  gap:9px;
+}
+body.display-apple .hero {
+  color:#202027;
+}
+body.display-apple .sub {
+  color:#77777f;
+}
+body.display-apple #list {
+  scrollbar-color:#c8c8ce transparent;
+}
+body.display-apple #list h3 {
+  color:#55555d;
+}
+body.display-apple .row {
+  min-height:66px;
+}
+body.display-apple .row .th {
+  border-radius:8px;
+}
+body.display-apple .row .t {
+  gap:3px;
+}
+body.display-apple .row b {
+  font-size:14px;
+}
+body.display-apple .row span {
+  color:#77777f;
+}
+body.display-apple .row.cur {
+  background:#fff0f1;
+}
+body.display-apple .card {
+  transition:transform .18s ease;
+}
+body.display-apple .card .av {
+  box-shadow:0 5px 16px rgba(20,20,30,.12);
+}
+body.display-apple .chip {
+  font-weight:650;
+}
+body.display-apple .chip.pri {
+  background:#fa243c;color:#fff;
+}
+body.display-apple .search-wrap #q {
+  background:#f0f0f3;
+}
+body.display-apple .nav-btn {
+  background:#ececf0;
+}
+body.display-apple .bar {
+  padding:10px 16px;
+}
+body.display-apple .np {
+  gap:12px;
+}
+body.display-apple .thumb {
+  width:58px;height:58px;
+}
+body.display-apple .mid {
+  gap:5px;
+}
+body.display-apple .ctl {
+  gap:12px;
+}
+body.display-apple .seekrow {
+  gap:9px;
+}
+body.display-apple .rt {
+  gap:12px;
+}
+body.display-apple .vol input {
+  accent-color:#fa243c;
+}
+body.display-apple .settings-page {
+  gap:18px;
+}
+body.display-apple .settings-section {
+  background:#fff;
+}
+body.display-apple .settings-section h3 {
+  color:#25252b;
+}
+body.display-apple .settings-action {
+  background:#f7f7f9;
+}
+body.display-apple .settings-action b {
+  color:#25252b;
+}
+body.display-apple .settings-action small {
+  color:#77777f;
+}
+body.display-apple .modal-card {
+  background:#fff;
+}
+body.display-apple .modal-overlay {
+  backdrop-filter:blur(10px);
+}
+body.display-apple .empty {
+  color:#77777f;
+}
+body.display-apple .npv-head b {
+  color:#202027;
+}
+body.display-apple .npv-lyrics {
+  color:#77777f;
+}
+body.display-apple .npv-facts span {
+  background:#f0f0f3;
+}
+body.display-apple .npv-track p {
+  color:#77777f;
+}
+body.display-apple .npv-artist-row small {
+  color:#77777f;
+}
+body.display-apple .display-mode-card {
+  background:#fff;
+}
+body.display-apple .skin-item {
+  background:#fff;
+}
+body.display-apple .adv-panel input {
+  background:#f4f4f6;
+}
+body.display-apple .row .mini {
+  color:#77777f;
+}
+body.display-apple .row:hover {
+  background:#f5f5f7;
+}
+body.display-apple .side .sh {
+  color:#77777f;
+}
+body.display-apple #pls .nv {
+  color:#686870;
+}
+body.display-apple #pls .nv.on {
+  color:#e51e36;
+}
+body.display-apple .npv-bottom-actions .chip {
+  border-radius:99px;
+}
+body.display-apple .lyrics-container {
+  scrollbar-width:thin;
+}
+body.display-apple .l-line.active {
+  color:#fa243c;
+}
+body.display-apple .stats div {
+  background:#f1f1f4;
+}
+body.display-apple .stats small {
+  color:#77777f;
+}
+body.display-apple .stats span {
+  color:#77777f;
+}
+body.display-apple .about-row {
+  border-color:#e7e7eb;
+}
+body.display-apple .remix-panel {
+  background:#fff;
+}
+body.display-apple .remix-field input {
+  background:#f7f7f9;
+}
+body.display-apple .remix-status {
+  color:#77777f;
+}
+.now-playing-panel {
+  scroll-behavior:smooth;
+}
+.now-playing-panel:focus-within {
+  outline:2px solid var(--tint);outline-offset:2px;
+}
+.npv-track h2 {
+  overflow-wrap:anywhere;
+}
+.npv-lyrics:empty::before {
+  content:"—";
+}
+.npv-artist-row img {
+  flex:none;
+}
+.npv-facts span {
+  white-space:nowrap;
+}
+.npv-bottom-actions button {
+  min-height:38px;
+}
+.npv-head .mini {
+  width:32px;height:32px;
+}
+.npv-section-title .mini:hover {
+  background:rgba(var(--tint-rgb),.12);
+}
+.brand svg {
+  flex:none;transition:filter .2s ease;
+}
+.brand svg rect:first-of-type {
+  transition:fill .2s ease;
+}
+.brand svg rect:not(:first-of-type) {
+  transition:fill .2s ease;
+}
+.card:focus-visible {
+  outline:2px solid var(--tint);outline-offset:3px;
+}
+.row:focus-visible {
+  outline:2px solid var(--tint);outline-offset:-2px;
+}
+.nv:focus-visible {
+  outline:2px solid var(--tint);outline-offset:-2px;
+}
+.chip:focus-visible {
+  outline:2px solid var(--tint);outline-offset:2px;
+}
+.ib:focus-visible {
+  outline:2px solid var(--tint);outline-offset:3px;
+}
+.npv-artist-row div {
+  flex:1;
+}
+.npv-facts {
+  align-items:center;
+}
+.npv-art-wrap img {
+  display:block;
+}
+.npv-lyrics-block {
+  min-height:120px;
+}
+.npv-artist-block {
+  min-height:112px;
+}
+.npv-track-copy {
+  overflow:hidden;
+}
+.npv-bottom-actions {
+  position:sticky;bottom:0;
+}
+.npv-bottom-actions button:hover {
+  filter:brightness(1.05);
+}
+.npv-track .mini {
+  flex:none;
+}
+.npv-eyebrow {
+  text-transform:uppercase;
+}
+.npv-section-title button {
+  white-space:nowrap;
+}
+.npv-lyrics {
+  overflow-wrap:anywhere;
+}
+.npv-facts span {
+  line-height:1.4;
+}
+.npv-artist-row b {
+  overflow-wrap:anywhere;
+}
+.npv-head {
+  flex:none;
+}
+.npv-art-wrap {
+  flex:none;
+}
+.npv-track {
+  flex:none;
+}
+.npv-lyrics-block {
+  flex:none;
+}
+.npv-artist-block {
+  flex:none;
+}
+@media(min-width:1500px){.now-playing-panel{width:390px;padding:22px;gap:17px}body.player-open main{margin-right:400px}body.player-open.display-lahn main{margin-left:400px}.npv-art-wrap{max-height:340px}}
+@media(min-width:1100px) and (max-width:1499px){.now-playing-panel{width:330px}body.player-open main{margin-right:350px}body.player-open.display-lahn main{margin-left:350px}}
+@media(max-width:1100px){.npv-art-wrap{max-height:250px}.npv-track h2{font-size:18px}.npv-lyrics{max-height:105px}}
+@media(max-width:860px){.now-playing-panel{top:8px;bottom:176px;width:auto;min-width:0}.npv-art-wrap{max-height:210px}body.player-open main,body.player-open.display-lahn main{margin:0}}
+@media(max-width:520px){.now-playing-panel{padding:13px;border-radius:15px;gap:10px}.npv-art-wrap{max-height:175px}.npv-track h2{font-size:17px}.npv-lyrics-block,.npv-artist-block{padding:10px}.npv-bottom-actions button{font-size:11px;padding:7px}}
+@media(max-height:700px){.now-playing-panel{gap:9px;padding-top:12px;padding-bottom:10px}.npv-art-wrap{max-height:190px}.npv-lyrics{max-height:76px}.npv-artist-block{padding:9px 12px}}
+@media(prefers-reduced-motion:reduce){.now-playing-panel{animation:none!important;transition:none!important}}
+@media(hover:hover){.npv-art-wrap:hover #art2{transform:translateY(-2px);transition:transform .2s ease}.npv-artist-row:hover{opacity:.92}}
+
+
+/* Override the legacy fullscreen now-playing rules with the new companion layout. */
+#npv.now-playing-panel{position:fixed;inset:10px 10px 112px auto;z-index:43;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:14px;padding:18px;text-align:start;border-radius:20px;overflow:auto}
+#npv.now-playing-panel[hidden]{display:none!important}
+#npv.now-playing-panel .npv-art-wrap{width:100%;aspect-ratio:1;max-height:310px}
+#npv.now-playing-panel #art2{width:min(100%,310px);height:min(100%,310px);max-width:310px;aspect-ratio:1;object-fit:cover;border-radius:16px}
+#npv.now-playing-panel h2{max-width:none;font-size:20px}
+body.display-lahn #npv.now-playing-panel{right:auto;left:10px}
+body.display-spotify .brand svg,body.display-apple .brand svg{filter:none!important}
+@media(max-width:760px){#npv.now-playing-panel{inset:8px 8px 176px 8px;width:auto;min-width:0}#npv.now-playing-panel .npv-art-wrap{max-height:210px}}
+
 </style>
 </head>
 <body>
@@ -919,9 +2897,14 @@ body.skin-old .ctl { background: #d4d0c8; padding: 2px; }
   </div>
 </div>
 
-<div id="npv" hidden><button class="mini cl" id="npx" aria-label="إغلاق">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-</button><img id="art2" alt=""><h2 id="title2" dir="auto"></h2><p id="artist2" dir="auto"></p><canvas id="viz"></canvas></div>
+<aside id="npv" class="now-playing-panel" hidden aria-label="مشغل الأغنية الحالي">
+  <div class="npv-head"><div><span class="npv-eyebrow" data-i18n="nowplaying">يتم تشغيلها الآن</span><b data-i18n="listening">استمع الآن</b></div><button class="mini" id="npx" aria-label="إغلاق المشغل" title="إغلاق المشغل">×</button></div>
+  <div class="npv-art-wrap"><img id="art2" alt="غلاف الأغنية الحالية"><div class="npv-art-glow"></div></div>
+  <div class="npv-track"><div class="npv-track-copy"><h2 id="title2" dir="auto">لا توجد أغنية</h2><p id="artist2" dir="auto">—</p><small id="npvAlbum" dir="auto"></small></div><button class="mini" id="npvFav" aria-label="إضافة للمفضلة" title="إضافة للمفضلة">♡</button></div>
+  <div class="npv-lyrics-block"><div class="npv-section-title"><b data-i18n="lyrics">الكلمات</b><button class="mini" id="npvOpenLyrics" data-i18n="openlyrics">فتح الكلمات</button></div><div id="npvLyrics" class="npv-lyrics" dir="auto">لا توجد كلمات محفوظة للأغنية.</div></div>
+  <div class="npv-artist-block"><div class="npv-section-title"><b data-i18n="artistinfo">معلومات الفنان</b></div><div class="npv-artist-row"><img id="npvArtistImage" alt=""/><div><b id="npvArtistName">—</b><small id="npvArtistMeta">—</small></div></div><div class="npv-facts"><span id="npvGenre"></span><span id="npvYear"></span><span id="npvDuration"></span></div></div>
+  <div class="npv-bottom-actions"><button class="chip" id="npvQueue">إضافة للقائمة</button><button class="chip pri" id="npvGoArtist">عرض الفنان</button></div>
+</aside>
 
 <div id="quranModal" class="modal-overlay" hidden>
   <div class="modal-card">
@@ -2713,12 +4696,33 @@ Object.assign(SKINS, {
   mint: ['نعناع (فاتح)', '#e9f6ef', '#12281d', '#5d7f6c', '0,0,0', '#e9f6ef', '22,163,74'],
 });
 applySkin(localStorage.ng_skin || 'nagham');
+function applyLahnDisplayMode(mode = localStorage.ng_display_mode || 'lahn') {
+  const safeMode = ['lahn', 'spotify', 'apple'].includes(mode) ? mode : 'lahn';
+  document.body.classList.remove('display-lahn', 'display-spotify', 'display-apple');
+  document.body.classList.add('display-' + safeMode);
+  document.documentElement.dataset.displayMode = safeMode;
+  localStorage.ng_display_mode = safeMode;
+  const themeColor = safeMode === 'spotify' ? '#121212' : safeMode === 'apple' ? '#f7f7fa' : '#12101a';
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) metaTheme.content = themeColor;
+  document.documentElement.style.colorScheme = safeMode === 'apple' ? 'light' : 'dark';
+}
+applyLahnDisplayMode();
+window.addEventListener('storage', (event) => {
+  if (event.key === 'ng_display_mode') applyLahnDisplayMode(event.newValue || 'lahn');
+});
 const EQB = [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 const EQP = {
   flat: ['مسطّح', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], bass: ['باس', [6, 5, 4, 2, 0, 0, 0, 0, 0, 0]],
   treble: ['حدة', [0, 0, 0, 0, 0, 1, 3, 4, 5, 6]], vocal: ['صوت بشري', [-2, -2, -1, 1, 3, 4, 3, 1, 0, -1]],
   speech: ['تلاوة / خطابة', [-3, -2, 0, 2, 4, 4, 3, 1, -1, -2]], rock: ['روك', [5, 3, 1, -1, -2, 1, 3, 4, 5, 5]],
   classical: ['كلاسيك', [4, 3, 2, 1, -1, -1, 0, 2, 3, 4]],
+  electronic: ['إلكتروني', [4, 3, 1, 0, -1, 1, 2, 3, 4, 4]],
+  jazz: ['جاز', [3, 2, 1, 2, -1, -1, 0, 2, 3, 4]],
+  acoustic: ['أكوستيك', [2, 2, 1, 0, 2, 3, 2, 1, 2, 2]],
+  deepbass: ['جهير عميق', [8, 6, 4, 2, 0, 0, 0, -1, -1, -2]],
+  podcast: ['بودكاست', [-4, -2, 1, 3, 4, 4, 3, 1, 0, -1]],
+  night: ['استماع ليلي', [3, 2, 1, 1, 2, 2, 1, 0, -1, -2]],
 };
 Object.assign(EQP, JSON.parse(localStorage.ng_eq_custom || '{}'));
 const EQ = Object.assign({ on: false, preset: 'flat', gains: [...EQP.flat[1]] }, JSON.parse(localStorage.ng_eq || '{}'));
@@ -2845,11 +4849,50 @@ if (plViewBtn) {
   };
 }
 
-const syncNP = () => { $('#title2').textContent = $('#title').textContent; $('#artist2').textContent = $('#artist').textContent; $('#art2').src = $('#art').src || ''; $('#art2').style.visibility = $('#art').style.display === 'block' ? 'visible' : 'hidden'; };
+const syncNP = () => {
+  const title = $('#title2'), artist = $('#artist2'), art = $('#art2');
+  if (!title || !artist || !art) return;
+  title.textContent = $('#title').textContent || '—';
+  artist.textContent = $('#artist').textContent || '—';
+  art.src = $('#art').src || '';
+  art.style.visibility = $('#art').style.display === 'block' ? 'visible' : 'hidden';
+  const key = curKey(), meta = key && DB.lib[key] ? DB.lib[key] : (tracks[cur] || {});
+  const names = (typeof artistsOf === 'function' ? artistsOf(meta) : rawArtistsOf(meta));
+  const artistName = names.join('، ') || meta.artist || '—';
+  const album = $('#npvAlbum'); if (album) album.textContent = meta.album || '';
+  const lyricBox = $('#npvLyrics');
+  if (lyricBox) {
+    const raw = key && DB.lyrics[key] || '';
+    const parsed = typeof parseLyrics === 'function' ? parseLyrics(raw) : {lines:[]};
+    const lyricRows = parsed.lines || [];
+    let activeLine = -1;
+    if (parsed.type === 'synced' && typeof audio !== 'undefined') { for (let i=0;i<lyricRows.length;i++) if (lyricRows[i].time >= 0 && lyricRows[i].time <= audio.currentTime) activeLine=i; }
+    const from = parsed.type === 'synced' && activeLine >= 0 ? Math.max(0, activeLine - 2) : 0;
+    const lines = lyricRows.slice(from, from + 8).map((row,i) => (from+i===activeLine ? '♪ ' : '') + row.text).filter(Boolean);
+    lyricBox.textContent = lines.length ? lines.join('\n') : (raw || trs('لا توجد كلمات محفوظة للأغنية.'));
+  }
+  const artistImg = $('#npvArtistImage');
+  const canonical = names[0] || meta.artist || '';
+  const artistCover = canonical && DB.artistCovers ? (DB.artistCovers[canonical] || DB.artistCovers[normalizeArtistName(canonical)] || '') : '';
+  if (artistImg) artistImg.src = artistCover || $('#art').src || '';
+  $('#npvArtistName').textContent = artistName;
+  $('#npvArtistMeta').textContent = meta.album ? meta.album : trs('فنان من مكتبتك');
+  $('#npvGenre').textContent = meta.genre ? trs(meta.genre) : trs('نوع غير محدد');
+  $('#npvYear').textContent = meta.year || trs('سنة غير محددة');
+  $('#npvDuration').textContent = meta.duration ? fmt(meta.duration) : '';
+  const fav = $('#npvFav'); if (fav) fav.classList.toggle('on', !!(key && DB.favs.includes(key)));
+};
+function openNowPlayingPanel(){ $('#npv').hidden = false; document.body.classList.add('player-open'); syncNP(); }
+function closeNowPlayingPanel(){ $('#npv').hidden = true; document.body.classList.remove('player-open'); }
 new MutationObserver(syncNP).observe(document.querySelector('.np'), { childList: true, subtree: true, characterData: true, attributes: true });
-$('#thumb').onclick = document.querySelector('.info').onclick = () => { $('#npv').hidden = false; syncNP(); };
-$('#npx').onclick = () => { $('#npv').hidden = true; };
-addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('#npv').hidden = true; $('#lyricDisplayPanel').hidden = true; $('#lyricModal').hidden = true; $('#editMetaModal').hidden = true; $('#advPanel').hidden = true; } });
+if (typeof audio !== 'undefined') audio.addEventListener('timeupdate', () => { if (!$('#npv').hidden) syncNP(); });
+$('#thumb').onclick = document.querySelector('.info').onclick = openNowPlayingPanel;
+$('#npx').onclick = closeNowPlayingPanel;
+$('#npvOpenLyrics').onclick = () => { closeNowPlayingPanel(); $('#lyricDisplayPanel').hidden = false; renderLyricsView(); };
+$('#npvFav').onclick = () => { const key = curKey(); if (!key) return; const i = DB.favs.indexOf(key); if (i >= 0) DB.favs.splice(i,1); else DB.favs.push(key); persist(); syncNP(); if (typeof render === 'function') render(); };
+$('#npvQueue').onclick = () => { const key = curKey(); if (!key) return; if (typeof enqueue === 'function') enqueue(key, false); else toast(trs('تعذر إضافة الأغنية إلى قائمة التشغيل.')); };
+$('#npvGoArtist').onclick = () => { const key = curKey(), meta = key && DB.lib[key]; if (!meta) return; const names = artistsOf(meta); if (names[0]) { view='artists'; render(); setTimeout(() => { const q=$('#q'); if(q){q.value=names[0];applyFilter();} },0); } };
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeNowPlayingPanel(); $('#lyricDisplayPanel').hidden = true; $('#lyricModal').hidden = true; $('#editMetaModal').hidden = true; $('#advPanel').hidden = true; } });
 
 const LANGS = { ar: ['العربية', 'rtl'], en: ['English', 'ltr'], fr: ['Français', 'ltr'], es: ['Español', 'ltr'], tr: ['Türkçe', 'ltr'], de: ['Deutsch', 'ltr'], id: ['Bahasa Indonesia', 'ltr'], ur: ['اردو', 'rtl'] }, LI = ['ar', 'en', 'fr', 'es', 'tr', 'de', 'id', 'ur'];
 let LG = localStorage.ng_lang || 'ar'; if (!LANGS[LG]) LG = 'ar';
@@ -3425,7 +5468,7 @@ ROWS.push(
   ['تم إلغاء اختيار المجلد','Folder selection cancelled','Sélection du dossier annulée','Selección de carpeta cancelada','Klasör seçimi iptal edildi','Ordnerauswahl abgebrochen','Pemilihan folder dibatalkan','فولڈر کا انتخاب منسوخ کر دیا گیا'],
   ['متصفحك لا يتيح متابعة المجلد تلقائيًا. سيتم استيراد الأغاني مرة واحدة فقط.','Your browser cannot monitor folders automatically. The songs will be imported once.','Votre navigateur ne permet pas la surveillance automatique des dossiers. Les titres seront importés une seule fois.','Tu navegador no permite supervisar carpetas automáticamente. Las canciones se importarán una sola vez.','Tarayıcınız klasörleri otomatik izleyemiyor. Şarkılar yalnızca bir kez içe aktarılacak.','Ihr Browser kann Ordner nicht automatisch überwachen. Die Songs werden einmalig importiert.','Browser Anda tidak dapat memantau folder secara otomatis. Lagu hanya akan diimpor sekali.','آپ کا براؤزر فولڈرز کی خودکار نگرانی نہیں کر سکتا۔ گانے صرف ایک بار درآمد ہوں گے۔'],
   ['متابعة المجلد تحتاج إلى اتصال آمن. افتح التطبيق عبر HTTPS أو localhost.','Folder monitoring requires a secure connection. Open the app over HTTPS or localhost.','La surveillance des dossiers nécessite une connexion sécurisée. Ouvrez l’application via HTTPS ou localhost.','La supervisión de carpetas requiere una conexión segura. Abre la aplicación mediante HTTPS o localhost.','Klasör izleme güvenli bağlantı gerektirir. Uygulamayı HTTPS veya localhost üzerinden açın.','Die Ordnerüberwachung erfordert eine sichere Verbindung. Öffnen Sie die App über HTTPS oder localhost.','Pemantauan folder memerlukan koneksi aman. Buka aplikasi melalui HTTPS atau localhost.','فولڈر کی نگرانی کے لیے محفوظ کنکشن ضروری ہے۔ ایپ کو HTTPS یا localhost سے کھولیں۔'],
-  ['📁 استيراد مجلد بدون متابعة تلقائية','📁 Import folder without automatic monitoring','📁 Importer un dossier sans surveillance automatique','📁 Importar carpeta sin supervisión automática','📁 Klasörü otomatik izleme olmadan içe aktar','📁 Ordner ohne automatische Überwachung importieren','📁 Impor folder tanpa pemantauan otomatis','📁 خودکار نگرانی کے بغیر فولڈر درآمد کریں'],
+  ['📁 متابعة المجلد','📁 Folder monitoring','📁 Surveillance du dossier','📁 Supervisar carpeta','📁 Klasör takibi','📁 Ordnerüberwachung','📁 Pemantauan folder','📁 فولڈر کی نگرانی'],
   ['اختر مجلد الموسيقى لاستيراد الأغاني. المتابعة التلقائية غير متاحة في هذا السياق.','Choose a music folder to import songs. Automatic monitoring is unavailable in this context.','Choisissez un dossier musical pour importer les titres. La surveillance automatique est indisponible dans ce contexte.','Elige una carpeta de música para importar canciones. La supervisión automática no está disponible aquí.','Şarkıları içe aktarmak için bir müzik klasörü seçin. Bu ortamda otomatik izleme kullanılamıyor.','Wählen Sie einen Musikordner zum Importieren aus. Die automatische Überwachung ist hier nicht verfügbar.','Pilih folder musik untuk mengimpor lagu. Pemantauan otomatis tidak tersedia dalam konteks ini.','گانے درآمد کرنے کے لیے میوزک فولڈر منتخب کریں۔ اس ماحول میں خودکار نگرانی دستیاب نہیں ہے۔'],
   ['لم يتم العثور على ملفات صوتية في المجلد المحدد.','No audio files were found in the selected folder.','Aucun fichier audio trouvé dans le dossier sélectionné.','No se encontraron archivos de audio en la carpeta seleccionada.','Seçilen klasörde ses dosyası bulunamadı.','Im ausgewählten Ordner wurden keine Audiodateien gefunden.','Tidak ditemukan file audio di folder yang dipilih.','منتخب کردہ فولڈر میں کوئی آڈیو فائل نہیں ملی۔'],
   ['فشل فحص المجلد. تحقق من صلاحية الوصول ثم حاول مجددًا.','Folder scan failed. Check access permission and try again.','Échec de l’analyse du dossier. Vérifiez les autorisations puis réessayez.','Falló el análisis de la carpeta. Comprueba los permisos e inténtalo de nuevo.','Klasör taraması başarısız oldu. Erişim iznini kontrol edip tekrar deneyin.','Ordnerscan fehlgeschlagen. Prüfen Sie die Zugriffsberechtigung und versuchen Sie es erneut.','Pemindaian folder gagal. Periksa izin akses lalu coba lagi.','فولڈر اسکین ناکام ہو گیا۔ رسائی کی اجازت چیک کریں اور دوبارہ کوشش کریں۔']
@@ -3441,6 +5484,103 @@ ROWS.push(
 
 ROWS.push(
   ['لم يتم السماح باختيار المجلد. راجع صلاحيات الموقع وحاول مجددًا.','Folder selection was not allowed. Check site permissions and try again.','La sélection du dossier a été refusée. Vérifiez les autorisations du site et réessayez.','No se permitió seleccionar la carpeta. Revisa los permisos del sitio e inténtalo de nuevo.','Klasör seçimine izin verilmedi. Site izinlerini kontrol edip tekrar deneyin.','Die Ordnerauswahl wurde nicht erlaubt. Prüfen Sie die Website-Berechtigungen und versuchen Sie es erneut.','Pemilihan folder tidak diizinkan. Periksa izin situs lalu coba lagi.','فولڈر منتخب کرنے کی اجازت نہیں ملی۔ سائٹ کی اجازتیں چیک کریں اور دوبارہ کوشش کریں۔']
+);
+
+
+ROWS.push(
+ ['طريقة العرض','Display style','Style d’affichage','Estilo de visualización','Görünüm stili','Darstellungsstil','Gaya tampilan','ڈسپلے انداز'],
+ ['تصميم لحن','Lahn design','Design Lahn','Diseño Lahn','Lahn tasarımı','Lahn-Design','Desain Lahn','لحن ڈیزائن'],
+ ['تصميم Spotify','Spotify design','Design Spotify','Diseño Spotify','Spotify tasarımı','Spotify-Design','Desain Spotify','Spotify ڈیزائن'],
+ ['تصميم Apple Music','Apple Music design','Design Apple Music','Diseño Apple Music','Apple Music tasarımı','Apple-Music-Design','Desain Apple Music','Apple Music ڈیزائن'],
+ ['تجربة دمج وريميكس','Mix & remix studio','Studio de mixage et remix','Estudio de mezcla y remix','Mix ve remix stüdyosu','Mix- und Remixstudio','Studio mix & remix','مکس اور ریمکس اسٹوڈیو'],
+ ['اختر الملف الأول','Choose first track','Choisir le premier titre','Elegir primera pista','İlk parçayı seçin','Ersten Titel auswählen','Pilih lagu pertama','پہلا ٹریک منتخب کریں'],
+ ['اختر الملف الثاني','Choose second track','Choisir le deuxième titre','Elegir segunda pista','İkinci parçayı seçin','Zweiten Titel auswählen','Pilih lagu kedua','دوسرا ٹریک منتخب کریں'],
+ ['توازن المزج','Mix balance','Équilibre du mix','Balance de mezcla','Karışım dengesi','Mischbalance','Keseimbangan mix','مکس توازن'],
+ ['مدة التداخل','Crossfade duration','Durée du fondu enchaîné','Duración del fundido','Çapraz geçiş süresi','Überblenddauer','Durasi crossfade','کراس فیڈ دورانیہ'],
+ ['تصدير الريميكس WAV','Export remix WAV','Exporter le remix WAV','Exportar remix WAV','Remiksi WAV olarak dışa aktar','Remix als WAV exportieren','Ekspor remix WAV','ریمکس WAV ایکسپورٹ کریں'],
+ ['جاري تجهيز الريميكس…','Rendering remix…','Rendu du remix…','Procesando remix…','Remiks oluşturuluyor…','Remix wird gerendert…','Merender remix…','ریمکس تیار ہو رہا ہے…'],
+ ['اختر ملفين صوتيين صالحين أولاً.','Choose two valid audio files first.','Choisissez d’abord deux fichiers audio valides.','Primero elige dos archivos de audio válidos.','Önce iki geçerli ses dosyası seçin.','Wählen Sie zuerst zwei gültige Audiodateien.','Pilih dua file audio yang valid terlebih dahulu.','پہلے دو درست آڈیو فائلیں منتخب کریں۔'],
+ ['تعذر فك ترميز أحد الملفين. جرّب MP3 أو WAV أو OGG.','Could not decode one of the files. Try MP3, WAV, or OGG.','Impossible de décoder un fichier. Essayez MP3, WAV ou OGG.','No se pudo decodificar un archivo. Prueba MP3, WAV u OGG.','Dosyalardan biri çözümlenemedi. MP3, WAV veya OGG deneyin.','Eine Datei konnte nicht dekodiert werden. Versuchen Sie MP3, WAV oder OGG.','Salah satu file tidak dapat didekode. Coba MP3, WAV, atau OGG.','ایک فائل ڈی کوڈ نہیں ہو سکی۔ MP3، WAV یا OGG آزمائیں۔'],
+ ['تم تصدير الريميكس بنجاح.','Remix exported successfully.','Remix exporté avec succès.','Remix exportado correctamente.','Remiks başarıyla dışa aktarıldı.','Remix erfolgreich exportiert.','Remix berhasil diekspor.','ریمکس کامیابی سے ایکسپورٹ ہو گیا۔'],
+ ['تعذر إنشاء الريميكس في هذا المتصفح.','This browser could not create the remix.','Ce navigateur n’a pas pu créer le remix.','Este navegador no pudo crear el remix.','Bu tarayıcı remiksi oluşturamadı.','Dieser Browser konnte den Remix nicht erstellen.','Browser ini tidak dapat membuat remix.','یہ براؤزر ریمکس نہیں بنا سکا۔'],
+ ['ابحث عن أغنية','Search for a song','Rechercher un titre','Buscar una canción','Şarkı ara','Nach einem Titel suchen','Cari lagu','گانا تلاش کریں'],
+ ['الميكروفون مشغول بالفعل.','The microphone is already active.','Le microphone est déjà actif.','El micrófono ya está activo.','Mikrofon zaten etkin.','Das Mikrofon ist bereits aktiv.','Mikrofon sudah aktif.','مائیکروفون پہلے ہی فعال ہے۔']
+);
+
+
+ROWS.push(
+ ['تم تطبيق تصميم لحن','Lahn design applied','Design Lahn appliqué','Diseño Lahn aplicado','Lahn tasarımı uygulandı','Lahn-Design angewendet','Desain Lahn diterapkan','لحن ڈیزائن لاگو ہو گیا'],
+ ['تم تطبيق تصميم Spotify','Spotify design applied','Design Spotify appliqué','Diseño Spotify aplicado','Spotify tasarımı uygulandı','Spotify-Design angewendet','Desain Spotify diterapkan','Spotify ڈیزائن لاگو ہو گیا'],
+ ['تم تطبيق تصميم Apple Music','Apple Music design applied','Design Apple Music appliqué','Diseño Apple Music aplicado','Apple Music tasarımı uygulandı','Apple-Music-Design angewendet','Desain Apple Music diterapkan','Apple Music ڈیزائن لاگو ہو گیا'],
+ ['فتح استوديو الريميكس','Open remix studio','Ouvrir le studio remix','Abrir estudio de remix','Remix stüdyosunu aç','Remixstudio öffnen','Buka studio remix','ریمکس اسٹوڈیو کھولیں']
+);
+
+ROWS.push(
+ ['اختر ملفين صوتيين، واضبط التداخل والتوازن، ثم صدّر نتيجة WAV. الملفات الأصلية لا تتغير.','Choose two audio files, adjust overlap and balance, then export a WAV mix. Original files remain unchanged.','Choisissez deux fichiers audio, réglez le fondu et l’équilibre, puis exportez un mix WAV. Les originaux restent inchangés.','Elige dos archivos de audio, ajusta el fundido y el balance y exporta una mezcla WAV. Los originales no cambian.','İki ses dosyası seçin, geçişi ve dengeyi ayarlayın, ardından WAV karışımını dışa aktarın. Orijinaller değişmez.','Wählen Sie zwei Audiodateien, passen Sie Überblendung und Balance an und exportieren Sie einen WAV-Mix. Originaldateien bleiben unverändert.','Pilih dua file audio, atur transisi dan keseimbangan, lalu ekspor mix WAV. File asli tidak berubah.','دو آڈیو فائلیں منتخب کریں، ٹرانزیشن اور توازن ترتیب دیں، پھر WAV مکس برآمد کریں۔ اصل فائلیں تبدیل نہیں ہوں گی۔'],
+ ['كل المعالجة تتم محليًا داخل المتصفح. الناتج ملف WAV جديد ولا يتم تعديل ملفاتك الأصلية.','All processing happens locally in your browser. The result is a new WAV file; your original files are not modified.','Tout le traitement se fait localement dans le navigateur. Le résultat est un nouveau fichier WAV ; les originaux ne sont pas modifiés.','Todo el procesamiento ocurre localmente en el navegador. El resultado es un nuevo WAV; los archivos originales no se modifican.','Tüm işlemler tarayıcıda yerel olarak yapılır. Sonuç yeni bir WAV dosyasıdır; orijinaller değiştirilmez.','Die Verarbeitung erfolgt lokal im Browser. Das Ergebnis ist eine neue WAV-Datei; Originaldateien bleiben unverändert.','Semua pemrosesan dilakukan secara lokal di browser. Hasilnya file WAV baru; file asli tidak diubah.','تمام کارروائی براؤزر میں مقامی طور پر ہوتی ہے۔ نتیجہ نئی WAV فائل ہے؛ اصل فائلیں تبدیل نہیں ہوتیں۔'],
+ ['مستوى الملف الأول','Track 1 gain','Gain de la piste 1','Ganancia de pista 1','1. parça seviyesi','Lautstärke Titel 1','Gain trek 1','ٹریک 1 کی سطح'],
+ ['مستوى الملف الثاني','Track 2 gain','Gain de la piste 2','Ganancia de pista 2','2. parça seviyesi','Lautstärke Titel 2','Gain trek 2','ٹریک 2 کی سطح'],
+ ['نمط الدمج','Mix mode','Mode de mixage','Modo de mezcla','Karıştırma modu','Mixmodus','Mode mix','مکس موڈ'],
+ ['تداخل تدريجي','Crossfade','Fondu enchaîné','Fundido cruzado','Çapraz geçiş','Überblendung','Crossfade','کراس فیڈ'],
+ ['تشغيل متزامن','Simultaneous overlay','Superposition simultanée','Superposición simultánea','Eşzamanlı katmanlama','Gleichzeitige Überlagerung','Overlay bersamaan','بیک وقت چلائیں'],
+ ['الأول ثم الثاني','First, then second','Premier, puis deuxième','Primero y luego segundo','Önce birinci, sonra ikinci','Erst der erste, dann der zweite','Pertama, lalu kedua','پہلے پہلا، پھر دوسرا'],
+ ['إغلاق','Close','Fermer','Cerrar','Kapat','Schließen','Tutup','بند کریں'],
+ ['المدة الناتجة تتجاوز 10 دقائق لتجنب استهلاك الذاكرة.','The output exceeds 10 minutes and may use too much memory.','La sortie dépasse 10 minutes et risque de consommer trop de mémoire.','La salida supera los 10 minutos y puede consumir demasiada memoria.','Çıktı 10 dakikayı aşıyor ve fazla bellek kullanabilir.','Die Ausgabe überschreitet 10 Minuten und könnte zu viel Speicher benötigen.','Hasil melebihi 10 menit dan dapat memakai terlalu banyak memori.','نتیجہ 10 منٹ سے زیادہ ہے اور بہت زیادہ میموری استعمال کر سکتا ہے۔'],
+ ['اكتب اسم الأغنية للبحث','Type a song name to search','Saisissez le titre à rechercher','Escribe el nombre de la canción','Aramak için şarkı adını yazın','Geben Sie einen Songtitel ein','Ketik nama lagu untuk mencari','تلاش کے لیے گانے کا نام لکھیں'],
+ ['تم تحديث المفضلة','Favorites updated','Favoris mis à jour','Favoritos actualizados','Favoriler güncellendi','Favoriten aktualisiert','Favorit diperbarui','پسندیدہ فہرست اپ ڈیٹ ہو گئی']
+);
+
+
+ROWS.push(
+ ['إيقاف المتابعة','Stop monitoring','Arrêter la surveillance','Detener el monitoreo','İzlemeyi durdur','Überwachung stoppen','Hentikan pemantauan','نگرانی روکیں'],
+ ['اختر مجلد الموسيقى وسيتم فحصه تلقائيًا بحثًا عن الأغاني الجديدة كل 15 ثانية.','Choose a music folder. New songs will be detected automatically every 15 seconds.','Choisissez un dossier musical. Les nouveaux titres seront détectés automatiquement toutes les 15 secondes.','Elige una carpeta de música. Las canciones nuevas se detectarán automáticamente cada 15 segundos.','Bir müzik klasörü seçin. Yeni şarkılar her 15 saniyede otomatik algılanır.','Wählen Sie einen Musikordner. Neue Songs werden automatisch alle 15 Sekunden erkannt.','Pilih folder musik. Lagu baru akan terdeteksi otomatis setiap 15 detik.','میوزک فولڈر منتخب کریں۔ نئے گانے ہر 15 سیکنڈ میں خودکار طور پر تلاش ہوں گے۔'],
+ ['إلكتروني','Electronic','Électronique','Electrónica','Elektronik','Elektronisch','Elektronik','الیکٹرانک'],
+ ['جاز','Jazz','Jazz','Jazz','Caz','Jazz','Jazz','جاز'],
+ ['أكوستيك','Acoustic','Acoustique','Acústico','Akustik','Akustisch','Akustik','اکوسٹک'],
+ ['جهير عميق','Deep bass','Basses profondes','Graves profundos','Derin bas','Tiefer Bass','Bass dalam','گہرا باس'],
+ ['بودكاست','Podcast','Podcast','Podcast','Podcast','Podcast','Podcast','پوڈکاسٹ'],
+ ['استماع ليلي','Night listening','Écoute nocturne','Escucha nocturna','Gece dinleme','Nachtmodus','Dengarkan malam','رات میں سننا']
+);
+
+
+ROWS.push(
+ ['Original Lahn','Original Lahn','Lahn original','Lahn original','Orijinal Lahn','Original Lahn','Lahn asli','اصل لحن'],
+ ['Dark · Compact · Green','Dark · Compact · Green','Sombre · Compact · Vert','Oscuro · Compacto · Verde','Koyu · Kompakt · Yeşil','Dunkel · Kompakt · Grün','Gelap · Ringkas · Hijau','گہرا · کمپیکٹ · سبز'],
+ ['Soft · Spacious · Cards','Soft · Spacious · Cards','Doux · Aéré · Cartes','Suave · Espacioso · Tarjetas','Yumuşak · Ferah · Kartlar','Sanft · Großzügig · Karten','Lembut · Lapang · Kartu','نرم · کشادہ · کارڈز'],
+ ['تشغيل عشوائي','Shuffle','Lecture aléatoire','Aleatorio','Karışık çal','Zufallswiedergabe','Acak','شفل'],
+ ['تكرار الأغنية','Repeat','Répéter','Repetir','Tekrarla','Wiederholen','Ulangi','دہرائیں'],
+ ['كتم الصوت','Mute','Muet','Silenciar','Sessize al','Stumm','Bisukan','آواز بند کریں'],
+ ['إلغاء كتم الصوت','Unmute','Réactiver le son','Activar sonido','Sesi aç','Ton einschalten','Aktifkan suara','آواز بحال کریں'],
+ ['افتح البحث','Open search','Ouvrir la recherche','Abrir búsqueda','Aramayı aç','Suche öffnen','Buka pencarian','تلاش کھولیں'],
+ ['رفع الصوت','Volume up','Augmenter le volume','Subir volumen','Sesi artır','Lautstärke erhöhen','Naikkan volume','آواز بڑھائیں'],
+ ['خفض الصوت','Volume down','Baisser le volume','Bajar volumen','Sesi azalt','Lautstärke verringern','Turunkan volume','آواز کم کریں']
+);
+
+
+ROWS.push(
+ ['المزيج الذكي','Smart Mix','Mix intelligent','Mezcla inteligente','Akıllı Mix','Intelligenter Mix','Mix Cerdas','اسمارٹ مکس'],
+ ['أنشئ قائمة تشغيل تلقائية من مكتبتك حسب الفنان والنوع الموسيقي أو اكتشف أغاني عشوائية.','Create an automatic playlist from your library by artist and genre, or discover random tracks.','Créez une playlist automatique selon l’artiste et le genre, ou découvrez des titres au hasard.','Crea una lista automática según el artista y el género, o descubre canciones aleatorias.','Sanatçı ve türe göre otomatik liste oluşturun veya rastgele parçalar keşfedin.','Erstelle eine automatische Wiedergabeliste nach Künstler und Genre oder entdecke zufällige Titel.','Buat daftar putar otomatis berdasarkan artis dan genre, atau temukan lagu acak.','فنکار اور صنف کے مطابق خودکار پلے لسٹ بنائیں یا بے ترتیب گانے دریافت کریں۔'],
+ ['مزيج مشابه للأغنية الحالية','Mix based on current song','Mix basé sur le titre actuel','Mezcla basada en la canción actual','Geçerli şarkıya benzer mix','Mix zum aktuellen Titel','Mix berdasarkan lagu saat ini','موجودہ گانے جیسا مکس'],
+ ['اكتشاف عشوائي من مكتبتك','Random discovery from your library','Découverte aléatoire dans votre bibliothèque','Descubrimiento aleatorio de tu biblioteca','Kütüphanenden rastgele keşfet','Zufällige Entdeckung aus deiner Bibliothek','Temukan lagu acak dari perpustakaanmu','اپنی لائبریری سے بے ترتیب دریافت'],
+ ['شغّل أغنية أولاً حتى أقدر أعمل مزيج مشابه لها.','Play a song first so I can build a similar mix.','Lancez d’abord un titre pour créer un mix similaire.','Reproduce una canción primero para crear una mezcla similar.','Benzer bir mix oluşturmak için önce bir şarkı çalın.','Spiele zuerst einen Titel ab, damit ein ähnlicher Mix erstellt werden kann.','Putar lagu terlebih dahulu untuk membuat mix yang mirip.','ملتا جلتا مکس بنانے کے لیے پہلے کوئی گانا چلائیں۔'],
+ ['لا توجد ملفات متاحة في مكتبتك. أضف أغاني أولاً.','No available tracks in your library. Add songs first.','Aucun titre disponible dans votre bibliothèque. Ajoutez d’abord des morceaux.','No hay canciones disponibles en tu biblioteca. Añade canciones primero.','Kütüphanende kullanılabilir parça yok. Önce şarkı ekle.','Keine verfügbaren Titel in deiner Bibliothek. Füge zuerst Songs hinzu.','Tidak ada lagu yang tersedia. Tambahkan lagu terlebih dahulu.','آپ کی لائبریری میں کوئی گانا دستیاب نہیں۔ پہلے گانے شامل کریں۔'],
+ ['تم تجهيز المزيج الذكي. استمتع!','Smart Mix is ready. Enjoy!','Le mix intelligent est prêt. Bonne écoute !','La mezcla inteligente está lista. ¡Disfruta!','Akıllı Mix hazır. İyi dinlemeler!','Der intelligente Mix ist bereit. Viel Spaß!','Mix Cerdas siap. Selamat mendengarkan!','اسمارٹ مکس تیار ہے۔ لطف اٹھائیں!'],
+ ['تشغيل المزيج الذكي','Play Smart Mix','Lancer le mix intelligent','Reproducir mezcla inteligente','Akıllı Mix’i çal','Intelligenten Mix abspielen','Putar Mix Cerdas','اسمارٹ مکس چلائیں']
+);
+
+
+ROWS.push(
+ ['يتم تشغيلها الآن','Now Playing','Lecture en cours','Reproduciendo ahora','Şimdi çalıyor','Wird gerade abgespielt','Sedang diputar','اب چل رہا ہے'],
+ ['استمع الآن','Listen now','Écouter maintenant','Escuchar ahora','Şimdi dinle','Jetzt anhören','Dengarkan sekarang','ابھی سنیں'],
+ ['الكلمات','Lyrics','Paroles','Letras','Şarkı sözleri','Songtexte','Lirik','دھن'],
+ ['فتح الكلمات','Open lyrics','Ouvrir les paroles','Abrir letras','Sözleri aç','Songtexte öffnen','Buka lirik','دھن کھولیں'],
+ ['معلومات الفنان','Artist information','Informations sur l’artiste','Información del artista','Sanatçı bilgileri','Künstlerinfo','Informasi artis','فنکار کی معلومات'],
+ ['لا توجد كلمات محفوظة للأغنية.','No saved lyrics for this track.','Aucune parole enregistrée pour ce titre.','No hay letras guardadas para esta canción.','Bu parça için kayıtlı şarkı sözü yok.','Keine gespeicherten Songtexte für diesen Titel.','Tidak ada lirik tersimpan untuk lagu ini.','اس گانے کے لیے کوئی دھن محفوظ نہیں ہے۔'],
+ ['فنان من مكتبتك','Artist in your library','Artiste de votre bibliothèque','Artista de tu biblioteca','Kütüphanendeki sanatçı','Künstler in deiner Bibliothek','Artis di pustaka Anda','آپ کی لائبریری کا فنکار'],
+ ['نوع غير محدد','Genre not specified','Genre non spécifié','Género no especificado','Tür belirtilmedi','Genre nicht angegeben','Genre tidak ditentukan','صنف متعین نہیں'],
+ ['سنة غير محددة','Year not specified','Année non spécifiée','Año no especificado','Yıl belirtilmedi','Jahr nicht angegeben','Tahun tidak ditentukan','سال متعین نہیں'],
+ ['إضافة للقائمة','Add to queue','Ajouter à la file','Añadir a la cola','Sıraya ekle','Zur Warteschlange hinzufügen','Tambahkan ke antrean','قطار میں شامل کریں'],
+ ['عرض الفنان','View artist','Voir l’artiste','Ver artista','Sanatçıyı görüntüle','Künstler ansehen','Lihat artis','فنکار دیکھیں']
 );
 
 const EX = new Map(), PT = [];
@@ -4144,6 +6284,33 @@ function renderSettingsPage() {
       </section>
 
       <section class="settings-section">
+        <h3>◈ ${trs('طريقة العرض')}</h3>
+        <div class="display-mode-grid">
+          <button class="display-mode-card ${localStorage.ng_display_mode !== 'spotify' && localStorage.ng_display_mode !== 'apple' ? 'selected' : ''}" data-display-mode="lahn">
+            <span class="display-mode-preview preview-lahn"><i></i><i></i><i></i></span>
+            <b>${trs('تصميم لحن')}</b><small>${trs('Original Lahn')}</small>
+          </button>
+          <button class="display-mode-card ${localStorage.ng_display_mode === 'spotify' ? 'selected' : ''}" data-display-mode="spotify">
+            <span class="display-mode-preview preview-spotify"><i></i><i></i><i></i></span>
+            <b>${trs('تصميم Spotify')}</b><small>${trs('Dark · Compact · Green')}</small>
+          </button>
+          <button class="display-mode-card ${localStorage.ng_display_mode === 'apple' ? 'selected' : ''}" data-display-mode="apple">
+            <span class="display-mode-preview preview-apple"><i></i><i></i><i></i></span>
+            <b>${trs('تصميم Apple Music')}</b><small>${trs('Soft · Spacious · Cards')}</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="settings-section smart-mix-section">
+        <h3>🎧 ${trs('المزيج الذكي')}</h3>
+        <p class="settings-hint">${trs('أنشئ قائمة تشغيل تلقائية من مكتبتك حسب الفنان والنوع الموسيقي أو اكتشف أغاني عشوائية.')}</p>
+        <div class="smart-mix-actions">
+          <button class="smart-mix-button smart-mix-primary" data-smart-mix="similar">${svgIcons.shuffle} ${trs('مزيج مشابه للأغنية الحالية')}</button>
+          <button class="smart-mix-button" data-smart-mix="discover">${svgIcons.disc} ${trs('اكتشاف عشوائي من مكتبتك')}</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
         <h3>${svgIcons.globe} اللغة</h3>
         <div class="chip-grid">
           ${Object.entries(LANGS).map(([code, info]) => {
@@ -4252,7 +6419,7 @@ function renderSettingsPage() {
         <div class="eq-inline">
           <div class="eq-inline-toolbar">
             <select id="eqpreInline">
-              ${Object.entries(EQP).map(([id, p]) => `<option value="${id}">${p[0]}</option>`).join('')}
+              ${Object.entries(EQP).map(([id, p]) => `<option value="${id}">${trs(p[0])}</option>`).join('')}
               <option value="custom">مخصص</option>
             </select>
             <button id="eqonInline" class="chip"></button>
@@ -4306,14 +6473,20 @@ function renderSettingsPage() {
 
      
 <section class="settings-section">
+  <h3>🎚️ ${trs('تجربة دمج وريميكس')}</h3>
+  <p class="settings-hint">${trs('اختر ملفين صوتيين، واضبط التداخل والتوازن، ثم صدّر نتيجة WAV. الملفات الأصلية لا تتغير.')}</p>
+  <div class="chip-grid"><button class="chip pri" id="openRemixStudioBtn">🎛️ ${trs('فتح استوديو الريميكس')}</button></div>
+</section>
+
+<section class="settings-section">
   <h3>${svgIcons.folder} متابعة مجلد الموسيقى</h3>
   <div class="chip-grid">
     <button class="chip ${localStorage.ng_watch === '1' ? 'pri' : ''}" id="toggleWatchBtn">
-      ${localStorage.ng_watch === '1' ? 'إيقاف المتابعة' : (window.isSecureContext && typeof window.showDirectoryPicker === 'function' ? '📁 اختيار مجلد وبدء المتابعة' : '📁 استيراد مجلد بدون متابعة تلقائية')}
+      ${localStorage.ng_watch === '1' ? trs('إيقاف المتابعة') : trs('📁 متابعة المجلد')}
     </button>
   </div>
   <small style="color:var(--mute); font-size:12px; margin-top:8px; display:block;">
-    ${window.isSecureContext && typeof window.showDirectoryPicker === 'function' ? 'اختر مجلد الموسيقى وسيتم فحصه تلقائيًا بحثًا عن الأغاني الجديدة كل 15 ثانية.' : 'اختر مجلد الموسيقى لاستيراد الأغاني. المتابعة التلقائية غير متاحة في هذا السياق.'}
+    ${window.isSecureContext && typeof window.showDirectoryPicker === 'function' ? trs('اختر مجلد الموسيقى وسيتم فحصه تلقائيًا بحثًا عن الأغاني الجديدة كل 15 ثانية.') : trs('اختر مجلد الموسيقى لاستيراد الأغاني. المتابعة التلقائية غير متاحة في هذا السياق.')}
   </small>
 </section>
 
@@ -4387,6 +6560,61 @@ function renderSettingsPage() {
     };
   });
   
+  L.querySelectorAll('[data-display-mode]').forEach(el => {
+    el.onclick = () => {
+      const mode = el.dataset.displayMode;
+      localStorage.ng_display_mode = mode;
+      applyLahnDisplayMode(mode);
+      renderSettingsPage();
+      toast(trs(mode === 'spotify' ? 'تم تطبيق تصميم Spotify' : mode === 'apple' ? 'تم تطبيق تصميم Apple Music' : 'تم تطبيق تصميم لحن'));
+    };
+  });
+
+  L.querySelectorAll('[data-smart-mix]').forEach((el) => {
+    el.onclick = async () => {
+      const available = Object.keys(DB.lib).filter((key) => files.has(key) || (DB.lib[key] && DB.lib[key].url));
+      if (!available.length) return toast(trs('لا توجد ملفات متاحة في مكتبتك. أضف أغاني أولاً.'));
+      const mode = el.dataset.smartMix;
+      let selected = [];
+      if (mode === 'similar') {
+        const seedKey = curKey();
+        if (!seedKey || !DB.lib[seedKey]) return toast(trs('شغّل أغنية أولاً حتى أقدر أعمل مزيج مشابه لها.'));
+        const seed = DB.lib[seedKey];
+        const seedArtists = new Set((typeof artistsOf === 'function' ? artistsOf(seed) : rawArtistsOf(seed)).map((name) => normalizeArtistName(name)).filter(Boolean));
+        const seedGenre = normalizeSearchText(seed.genre || '');
+        const seedAlbum = normalizeSearchText(seed.album || '');
+        const scored = available.filter((key) => key !== seedKey).map((key) => {
+          const meta = DB.lib[key] || {};
+          const names = (typeof artistsOf === 'function' ? artistsOf(meta) : rawArtistsOf(meta)).map((name) => normalizeArtistName(name));
+          let score = 0;
+          if (names.some((name) => seedArtists.has(name))) score += 8;
+          if (seedGenre && normalizeSearchText(meta.genre || '') === seedGenre) score += 5;
+          if (seedAlbum && normalizeSearchText(meta.album || '') === seedAlbum) score += 2;
+          if (seed.genre && meta.genre && normalizeSearchText(meta.genre) !== seedGenre) score -= 1;
+          return { key, score };
+        }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score);
+        selected = scored.slice(0, 30).map((item) => item.key);
+        if (!selected.length) selected = available.filter((key) => key !== seedKey);
+        for (let i = selected.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [selected[i], selected[j]] = [selected[j], selected[i]];
+        }
+        selected = [seedKey, ...selected.slice(0, 19)];
+      } else {
+        selected = [...available];
+        for (let i = selected.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [selected[i], selected[j]] = [selected[j], selected[i]];
+        }
+        selected = selected.slice(0, 20);
+      }
+      if (!selected.length) return toast(trs('لا توجد ملفات متاحة في مكتبتك. أضف أغاني أولاً.'));
+      view = 'queue';
+      await startQueue(selected, selected[0]);
+      toast(trs('تم تجهيز المزيج الذكي. استمتع!'));
+    };
+  });
+
   L.querySelectorAll('[data-lang]').forEach(el => {
     el.onclick = () => { setLang(el.dataset.lang); renderSettingsPage(); };
   });
@@ -5308,6 +7536,7 @@ if (globeBtn) {
   btn.style.display = localStorage.ng_hide_voice === '1' ? 'none' : 'grid';
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognition = null;
+  let voiceSafetyTimer = null;
   const norm = (v) => (v || '').toLocaleLowerCase().replace(/[ًٌٍَُِّْـ]/g, '').replace(/[.,!?؟،]/g, '').trim();
   const sayToast = (ar, en) => toast(LG === 'en' ? en : ar);
   const runCommand = (raw) => {
@@ -5330,6 +7559,10 @@ if (globeBtn) {
       audio.volume = remoteAudio.volume = 0; localStorage.vol = 0; $('#vol').value = 0; fill($('#vol')); sayToast('تم كتم الصوت', 'Muted');
     } else if (/^(الغاء كتم الصوت|افتح الصوت|رجع الصوت|unmute|sound on)$/.test(c)) {
       const v = window.__lahnPrevVolume || .8; audio.volume = remoteAudio.volume = v; localStorage.vol = v; $('#vol').value = v * 100; fill($('#vol')); sayToast('تم تشغيل الصوت', 'Sound on');
+    } else if (/^(ابحث|بحث|افتح البحث|search|open search)$/.test(c)) {
+      const search = document.getElementById('q'); if (search) { search.focus(); sayToast('اكتب اسم الأغنية للبحث', 'Type a song name to search'); }
+    } else if (/^(ضيف للمفضلة|أضف للمفضلة|المفضلة|favorite|add to favorites)$/.test(c)) {
+      const fav = document.getElementById('fav'); if (fav) { fav.click(); sayToast('تم تحديث المفضلة', 'Favorites updated'); }
     } else if (/^(عشوائي|شغل عشوائي|shuffle|shuffle on)$/.test(c)) {
       if (!shuffle) $('#shuffle').click(); sayToast('تم تفعيل التشغيل العشوائي', 'Shuffle enabled');
     } else if (/^(الغاء العشوائي|اقفل العشوائي|shuffle off)$/.test(c)) {
@@ -5353,11 +7586,12 @@ if (globeBtn) {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-// ✨ السطر الجديد عشان نمنع تعليق المايك
-setTimeout(() => { if (recognition) { try { recognition.stop(); } catch(e){} } }, 6000);
+// The safety timer is installed only after onstart.
 
      recognition.onstart = () => { 
-      btn.classList.add('listening'); 
+      btn.classList.add('listening');
+      if (voiceSafetyTimer) clearTimeout(voiceSafetyTimer);
+      voiceSafetyTimer = setTimeout(() => { if (recognition) { try { recognition.stop(); } catch (_) {} } }, 12000);
       btn.title = trs('جاري الاستماع… اضغط للإيقاف'); 
       sayToast('اتكلم دلوقتي…', 'Listening…'); 
     };
@@ -5376,7 +7610,8 @@ setTimeout(() => { if (recognition) { try { recognition.stop(); } catch(e){} } }
     };
 
       recognition.onend = () => { 
-      btn.classList.remove('listening'); 
+      btn.classList.remove('listening');
+      if (voiceSafetyTimer) { clearTimeout(voiceSafetyTimer); voiceSafetyTimer = null; }
       btn.title = trs('الأوامر الصوتية'); 
       recognition = null; window.__lahnRecognition = null; 
     };
@@ -6439,14 +8674,16 @@ function detectCommand(text) {
   if (/اخفض الصوت|قلل الصوت|خفض الصوت|decrease volume|volume down|baisser|bajar el volumen|sesi azalt|lautstärke verringern|turunkan volume|آواز کم کریں/.test(s))
     return 'volumeDown';
 
+  if (/عشوائي|تشغيل عشوائي|shuffle|aleatorio|zufällig|rastgele|acak/.test(s)) return 'shuffle';
+  if (/تكرار|كرر|repeat|repetir|wiederholen|tekrar|ulangi/.test(s)) return 'repeat';
+  if (/كتم الصوت|اكتم|mute|silenciar|stumm|sessiz|bisukan/.test(s)) return 'mute';
+  if (/الغاء كتم|إلغاء الكتم|unmute|sound on|activar sonido|ton an|sesi aç/.test(s)) return 'unmute';
+  if (/بحث|ابحث|افتح البحث|search|buscar|rechercher|suche|ara|cari/.test(s)) return 'search';
+
   return null;
 }
 
-  /*
-    ربط أوامر المشغل:
-    سيتم استكمال أسماء أزرار التالي والسابق
-    بعد التأكد من IDs الموجودة في نسختك.
-  */
+  // Playback commands use verified controls already present in the player.
 
   function getAudio() {
     return document.querySelector('audio');
@@ -6519,15 +8756,33 @@ function detectCommand(text) {
 
     volumeDown: () => {
       const audio = getAudio();
-
       if (!audio) throw new Error('Audio element not found');
+      const value = Math.max(0, audio.volume - 0.1);
+      audio.volume = remoteAudio.volume = value;
+      localStorage.vol = value;
+      const slider = document.getElementById('vol');
+      if (slider) { slider.value = value * 100; fill(slider); }
+    },
 
-      audio.volume = Math.max(0, audio.volume - 0.1);
-    }
+    shuffle: () => { const button = document.getElementById('shuffle'); if (!button) throw new Error('Shuffle control unavailable'); button.click(); },
+    repeat: () => { const button = document.getElementById('repeat'); if (!button) throw new Error('Repeat control unavailable'); button.click(); },
+    mute: () => {
+      const audio = getAudio(); if (!audio) throw new Error('Audio element not found');
+      if (audio.volume > 0) localStorage.ng_ai_prev_volume = audio.volume;
+      audio.volume = remoteAudio.volume = 0; localStorage.vol = 0;
+      const slider = document.getElementById('vol'); if (slider) { slider.value = 0; fill(slider); }
+    },
+    unmute: () => {
+      const audio = getAudio(); if (!audio) throw new Error('Audio element not found');
+      const value = Math.max(.1, Math.min(1, Number(localStorage.ng_ai_prev_volume || .8)));
+      audio.volume = remoteAudio.volume = value; localStorage.vol = value;
+      const slider = document.getElementById('vol'); if (slider) { slider.value = value * 100; fill(slider); }
+    },
+    search: () => { const search = document.getElementById('q'); if (!search) throw new Error('Search field unavailable'); search.focus(); }
   };
 
 function showHelp() {
-  addMessage(tr('الأوامر المتاحة:'));
+  addMessage(trs('الأوامر المتاحة:'));
 
   [
     'تشغيل الموسيقى',
@@ -6535,9 +8790,14 @@ function showHelp() {
     'الأغنية التالية',
     'الأغنية السابقة',
     'رفع الصوت',
-    'خفض الصوت'
+    'خفض الصوت',
+    'تشغيل عشوائي',
+    'تكرار الأغنية',
+    'كتم الصوت',
+    'إلغاء كتم الصوت',
+    'افتح البحث'
   ].forEach(command => {
-    addMessage('• ' + tr(command));
+    addMessage('• ' + trs(command));
   });
 }
 
@@ -6844,6 +9104,179 @@ function startAutoWatch() {
 
 setTimeout(startAutoWatch, 3000);
 
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAHN REMIX STUDIO — two-source offline mixdown to PCM WAV.
+   Source files are decoded locally; nothing is uploaded.
+   ═══════════════════════════════════════════════════════════════════════ */
+(() => {
+  const make = (tag, attrs = {}, content = '') => {
+    const node = document.createElement(tag);
+    Object.entries(attrs).forEach(([key, value]) => {
+      if (key === 'className') node.className = value;
+      else if (key === 'text') node.textContent = value;
+      else node.setAttribute(key, value);
+    });
+    if (content) node.innerHTML = content;
+    return node;
+  };
+
+  function ensureRemixModal() {
+    let modal = document.getElementById('lahnRemixModal');
+    if (modal) return modal;
+    modal = make('div', { id: 'lahnRemixModal', hidden: '' });
+    modal.innerHTML = `
+      <section class="remix-panel" role="dialog" aria-modal="true" aria-labelledby="remixTitle">
+        <h2 id="remixTitle">🎚️ ${trs('تجربة دمج وريميكس')}</h2>
+        <p class="settings-hint">${trs('كل المعالجة تتم محليًا داخل المتصفح. الناتج ملف WAV جديد ولا يتم تعديل ملفاتك الأصلية.')}</p>
+        <div class="remix-field"><label for="remixFileA">${trs('اختر الملف الأول')}</label><input id="remixFileA" type="file" accept="audio/*"></div>
+        <div class="remix-field"><label for="remixFileB">${trs('اختر الملف الثاني')}</label><input id="remixFileB" type="file" accept="audio/*"></div>
+        <div class="remix-field"><label for="remixBalance">${trs('توازن المزج')}: <output id="remixBalanceValue">50 / 50</output></label><input id="remixBalance" class="remix-range" type="range" min="0" max="100" value="50"></div>
+        <div class="remix-field"><label for="remixFade">${trs('مدة التداخل')}: <output id="remixFadeValue">8 s</output></label><input id="remixFade" class="remix-range" type="range" min="0" max="30" step="1" value="8"></div>
+        <div class="remix-field"><label for="remixGainA">${trs('مستوى الملف الأول')}: <output id="remixGainAValue">100%</output></label><input id="remixGainA" class="remix-range" type="range" min="0" max="150" value="100"></div>
+        <div class="remix-field"><label for="remixGainB">${trs('مستوى الملف الثاني')}: <output id="remixGainBValue">100%</output></label><input id="remixGainB" class="remix-range" type="range" min="0" max="150" value="100"></div>
+        <div class="remix-field"><label for="remixMode">${trs('نمط الدمج')}</label><select id="remixMode"><option value="cross">${trs('تداخل تدريجي')}</option><option value="overlay">${trs('تشغيل متزامن')}</option><option value="sequence">${trs('الأول ثم الثاني')}</option></select></div>
+        <div class="remix-actions"><button id="remixRender">${trs('تصدير الريميكس WAV')}</button><button id="remixClose" class="secondary">${trs('إغلاق')}</button></div>
+        <div id="remixStatus" class="remix-status" role="status" aria-live="polite"></div>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', event => { if (event.target === modal) modal.hidden = true; });
+    modal.querySelector('#remixClose').addEventListener('click', () => { modal.hidden = true; });
+    const bindRange = (id, out, suffix, transform = v => v) => {
+      const input = modal.querySelector('#' + id), output = modal.querySelector('#' + out);
+      const update = () => output.textContent = transform(input.value) + suffix;
+      input.addEventListener('input', update); update();
+    };
+    bindRange('remixBalance','remixBalanceValue','',v => `${v} / ${100-v}`);
+    bindRange('remixFade','remixFadeValue',' s');
+    bindRange('remixGainA','remixGainAValue','%');
+    bindRange('remixGainB','remixGainBValue','%');
+    modal.querySelector('#remixRender').addEventListener('click', () => renderRemix(modal));
+    return modal;
+  }
+
+  function writeWav(audioBuffer) {
+    const channels = Math.min(2, audioBuffer.numberOfChannels);
+    const frames = audioBuffer.length;
+    const bytesPerSample = 2;
+    const blockAlign = channels * bytesPerSample;
+    const buffer = new ArrayBuffer(44 + frames * blockAlign);
+    const view = new DataView(buffer);
+    const writeString = (offset, value) => [...value].forEach((c, i) => view.setUint8(offset + i, c.charCodeAt(0)));
+    writeString(0, 'RIFF'); view.setUint32(4, 36 + frames * blockAlign, true);
+    writeString(8, 'WAVE'); writeString(12, 'fmt '); view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true); view.setUint16(22, channels, true);
+    view.setUint32(24, audioBuffer.sampleRate, true);
+    view.setUint32(28, audioBuffer.sampleRate * blockAlign, true);
+    view.setUint16(32, blockAlign, true); view.setUint16(34, 16, true);
+    writeString(36, 'data'); view.setUint32(40, frames * blockAlign, true);
+    const data = Array.from({ length: channels }, (_, channel) => audioBuffer.getChannelData(channel));
+    let offset = 44;
+    for (let i = 0; i < frames; i++) {
+      for (let channel = 0; channel < channels; channel++) {
+        const sample = Math.max(-1, Math.min(1, data[channel][i]));
+        view.setInt16(offset, sample < 0 ? sample * 32768 : sample * 32767, true);
+        offset += 2;
+      }
+    }
+    return new Blob([buffer], { type: 'audio/wav' });
+  }
+
+  async function renderRemix(modal) {
+    const status = modal.querySelector('#remixStatus');
+    const button = modal.querySelector('#remixRender');
+    const fileA = modal.querySelector('#remixFileA').files[0];
+    const fileB = modal.querySelector('#remixFileB').files[0];
+    const isAudioFile = file => !!file && (file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|opus|webm)$/i.test(file.name));
+    if (!isAudioFile(fileA) || !isAudioFile(fileB)) {
+      status.textContent = trs('اختر ملفين صوتيين صالحين أولاً.'); return;
+    }
+    const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!Offline || !AudioCtx) { status.textContent = trs('تعذر إنشاء الريميكس في هذا المتصفح.'); return; }
+    button.disabled = true;
+    status.textContent = trs('جاري تجهيز الريميكس…');
+    let decoder;
+    try {
+      decoder = new AudioCtx();
+      const [a, b] = await Promise.all([
+        fileA.arrayBuffer().then(data => decoder.decodeAudioData(data)),
+        fileB.arrayBuffer().then(data => decoder.decodeAudioData(data))
+      ]);
+      const balance = Number(modal.querySelector('#remixBalance').value) / 100;
+      const fade = Number(modal.querySelector('#remixFade').value);
+      const gainA = Number(modal.querySelector('#remixGainA').value) / 100;
+      const gainB = Number(modal.querySelector('#remixGainB').value) / 100;
+      const mode = modal.querySelector('#remixMode').value;
+      const rate = Math.max(a.sampleRate, b.sampleRate);
+      const channels = Math.min(2, Math.max(a.numberOfChannels, b.numberOfChannels));
+      const overlap = mode === 'cross' ? Math.min(fade, a.duration, b.duration) : 0;
+      const duration = mode === 'sequence' ? a.duration + b.duration : mode === 'overlay' ? Math.max(a.duration,b.duration) : a.duration + b.duration - overlap;
+      const length = Math.max(1, Math.ceil(duration * rate));
+      if (length > rate * 60 * 10) throw new Error('LIMIT');
+      const offline = new Offline(channels, length, rate);
+      const sourceA = offline.createBufferSource(); sourceA.buffer = a;
+      const sourceB = offline.createBufferSource(); sourceB.buffer = b;
+      const gainNodeA = offline.createGain(), gainNodeB = offline.createGain();
+      const startB = mode === 'sequence' ? a.duration : mode === 'cross' ? a.duration - overlap : 0;
+      const leftGain = gainA * (1 - balance * .5);
+      const rightGain = gainB * (.5 + balance * .5);
+      gainNodeA.gain.setValueAtTime(leftGain, 0);
+      gainNodeB.gain.setValueAtTime(rightGain, 0);
+      if (mode === 'cross' && overlap > 0) {
+        gainNodeA.gain.setValueAtTime(leftGain, startB);
+        gainNodeA.gain.linearRampToValueAtTime(0, startB + overlap);
+        gainNodeB.gain.setValueAtTime(0, startB);
+        gainNodeB.gain.linearRampToValueAtTime(rightGain, startB + overlap);
+      }
+      sourceA.connect(gainNodeA).connect(offline.destination);
+      sourceB.connect(gainNodeB).connect(offline.destination);
+      sourceA.start(0); sourceB.start(startB);
+      const rendered = await offline.startRendering();
+      const wav = writeWav(rendered);
+      const url = URL.createObjectURL(wav);
+      const link = document.createElement('a');
+      link.href = url; link.download = `Lahn-Remix-${Date.now()}.wav`;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      status.textContent = trs('تم تصدير الريميكس بنجاح.');
+    } catch (error) {
+      console.error('Lahn remix render failed:', error);
+      status.textContent = error.message === 'LIMIT' ? trs('المدة الناتجة تتجاوز 10 دقائق لتجنب استهلاك الذاكرة.') : error.name === 'EncodingError' ? trs('تعذر فك ترميز أحد الملفين. جرّب MP3 أو WAV أو OGG.') : trs('تعذر إنشاء الريميكس في هذا المتصفح.');
+    } finally {
+      if (decoder && decoder.close) { try { await decoder.close(); } catch (_) {} }
+      button.disabled = false;
+    }
+  }
+
+  document.addEventListener('click', event => {
+    if (event.target.closest('#openRemixStudioBtn')) ensureRemixModal().hidden = false;
+  });
+})();
+
+
+
+/* Player companion enhancements: live metadata, safe empty-state handling and display-mode identity. */
+(function installLahnPlayerCompanion(){
+  const modeObserver = new MutationObserver(() => {
+    const mode = document.documentElement.dataset.displayMode || 'lahn';
+    const icon = document.querySelector('.brand svg');
+    if (icon) icon.setAttribute('data-brand-mode', mode);
+    const panel = document.getElementById('npv');
+    if (panel && !panel.hidden) syncNP();
+  });
+  modeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-display-mode']});
+  const safeText = (selector,value) => { const el=document.querySelector(selector); if(el) el.textContent=value || ''; };
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden && document.getElementById('npv') && !document.getElementById('npv').hidden) syncNP(); });
+  window.addEventListener('storage',(event)=>{ if(event.key==='ng_display_mode' || event.key==='ng_skin') { if(typeof applyLahnDisplayMode==='function') applyLahnDisplayMode(localStorage.ng_display_mode||'lahn'); } });
+  const panel=document.getElementById('npv');
+  if(panel){ panel.addEventListener('click',(event)=>{ if(event.target===panel) closeNowPlayingPanel(); }); }
+  const image=document.getElementById('art2');
+  if(image) image.addEventListener('error',()=>{ image.style.visibility='hidden'; });
+  if(image) image.addEventListener('load',()=>{ image.style.visibility='visible'; });
+})();
+
 </script>
 
 <!-- LAHN AI FLOATING BUTTON -->
@@ -6876,5 +9309,18 @@ setTimeout(startAutoWatch, 3000);
     <button id="lahnAISend" type="button">➤</button>
   </div>
 </div>
+
+<!-- LAHN UPDATE 2.2
+Display modes: Lahn / Spotify-inspired / Apple-Music-inspired.
+Remix Studio: local two-file offline mixdown, crossfade, overlay, sequence,
+independent gains, balance, and PCM WAV export. No source file is modified.
+Voice: safety timeout now starts on recognition start and is cleared on end.
+Folder setting label restored to the accurate localized “Folder monitoring”.
+Limitations: browser speech recognition may require internet and a supported browser.
+Remix output is WAV; browser decoding support depends on the selected input codec.
+-->
+
+<!-- Lahn display-system v2: independent Spotify-inspired and Apple-Music-inspired layouts;
+     Smart Mix uses only tracks already available in the local library. -->
 </body>
 </html>
