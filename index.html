@@ -10332,6 +10332,18 @@ body.display-apple.apple-night .top .search-wrap #q:focus {
 <style id="lahn-studio-pro-css">
 .studio-page{display:grid;gap:18px;padding:4px 0 36px}.studio-intro{padding:22px;border-radius:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--tint) 28%,var(--panel)),var(--panel));border:1px solid var(--line)}.studio-intro h2{margin:0 0 7px;font-size:clamp(22px,4vw,32px)}.studio-intro p{margin:0;color:var(--mute);line-height:1.7}.studio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:12px}.studio-card{min-width:0;padding:17px;border-radius:18px;border:1px solid var(--line);background:var(--panel);box-shadow:0 8px 24px #0000000a}.studio-card h3{margin:0 0 7px;font-size:16px}.studio-card p{margin:0 0 13px;color:var(--mute);font-size:13px;line-height:1.6}.studio-card .studio-actions{display:flex;flex-wrap:wrap;gap:8px}.studio-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--tint) 10%,var(--panel));color:var(--text);border-radius:11px;padding:9px 12px;cursor:pointer;font:inherit;font-size:13px}.studio-btn.primary{background:var(--tint);color:white;border-color:transparent}.studio-btn:focus-visible{outline:2px solid var(--tint);outline-offset:2px}.studio-stat{font-size:27px;font-weight:800;color:var(--text);margin:8px 0}.studio-muted{color:var(--mute);font-size:12px}.studio-track-list{display:grid;gap:7px;margin-top:10px}.studio-track{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:10px;background:color-mix(in srgb,var(--tint) 7%,var(--panel));min-width:0}.studio-track span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.studio-bar{height:8px;border-radius:20px;background:var(--line);overflow:hidden}.studio-bar i{display:block;height:100%;background:var(--tint);border-radius:20px}.studio-wide{grid-column:1/-1}.studio-select,.studio-input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;margin:5px 0 10px}.studio-mini-player body{overflow:hidden}.studio-mini-player .bar{position:fixed!important;z-index:9999!important;left:14px!important;right:14px!important;bottom:14px!important;max-width:900px!important;margin:auto!important;border-radius:18px!important;box-shadow:0 15px 60px #0008!important}.studio-mini-player .app{padding-bottom:120px!important}
 @media(max-width:600px){.studio-intro{padding:16px}.studio-card{padding:14px}.studio-grid{grid-template-columns:1fr}.studio-page{gap:12px}}
+
+/* Lahn feature pack */
+.lx-overlay{position:fixed;inset:0;z-index:100020;background:rgba(0,0,0,.58);backdrop-filter:blur(9px);display:grid;place-items:center;padding:18px;}
+.lx-dialog{width:min(620px,100%);max-height:min(86vh,850px);overflow:auto;border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--text);padding:18px;box-shadow:0 25px 90px #0008;}
+.lx-dialog.wide{width:min(850px,100%)}
+.lx-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:15px}.lx-head h2{font-size:20px;margin:0 0 5px}.lx-head p{font-size:13px;color:var(--mute);margin:0;line-height:1.6}.lx-close{border:1px solid var(--line);background:transparent;color:var(--text);width:34px;height:34px;border-radius:10px;cursor:pointer;flex:none}
+.lx-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}.lx-stats>div{border:1px solid var(--line);background:color-mix(in srgb,var(--tint) 8%,var(--panel));border-radius:13px;padding:12px}.lx-stats b{display:block;font-size:24px}.lx-stats span{font-size:12px;color:var(--mute)}
+.lx-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}.lx-toolbar input,.lx-toolbar select,.lx-folder-create input,.lx-folder-assign select{min-width:0;flex:1;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:10px 12px;border-radius:10px;font:inherit}.lx-history-list{display:grid;gap:6px;max-height:53vh;overflow:auto}.lx-history-row{width:100%;border:1px solid transparent;background:color-mix(in srgb,var(--tint) 5%,var(--panel));color:var(--text);border-radius:12px;padding:9px;display:flex;align-items:center;gap:10px;text-align:start;cursor:pointer}.lx-history-row:hover{border-color:var(--tint)}.lx-history-cover{width:38px;height:38px;border-radius:9px;background:var(--line);display:grid;place-items:center;flex:none}.lx-history-name{display:grid;gap:3px;min-width:0;flex:1}.lx-history-name b,.lx-history-name small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lx-history-name small,.lx-history-row time{color:var(--mute);font-size:11px}.lx-playmark{font-size:12px;color:var(--tint)}.lx-empty{padding:28px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:13px;font-size:13px}
+.lx-folder-create,.lx-folder-assign{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:12px 0}.lx-folder-assign label{display:grid;gap:5px;flex:1;min-width:140px;font-size:12px;color:var(--mute)}.lx-folder-assign select{width:100%}.lx-folder-list{display:grid;gap:7px;margin:12px 0}.lx-folder-item,.lx-backup-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}.lx-folder-item>div,.lx-backup-item>span{display:grid;gap:4px}.lx-folder-item small,.lx-backup-item small{font-size:11px;color:var(--mute)}.lx-shortcut-list{display:grid;gap:7px}.lx-shortcut-row{display:grid;grid-template-columns:minmax(0,1fr) auto 36px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.lx-shortcut-row .recording{border-color:var(--tint);background:color-mix(in srgb,var(--tint) 16%,var(--panel))}.lx-clear-key{padding:8px!important}.lx-check{display:flex;gap:10px;align-items:center;margin:8px 0 12px;font-size:14px}.lx-check input{accent-color:var(--tint)}.lx-status{font-size:12px;color:var(--mute);margin:8px 0}.lx-backup-list{display:grid;gap:7px;max-height:38vh;overflow:auto}.lx-side-folder{margin:5px 0}.lx-side-folder summary{font-size:12px;font-weight:700;cursor:pointer;padding:7px 9px;color:var(--mute);border-radius:8px;list-style:none}.lx-side-folder summary::-webkit-details-marker{display:none}.lx-side-folder summary:hover{background:var(--hover,rgba(127,127,127,.1))}.lx-side-folder>button.nv{padding-inline-start:22px}
+.lx-mini-player{position:fixed;z-index:100010;right:22px;bottom:112px;width:min(330px,calc(100vw - 24px));padding:11px 12px 10px;border:1px solid var(--line);border-radius:17px;background:var(--panel);color:var(--text);box-shadow:0 20px 65px #0008;backdrop-filter:blur(18px);direction:inherit}.lx-mini-head{display:flex;align-items:center;gap:10px;cursor:move;touch-action:none}.lx-mini-art{width:48px;height:48px;object-fit:cover;border-radius:10px;background:var(--line);flex:none}.lx-mini-meta{display:grid;gap:4px;min-width:0;flex:1}.lx-mini-meta b,.lx-mini-meta small{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.lx-mini-meta small{font-size:11px;color:var(--mute)}.lx-mini-head button,.lx-mini-player footer button{border:0;background:transparent;color:var(--text);cursor:pointer;border-radius:8px;padding:7px}.lx-mini-player footer{display:flex;justify-content:center;gap:16px;align-items:center}.lx-mini-player footer button{font-size:17px}.lx-mini-player footer button[data-mini-play]{background:var(--tint);color:#fff;width:34px;height:34px;border-radius:50%}.lx-mini-progress{display:block;width:100%;height:4px;margin:9px 0 5px;accent-color:var(--tint)}
+@media(max-width:540px){.lx-overlay{padding:8px}.lx-dialog{padding:13px;max-height:92vh}.lx-folder-assign{align-items:stretch}.lx-mini-player{right:12px;bottom:105px}}
+
 </style>
 
 </head>
@@ -11119,9 +11131,6 @@ function drawSeekWaveform() {
     return;
   }
 
-  const duration = Number(audio.duration) || 0;
-  const liveRatio = duration > 0 ? Math.max(0, Math.min(1, (Number(audio.currentTime) || 0) / duration)) : 0;
-  const previewRatio = seeking ? Math.max(0, Math.min(1, (Number($('#seek').value) || 0) / 1000)) : liveRatio;
   const ctx = seekWaveContext;
   ctx.clearRect(0, 0, width, height);
   const tint = getComputedStyle(document.documentElement).getPropertyValue('--tint-rgb').trim() || '139,124,246';
@@ -11135,8 +11144,8 @@ function drawSeekWaveform() {
     const barHeight = Math.max(2, envelope * height * 0.94);
     const x = index * (barWidth + gap);
     const y = (height - barHeight) / 2;
-    const played = (x + barWidth / 2) / width <= previewRatio;
-    ctx.fillStyle = played ? `rgb(${tint})` : 'rgba(255,255,255,.23)';
+    ctx.fillStyle = `rgb(${tint})`;
+
     ctx.beginPath();
     if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, barWidth, barHeight, Math.min(3, barWidth / 2));
     else ctx.rect(x, y, barWidth, barHeight);
@@ -19317,6 +19326,436 @@ body.display-apple[data-display-tone="dark"] .app main > #list :is(input,textare
   -webkit-text-fill-color: #a5a5af !important;
 }
 
+/* Lahn modern glass system: settings, option units, controls and dialogs. */
+:root{
+  --lx-glass-fill:rgba(255,255,255,.085);
+  --lx-glass-fill-strong:rgba(255,255,255,.13);
+  --lx-glass-border:rgba(255,255,255,.17);
+  --lx-glass-shadow:0 18px 48px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.13);
+  --lx-glass-blur:blur(24px) saturate(165%);
+}
+body .settings-page,
+body .settings-page *{
+  scrollbar-color:rgba(255,255,255,.25) transparent;
+}
+body .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit,.display-mode-card,
+  .display-tone-button,.skin-item,.notice,.info-box,.help-box,.empty-state
+){
+  background:var(--lx-glass-fill) !important;
+  background-image:linear-gradient(145deg,rgba(255,255,255,.095),rgba(255,255,255,.025)) !important;
+  border:1px solid var(--lx-glass-border) !important;
+  border-radius:18px !important;
+  box-shadow:var(--lx-glass-shadow) !important;
+  -webkit-backdrop-filter:var(--lx-glass-blur) !important;
+  backdrop-filter:var(--lx-glass-blur) !important;
+  isolation:isolate;
+}
+body .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+) :is(span,b,strong,label,p,small,i,svg){
+  color:var(--text,#f4f4f7);
+}
+body .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+) :is(svg){
+  stroke:currentColor;
+  fill:transparent;
+  opacity:.94;
+}
+body .app main #list .settings-page :is(
+  input:not([type=checkbox]):not([type=radio]),select,textarea,
+  .form-control,.input-wrap,.select-wrap
+){
+  color:var(--text,#f4f4f7) !important;
+  -webkit-text-fill-color:var(--text,#f4f4f7) !important;
+  background:rgba(255,255,255,.075) !important;
+  border:1px solid rgba(255,255,255,.19) !important;
+  border-radius:13px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 5px 16px rgba(0,0,0,.06) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%) !important;
+  backdrop-filter:blur(18px) saturate(150%) !important;
+  color-scheme:dark;
+}
+body .app main #list .settings-page :is(input,textarea)::placeholder{
+  color:color-mix(in srgb,var(--text,#f4f4f7) 58%,transparent) !important;
+  -webkit-text-fill-color:color-mix(in srgb,var(--text,#f4f4f7) 58%,transparent) !important;
+}
+body .app main #list .settings-page :is(button,.settings-action,.chip){
+  color:var(--text,#f4f4f7) !important;
+  background:rgba(255,255,255,.075) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 8px 20px rgba(0,0,0,.07) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(150%) !important;
+  backdrop-filter:blur(16px) saturate(150%) !important;
+}
+body .app main #list .settings-page :is(button,.settings-action,.chip):hover{
+  background:color-mix(in srgb,var(--tint,#8b7cf6) 17%,rgba(255,255,255,.13)) !important;
+  border-color:color-mix(in srgb,var(--tint,#8b7cf6) 48%,rgba(255,255,255,.24)) !important;
+  transform:translateY(-1px);
+}
+body .app main #list .settings-page :is(button,select,input):focus-visible{
+  outline:2px solid color-mix(in srgb,var(--tint,#8b7cf6) 72%,white) !important;
+  outline-offset:2px;
+}
+body .app main #list .settings-page input[type=checkbox],
+body .app main #list .settings-page input[type=radio]{
+  accent-color:var(--tint,#8b7cf6);
+}
+body .app main #list .settings-page :is(.settings-hint,.hint,.description,.sub-title,.muted,.secondary-text,small){
+  color:color-mix(in srgb,var(--text,#f4f4f7) 70%,transparent) !important;
+}
+body.display-lahn .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+){background-color:rgba(255,255,255,.075) !important;}
+body.display-spotify .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+){background-color:rgba(255,255,255,.075) !important;}
+body.display-apple .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+){background-color:rgba(255,255,255,.075) !important;}
+body[data-display-tone="light"] .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+){
+  background:rgba(255,255,255,.55) !important;
+  background-image:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.34)) !important;
+  border-color:rgba(255,255,255,.72) !important;
+  box-shadow:0 16px 38px rgba(30,35,55,.08),inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+body[data-display-tone="light"] .app main #list .settings-page :is(
+  input:not([type=checkbox]):not([type=radio]),select,textarea,
+  .form-control,.input-wrap,.select-wrap
+){
+  color:#202331 !important;
+  -webkit-text-fill-color:#202331 !important;
+  background:rgba(255,255,255,.54) !important;
+  border-color:rgba(60,65,85,.16) !important;
+  color-scheme:light;
+}
+body[data-display-tone="light"] .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+) :is(span,b,strong,label,p,small,i,svg){color:#242738 !important;}
+body[data-display-tone="light"] .app main #list .settings-page :is(button,.settings-action,.chip){
+  color:#25283a !important;
+  background:rgba(255,255,255,.48) !important;
+  border-color:rgba(50,55,80,.13) !important;
+}
+body .lx-overlay{
+  background:rgba(8,10,18,.48) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(145%) !important;
+  backdrop-filter:blur(14px) saturate(145%) !important;
+}
+body .lx-dialog{
+  background:color-mix(in srgb,var(--bg,#171820) 76%,transparent) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 28px 90px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.12) !important;
+  -webkit-backdrop-filter:blur(30px) saturate(165%) !important;
+  backdrop-filter:blur(30px) saturate(165%) !important;
+}
+body .lx-dialog :is(input,select,textarea,.studio-btn){
+  color:var(--text,#f4f4f7) !important;
+  background:rgba(255,255,255,.085) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  -webkit-backdrop-filter:blur(16px) !important;
+  backdrop-filter:blur(16px) !important;
+}
+body[data-display-tone="light"] .lx-dialog :is(input,select,textarea,.studio-btn){
+  color:#202331 !important;
+  background:rgba(255,255,255,.58) !important;
+  border-color:rgba(50,55,80,.16) !important;
+}
+body.lx-focus-mode .app .side,
+body.lx-focus-mode .app .top{opacity:.18;transition:opacity .25s ease;}
+body.lx-focus-mode .app .side:hover,
+body.lx-focus-mode .app .top:hover{opacity:1;}
+body.lx-focus-mode .app main{max-width:1500px;margin-inline:auto;}
+body.lx-focus-mode .app main #list{padding-inline:clamp(12px,4vw,56px);}
+#lxMiniPlayer{border:1px solid rgba(255,255,255,.2) !important;background:rgba(20,22,32,.72) !important;-webkit-backdrop-filter:blur(28px) saturate(170%) !important;backdrop-filter:blur(28px) saturate(170%) !important;box-shadow:0 24px 70px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.15) !important;}
+#lxMiniPlayer :is(button,input){color:var(--text,#fff) !important;}
+@media(prefers-reduced-motion:reduce){body .settings-page *,body .lx-dialog *,#lxMiniPlayer *{transition:none !important;animation:none !important;}}
+@media(max-width:680px){body .app main #list .settings-page :is(.settings-section,.settings-card,.settings-group,.setting-card,.subsection){border-radius:14px !important;}body .lx-dialog{width:min(96vw,760px) !important;max-height:90dvh !important;}}
+
+/* Force readable foregrounds on dark glass controls and icon glyphs. */
+body[data-display-tone="dark"] .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+) :is(span,b,strong,label,p,small,i,svg,path,use){
+  color:#f5f4fa !important;
+  -webkit-text-fill-color:#f5f4fa !important;
+  stroke:currentColor !important;
+}
+body[data-display-tone="dark"] .app main #list .settings-page :is(
+  .settings-section,.settings-card,.settings-group,.setting-card,.subsection,
+  .settings-panel,.setting-panel,.settings-option,.option-card,.setting-row,
+  .setting-unit,.unit-card,.control-unit,.settings-unit
+) :is(button,button span,button i,button svg){
+  color:#f7f6fc !important;
+  -webkit-text-fill-color:#f7f6fc !important;
+  stroke:currentColor !important;
+}
+body[data-display-tone="dark"] .app main #list .settings-page :is(input,select,textarea){
+  color:#f7f6fc !important;
+  -webkit-text-fill-color:#f7f6fc !important;
+  background:rgba(255,255,255,.085) !important;
+  color-scheme:dark !important;
+}
+body[data-display-tone="dark"] .app main #list .settings-page select option{
+  color:#f7f6fc !important;
+  background:#292a35 !important;
+}
+/* Studio visual refresh: responsive cards, typography, hover and touch states. */
+.studio-page{
+  width:min(100%,1560px);
+  margin-inline:auto;
+  padding:clamp(12px,2vw,28px);
+  animation:lxStudioEnter .38s ease both;
+}
+.studio-intro{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(22px,4vw,42px);
+  margin-bottom:22px;
+  border:1px solid rgba(255,255,255,.17);
+  border-radius:26px;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(139,124,246,.25),transparent 36%),
+    linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.035));
+  box-shadow:0 22px 60px rgba(0,0,0,.13),inset 0 1px 0 rgba(255,255,255,.15);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  backdrop-filter:blur(24px) saturate(160%);
+}
+.studio-intro::after{
+  content:'♫';
+  position:absolute;
+  inset-inline-end:clamp(18px,5vw,64px);
+  top:50%;
+  transform:translateY(-50%) rotate(-12deg);
+  font-size:clamp(64px,11vw,150px);
+  font-weight:900;
+  opacity:.07;
+  pointer-events:none;
+}
+.studio-intro h2{
+  margin:0 0 10px;
+  font-size:clamp(25px,3.2vw,42px);
+  line-height:1.15;
+  letter-spacing:-.035em;
+}
+.studio-intro p{
+  max-width:720px;
+  margin:0;
+  line-height:1.8;
+  opacity:.76;
+  font-size:clamp(13px,1.4vw,16px);
+}
+.studio-grid{
+  display:grid;
+  grid-template-columns:repeat( auto-fit,minmax(min(100%,260px),1fr));
+  gap:clamp(12px,1.5vw,20px);
+  align-items:stretch;
+}
+.studio-card{
+  position:relative;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:clamp(17px,2vw,24px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:22px;
+  background:linear-gradient(150deg,rgba(255,255,255,.105),rgba(255,255,255,.035));
+  box-shadow:0 15px 42px rgba(0,0,0,.09),inset 0 1px 0 rgba(255,255,255,.1);
+  -webkit-backdrop-filter:blur(22px) saturate(150%);
+  backdrop-filter:blur(22px) saturate(150%);
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.studio-card:hover{
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb,var(--tint,#8b7cf6) 46%,rgba(255,255,255,.2));
+  box-shadow:0 22px 48px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.14);
+}
+.studio-card h3{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:0;
+  font-size:clamp(15px,1.5vw,18px);
+  font-weight:800;
+  line-height:1.45;
+}
+.studio-card p{
+  margin:0;
+  line-height:1.75;
+  font-size:13px;
+  opacity:.74;
+}
+.studio-card .studio-muted{
+  font-size:12px;
+  line-height:1.6;
+  opacity:.68;
+}
+.studio-card .studio-stat{
+  font-size:clamp(28px,4vw,42px);
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.04em;
+}
+.studio-card .studio-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:auto;
+  padding-top:5px;
+}
+.studio-card .studio-btn{
+  min-height:39px;
+  padding:9px 14px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:750;
+  cursor:pointer;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease;
+}
+.studio-card .studio-btn:active{transform:scale(.97);}
+.studio-card .studio-btn.primary{
+  background:color-mix(in srgb,var(--tint,#8b7cf6) 22%,rgba(255,255,255,.1));
+  border-color:color-mix(in srgb,var(--tint,#8b7cf6) 48%,rgba(255,255,255,.18));
+}
+.studio-wide{grid-column:1/-1;}
+.studio-track-list{display:grid;gap:8px;}
+.studio-track{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-width:0;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  background:rgba(255,255,255,.045);
+}
+.studio-track span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.studio-track b{font-variant-numeric:tabular-nums;}
+.studio-bar{
+  overflow:hidden;
+  height:8px;
+  border-radius:99px;
+  background:rgba(255,255,255,.1);
+}
+.studio-bar i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--tint,#8b7cf6),color-mix(in srgb,var(--tint,#8b7cf6) 50%,white));
+  box-shadow:0 0 14px color-mix(in srgb,var(--tint,#8b7cf6) 45%,transparent);
+}
+body[data-display-tone="light"] .studio-card,
+body[data-display-tone="light"] .studio-intro{
+  color:#242738;
+  border-color:rgba(70,75,100,.13);
+  background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(255,255,255,.48));
+  box-shadow:0 16px 42px rgba(40,45,70,.075),inset 0 1px 0 rgba(255,255,255,.9);
+}
+body[data-display-tone="light"] .studio-card p,
+body[data-display-tone="light"] .studio-intro p{color:#4b5062;}
+body[data-display-tone="light"] .studio-track{border-color:rgba(40,45,70,.1);background:rgba(255,255,255,.5);}
+body[data-display-tone="light"] .studio-bar{background:rgba(40,45,70,.1);}
+.lx-shortcut-row,.lx-backup-item,.lx-folder-item,.lx-history-row{
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+  background:rgba(255,255,255,.055);
+  transition:background .18s ease,border-color .18s ease;
+}
+.lx-shortcut-row:hover,.lx-backup-item:hover,.lx-folder-item:hover,.lx-history-row:hover{
+  background:rgba(255,255,255,.095);
+  border-color:rgba(255,255,255,.19);
+}
+.lx-history-row{width:100%;text-align:start;}
+.lx-history-row time{font-size:11px;opacity:.65;white-space:nowrap;}
+.lx-history-cover{
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border-radius:11px;
+  color:var(--tint,#8b7cf6);
+  background:color-mix(in srgb,var(--tint,#8b7cf6) 16%,transparent);
+}
+.lx-history-name{display:grid;gap:3px;min-width:0;flex:1;}
+.lx-history-name b,.lx-history-name small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lx-history-name small{opacity:.65;}
+.lx-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0;}
+.lx-stats>div{padding:14px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);}
+.lx-stats b{display:block;font-size:24px;font-variant-numeric:tabular-nums;}
+.lx-stats span{display:block;font-size:12px;opacity:.68;margin-top:4px;}
+.lx-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:14px 0;}
+.lx-toolbar input,.lx-toolbar select{min-width:0;flex:1 1 170px;}
+.lx-folder-create,.lx-folder-assign{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:12px 0;}
+.lx-folder-create input,.lx-folder-assign label{flex:1 1 180px;min-width:0;}
+.lx-folder-assign label{display:grid;gap:6px;font-size:12px;}
+.lx-folder-list{display:grid;gap:8px;margin:14px 0;}
+.lx-folder-item,.lx-backup-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;}
+.lx-folder-item>div,.lx-backup-item>span{display:grid;gap:4px;min-width:0;}
+.lx-folder-item small,.lx-backup-item small{opacity:.65;font-size:11px;}
+.lx-shortcut-list{display:grid;gap:8px;}
+.lx-shortcut-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:9px;padding:10px;}
+.lx-shortcut-row>span{font-size:13px;}
+.lx-empty{padding:28px 14px;text-align:center;opacity:.65;}
+.lx-close{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;}
+.lx-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px;}
+.lx-head h2{margin:0 0 5px;font-size:20px;}
+.lx-head p{margin:0;opacity:.68;font-size:12px;line-height:1.6;}
+.lx-dialog.wide{width:min(920px,94vw);}
+.lx-dialog{max-height:min(88vh,900px);overflow:auto;border-radius:24px;padding:clamp(16px,3vw,26px);}
+.lx-overlay{z-index:10000;}
+.lx-dialog :is(button,input,select,textarea){font:inherit;}
+.lx-dialog button{cursor:pointer;}
+.lx-dialog button:focus-visible,.lx-dialog input:focus-visible,.lx-dialog select:focus-visible{outline:2px solid var(--tint,#8b7cf6);outline-offset:2px;}
+.lx-dialog :is(input,select,textarea){min-height:40px;padding:9px 12px;border-radius:11px;}
+.lx-dialog .studio-btn{min-height:38px;padding:8px 12px;border-radius:11px;}
+@keyframes lxStudioEnter{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:760px){
+  .studio-page{padding:10px;}
+  .studio-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .studio-card{padding:14px;border-radius:17px;}
+  .studio-card .studio-actions{display:grid;grid-template-columns:1fr;}
+  .studio-card .studio-btn{width:100%;}
+  .lx-history-row{gap:8px;padding:9px;}
+  .lx-history-row time{display:none;}
+  .lx-dialog{width:96vw;}
+}
+@media(max-width:460px){
+  .studio-grid{grid-template-columns:minmax(0,1fr);}
+  .studio-wide{grid-column:auto;}
+  .studio-intro{border-radius:19px;}
+  .lx-shortcut-row{grid-template-columns:minmax(0,1fr) auto;}
+  .lx-shortcut-row .lx-clear-key{grid-column:2;}
+  .lx-toolbar>*{flex:1 1 100%;}
+}
+@media(hover:none){.studio-card:hover{transform:none;}}
+
 </style>
 
 
@@ -19328,27 +19767,475 @@ const escHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const allKeys=()=>Object.keys(DB.lib||{});
 const meta=k=>DB.lib[k]||{};
 const titleOf=k=>meta(k).title||String(k).split('|')[0];
-const artistOf=k=>meta(k).artist||'فنان غير معروف';
+const artistOf=k=>meta(k).artist||lx('unknownArtist');
 const toastSafe=m=>{if(typeof toast==='function')toast(m);else console.info(m)};
-const fmtMin=n=>{n=Math.max(0,Math.round(n||0));return Math.floor(n/60)+' س '+(n%60)+' د'};
-const persistSafe=()=>{try{persist();localStorage.setItem('ng_stats',JSON.stringify(ST));}catch(e){toastSafe('تعذر حفظ البيانات: مساحة التخزين ممتلئة');}};
+const fmtMin=n=>{n=Math.max(0,Math.round(n||0));return Math.floor(n/60)+' '+lx('hoursShort')+' '+(n%60)+' '+lx('minutesShort')};
+const persistSafe=()=>{try{persist();localStorage.setItem('ng_stats',JSON.stringify(ST));}catch(e){toastSafe(lx('backupSpaceError'));}};
 let studioLastRadio=[];
-function playKeys(keys){const valid=keys.filter(k=>files.has(k)||(meta(k)&&meta(k).url));if(!valid.length)return toastSafe('لا توجد ملفات متاحة للتشغيل في هذه المجموعة');startQueue(valid,valid[0]);}
-function smartRadio(){const keys=allKeys();if(!keys.length)return toastSafe('أضف أغاني إلى مكتبتك أولاً');const current=curKey();const cm=meta(current)||{};const norm=v=>String(v||'').toLowerCase().trim();let scored=keys.filter(k=>k!==current).map(k=>{const m=meta(k);let score=Math.random()*2;if(cm.artist&&norm(m.artist)===norm(cm.artist))score+=5;if(cm.album&&norm(m.album)===norm(cm.album))score+=2;if(cm.genre&&norm(m.genre)===norm(cm.genre))score+=5;if(cm.genre&&norm(m.genre)!==norm(cm.genre))score-=1;if(cm.year&&m.year&&Math.abs(Number(cm.year)-Number(m.year))<=2)score+=1;if(cm.duration&&m.duration&&Math.abs(m.duration-cm.duration)<45)score+=1;return {k,score};}).sort((a,b)=>b.score-a.score);let chosen=scored.slice(0,Math.min(30,scored.length)).map(x=>x.k);if(current)chosen.unshift(current);studioLastRadio=chosen;playKeys(chosen);toastSafe('تم إنشاء راديو ذكي من '+chosen.length+' أغنية');}
-function discover(){const keys=allKeys().filter(k=>files.has(k)||(meta(k)&&meta(k).url));for(let i=keys.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[keys[i],keys[j]]=[keys[j],keys[i]];}const pick=keys.slice(0,Math.min(25,keys.length));studioLastRadio=pick;playKeys(pick);}
-function makeSmartList(){const keys=allKeys();if(!keys.length)return toastSafe('المكتبة فارغة');const mode=prompt('اكتب شرط القائمة:\n1 = أغاني لم تُشغّل من قبل\n2 = المفضلة\n3 = أغاني قصيرة أقل من 4 دقائق\n4 = أضيفت آخر 30 يومًا\n5 = نفس فنان الأغنية الحالية','1');if(!mode)return;let out=[];if(mode==='1')out=keys.filter(k=>!(ST.t[k]?.p));else if(mode==='2')out=[...DB.favs];else if(mode==='3')out=keys.filter(k=>Number(meta(k).duration)>0&&Number(meta(k).duration)<240);else if(mode==='4')out=keys.filter(k=>Date.now()-(meta(k).added||0)<30*864e5);else if(mode==='5'){const a=artistOf(curKey());out=keys.filter(k=>artistOf(k)===a);}else return toastSafe('الاختيار غير صحيح');if(!out.length)return toastSafe('لا توجد أغاني تطابق الشرط');const name=prompt('اسم القائمة الذكية:','قائمة ذكية');if(!name)return;DB.lists[name]=[...new Set(out)];persistSafe();render();toastSafe('تم إنشاء قائمة '+name+' ('+out.length+' أغنية)');}
-function statsHTML(){const keys=allKeys();const total=keys.length;const totalPlays=keys.reduce((n,k)=>n+(ST.t[k]?.p||0),0);const seconds=keys.reduce((n,k)=>n+(ST.t[k]?.s||0),0);const fav=DB.favs.length;const top=keys.map(k=>({k,p:ST.t[k]?.p||0,s:ST.t[k]?.s||0})).sort((a,b)=>b.p-a.p).slice(0,5);const days=Object.entries(ST.d||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7).reverse();const max=Math.max(1,...days.map(x=>x[1]));return `<div class="studio-grid"><article class="studio-card"><div class="studio-muted">أغاني المكتبة</div><div class="studio-stat">${total}</div></article><article class="studio-card"><div class="studio-muted">مرات التشغيل المسجلة</div><div class="studio-stat">${totalPlays}</div></article><article class="studio-card"><div class="studio-muted">وقت الاستماع المسجل</div><div class="studio-stat">${fmtMin(seconds/60)}</div></article><article class="studio-card"><div class="studio-muted">المفضلة</div><div class="studio-stat">${fav}</div></article><article class="studio-card studio-wide"><h3>الأكثر استماعًا</h3>${top.length?`<div class="studio-track-list">${top.map(x=>`<div class="studio-track"><span>${escHTML(titleOf(x.k))} · ${escHTML(artistOf(x.k))}</span><b>${x.p}</b></div>`).join('')}</div>`:'<p>ابدأ الاستماع لتظهر إحصائياتك هنا.</p>'}</article><article class="studio-card studio-wide"><h3>نشاط آخر 7 أيام</h3>${days.length?days.map(([d,v])=>`<div style="display:grid;grid-template-columns:90px 1fr 48px;gap:8px;align-items:center;margin:9px 0"><small>${escHTML(d)}</small><div class="studio-bar"><i style="width:${Math.round(v/max*100)}%"></i></div><small>${fmtMin(v/60)}</small></div>`).join(''):'<p>لا توجد بيانات يومية بعد.</p>'}</article></div>`;}
-function doctor(){const keys=allKeys();const missing=keys.filter(k=>!files.has(k)&&!meta(k).url);const noArtist=keys.filter(k=>!meta(k).artist);const noAlbum=keys.filter(k=>!meta(k).album);const noDuration=keys.filter(k=>!meta(k).duration);const report=`فحص المكتبة:\nعدد الأغاني: ${keys.length}\nملفات غير متاحة: ${missing.length}\nبدون اسم فنان: ${noArtist.length}\nبدون ألبوم: ${noAlbum.length}\nبدون مدة: ${noDuration.length}\n\n${missing.slice(0,30).map(titleOf).join('\n')}`;alert(report);}
+function playKeys(keys){const valid=keys.filter(k=>files.has(k)||(meta(k)&&meta(k).url));if(!valid.length)return toastSafe(lx('noAvailableTracks'));startQueue(valid,valid[0]);}
+function smartRadio(){const keys=allKeys();if(!keys.length)return toastSafe(lx('addMusicFirst'));const current=curKey();const cm=meta(current)||{};const norm=v=>String(v||'').toLowerCase().trim();let scored=keys.filter(k=>k!==current).map(k=>{const m=meta(k);let score=Math.random()*2;if(cm.artist&&norm(m.artist)===norm(cm.artist))score+=5;if(cm.album&&norm(m.album)===norm(cm.album))score+=2;if(cm.genre&&norm(m.genre)===norm(cm.genre))score+=5;if(cm.genre&&norm(m.genre)!==norm(cm.genre))score-=1;if(cm.year&&m.year&&Math.abs(Number(cm.year)-Number(m.year))<=2)score+=1;if(cm.duration&&m.duration&&Math.abs(m.duration-cm.duration)<45)score+=1;return {k,score};}).sort((a,b)=>b.score-a.score);let chosen=scored.slice(0,Math.min(30,scored.length)).map(x=>x.k);if(current)chosen.unshift(current);studioLastRadio=chosen;playKeys(chosen);toastSafe(lx('radioCreated')+' '+chosen.length);}
+function discover(){const keys=allKeys().filter(k=>files.has(k)||(meta(k)&&meta(k).url));for(let i=keys.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[keys[i],keys[j]]=[keys[j],keys[i]];}const pick=keys.slice(0,Math.min(25,keys.length));studioLastRadio=pick;playKeys(pick);toastSafe(lx('randomReady'));}
+function makeSmartList(){
+  const keys=allKeys();
+  if(!keys.length)return toastSafe(lx('libraryEmpty'));
+  const mode=prompt(lx('smartConditionPrompt')+'\n'+[
+    '1 = '+lx('neverPlayed'),
+    '2 = '+lx('favoritesOnly'),
+    '3 = '+lx('shortTracks'),
+    '4 = '+lx('recentAdded'),
+    '5 = '+lx('sameArtist')
+  ].join('\n'),'1');
+  if(!mode)return;
+  let out=[];
+  if(mode==='1')out=keys.filter(k=>!(ST.t[k]?.p));
+  else if(mode==='2')out=[...DB.favs];
+  else if(mode==='3')out=keys.filter(k=>Number(meta(k).duration)>0&&Number(meta(k).duration)<240);
+  else if(mode==='4')out=keys.filter(k=>Date.now()-(meta(k).added||0)<30*864e5);
+  else if(mode==='5'){const a=artistOf(curKey());out=keys.filter(k=>artistOf(k)===a);}
+  else return toastSafe(lx('invalidChoice'));
+  if(!out.length)return toastSafe(lx('noMatches'));
+  const name=prompt(lx('smartListName'),lx('smartListTitle'));
+  if(!name)return;
+  DB.lists[name]=[...new Set(out)];
+  persistSafe();
+  render();
+  toastSafe(lx('smartListCreated')+' '+name+' ('+out.length+')');
+}
+function statsHTML(){const keys=allKeys();const total=keys.length;const totalPlays=keys.reduce((n,k)=>n+(ST.t[k]?.p||0),0);const seconds=keys.reduce((n,k)=>n+(ST.t[k]?.s||0),0);const fav=DB.favs.length;const top=keys.map(k=>({k,p:ST.t[k]?.p||0,s:ST.t[k]?.s||0})).sort((a,b)=>b.p-a.p).slice(0,5);const days=Object.entries(ST.d||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7).reverse();const max=Math.max(1,...days.map(x=>x[1]));return `<div class="studio-grid"><article class="studio-card"><div class="studio-muted">${lx('librarySongs')}</div><div class="studio-stat">${total}</div></article><article class="studio-card"><div class="studio-muted">${lx('playsRecorded')}</div><div class="studio-stat">${totalPlays}</div></article><article class="studio-card"><div class="studio-muted">${lx('listeningTime')}</div><div class="studio-stat">${fmtMin(seconds/60)}</div></article><article class="studio-card"><div class="studio-muted">${lx('favorites')}</div><div class="studio-stat">${fav}</div></article><article class="studio-card studio-wide"><h3>${lx('mostPlayed')}</h3>${top.length?`<div class="studio-track-list">${top.map(x=>`<div class="studio-track"><span>${escHTML(titleOf(x.k))} · ${escHTML(artistOf(x.k))}</span><b>${x.p}</b></div>`).join('')}</div>`:`<p>${lx('listenToSeeStats')}</p>`}</article><article class="studio-card studio-wide"><h3>${lx('last7Days')}</h3>${days.length?days.map(([d,v])=>`<div style="display:grid;grid-template-columns:90px 1fr 48px;gap:8px;align-items:center;margin:9px 0"><small>${escHTML(d)}</small><div class="studio-bar"><i style="width:${Math.round(v/max*100)}%"></i></div><small>${fmtMin(v/60)}</small></div>`).join(''):`<p>${lx('noDailyStats')}</p>`}</article></div>`;}
+function doctor(){
+  const keys=allKeys();
+  const missing=keys.filter(k=>!files.has(k)&&!meta(k).url);
+  const noArtist=keys.filter(k=>!meta(k).artist);
+  const noAlbum=keys.filter(k=>!meta(k).album);
+  const noDuration=keys.filter(k=>!meta(k).duration);
+  const report=`${lx('doctorTitle')}:\n${lx('trackCount')}: ${keys.length}\n${lx('unavailable')}: ${missing.length}\n${lx('missingArtist')}: ${noArtist.length}\n${lx('missingAlbum')}: ${noAlbum.length}\n${lx('missingDuration')}: ${noDuration.length}\n\n${missing.slice(0,30).map(titleOf).join('\n')}`;
+  alert(report);
+}
 async function hashFile(file){const buf=await file.arrayBuffer();const digest=await crypto.subtle.digest('SHA-256',buf);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
-async function deepDuplicates(){const entries=allKeys().map(k=>[k,files.get(k)]).filter(x=>x[1]);if(!entries.length)return toastSafe('لا توجد ملفات محلية للفحص');toastSafe('جاري حساب بصمات الملفات…');const map=new Map();for(let i=0;i<entries.length;i++){const [k,f]=entries[i];try{const h=await hashFile(f);if(!map.has(h))map.set(h,[]);map.get(h).push(k);}catch(_){}}const groups=[...map.values()].filter(g=>g.length>1);const msg=groups.length?groups.map(g=>g.map(titleOf).join(' = ')).join('\n\n'):'لم يتم العثور على ملفات متطابقة تمامًا.';alert('نتيجة فحص البصمة الصوتية SHA-256:\n\n'+msg);}
-function editTags(){const keys=allKeys();if(!keys.length)return toastSafe('المكتبة فارغة');const pick=prompt('اكتب جزءًا من اسم الأغنية لاختيارها:\n'+keys.slice(0,25).map((k,i)=>(i+1)+'. '+titleOf(k)).join('\n'));if(!pick)return;const k=keys.find((x,i)=>String(i+1)===pick.trim())||keys.find(x=>titleOf(x).toLowerCase().includes(pick.toLowerCase()));if(!k)return toastSafe('لم أجد الأغنية');const m=meta(k);const t=prompt('اسم الأغنية:',m.title||'');if(t===null)return;const a=prompt('اسم الفنان:',m.artist||'');if(a===null)return;const al=prompt('اسم الألبوم:',m.album||'');if(al===null)return;const g=prompt('النوع الموسيقي:',m.genre||'');if(g===null)return;Object.assign(m,{title:t.trim()||m.title,artist:a.trim(),album:al.trim(),genre:g.trim(),editedAt:Date.now()});persistSafe();render();toastSafe('تم تحديث بيانات الأغنية داخل مكتبة لحن');}
+async function deepDuplicates(){
+  const entries=allKeys().map(k=>[k,files.get(k)]).filter(x=>x[1]);
+  if(!entries.length)return toastSafe(lx('scanNoFiles'));
+  toastSafe(lx('scanRunning'));
+  const map=new Map();
+  for(let i=0;i<entries.length;i++){
+    const [k,f]=entries[i];
+    try{const h=await hashFile(f);if(!map.has(h))map.set(h,[]);map.get(h).push(k);}catch(_){}
+  }
+  const groups=[...map.values()].filter(g=>g.length>1);
+  const msg=groups.length?groups.map(g=>g.map(titleOf).join(' = ')).join('\n\n'):lx('scanResultNone');
+  alert(lx('scanResultTitle')+'\n\n'+msg);
+}
+function editTags(){
+  const keys=allKeys();
+  if(!keys.length)return toastSafe(lx('libraryEmpty'));
+  const pick=prompt(lx('trackPickPrompt')+'\n'+keys.slice(0,25).map((k,i)=>(i+1)+'. '+titleOf(k)).join('\n'));
+  if(!pick)return;
+  const k=keys.find((x,i)=>String(i+1)===pick.trim())||keys.find(x=>titleOf(x).toLowerCase().includes(pick.toLowerCase()));
+  if(!k)return toastSafe(lx('trackNotFound'));
+  const m=meta(k);
+  const t=prompt(lx('titlePrompt'),m.title||'');if(t===null)return;
+  const a=prompt(lx('artistPrompt'),m.artist||'');if(a===null)return;
+  const al=prompt(lx('albumPrompt'),m.album||'');if(al===null)return;
+  const g=prompt(lx('genrePrompt'),m.genre||'');if(g===null)return;
+  Object.assign(m,{title:t.trim()||m.title,artist:a.trim(),album:al.trim(),genre:g.trim(),editedAt:Date.now()});
+  persistSafe();render();toastSafe(lx('tagsUpdated'));
+}
 function exportStats(){const data={app:'Lahn',version:1,exportedAt:new Date().toISOString(),library:DB,stats:ST,playlists:DB.lists};const blob=new Blob([JSON.stringify(data)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Lahn-Backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);}
-function importBackup(){const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{const f=input.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.app!=='Lahn'||!d.library||!d.library.lib)throw new Error('invalid');if(!confirm('استيراد النسخة سيضيف بياناتها إلى مكتبتك الحالية. هل تريد المتابعة؟'))return;Object.assign(DB,d.library);if(d.stats){ST.t=Object.assign({},ST.t,d.stats.t||{});ST.d=Object.assign({},ST.d,d.stats.d||{});}persistSafe();render();toastSafe('تم استيراد النسخة الاحتياطية');}catch(_){toastSafe('ملف النسخة الاحتياطية غير صالح');}};input.click();}
-function renderStudioPage(){const L=$('#list');if(!L)return;L.innerHTML=`<div class="studio-page"><header class="studio-intro"><h2>استوديو لحن 🎧</h2><p>مركز التحكم الذكي في مكتبتك الموسيقية: اكتشاف، إحصائيات، تنظيم، أدوات صيانة ونسخ احتياطي.</p></header><section class="studio-grid"><article class="studio-card"><h3>📻 Lahn Radio</h3><p>كوّن راديو من الأغاني المشابهة للأغنية الحالية حسب الفنان والألبوم والنوع والمدة.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="radio">ابدأ الراديو الذكي</button><button class="studio-btn" data-studio="discover">اكتشاف عشوائي</button></div></article><article class="studio-card"><h3>📊 Lahn Wrapped</h3><p>إحصائيات الاستماع، أكثر الأغاني تشغيلًا، وقت الاستماع ونشاط الأيام.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="stats">عرض الإحصائيات</button></div></article><article class="studio-card"><h3>🧠 Smart Playlist Builder</h3><p>أنشئ قوائم تلقائية من شروط ذكية بدل ترتيب كل أغنية يدويًا.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="smartlist">إنشاء قائمة ذكية</button></div></article><article class="studio-card"><h3>🏷️ Tag Editor</h3><p>عدّل اسم الأغنية والفنان والألبوم والنوع داخل قاعدة بيانات لحن.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="tags">تعديل بيانات أغنية</button></div><small class="studio-muted">التعديل هنا في بيانات المكتبة، وليس كتابة ID3 داخل الملف الأصلي.</small></article><article class="studio-card"><h3>🩺 Library Doctor</h3><p>اكتشف الملفات غير المتاحة وبيانات الفنان والألبوم والمدة الناقصة.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="doctor">فحص المكتبة</button></div></article><article class="studio-card"><h3>🔎 Advanced Duplicate Scan</h3><p>مقارنة بصمة SHA-256 للملفات المحلية لاكتشاف النسخ المتطابقة فعليًا.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="duplicates">فحص بالبصمة</button></div></article><article class="studio-card"><h3>🎚️ أدوات التشغيل</h3><p>Crossfade موجود بالفعل، ويمكنك تفعيل تطبيع الصوت من الإعدادات. كما نوفر وضع المشغل المصغر.</p><div class="studio-actions"><button class="studio-btn" data-studio="mini">تبديل المشغل المصغر</button><button class="studio-btn" data-studio="normalize">${localStorage.ng_norm==='1'?'إيقاف':'تفعيل'} تطبيع الصوت</button></div></article><article class="studio-card"><h3>💾 النسخ الاحتياطي</h3><p>احفظ بيانات المكتبة والقوائم والإحصائيات في ملف JSON قابل للنقل.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="backup">تصدير نسخة احتياطية</button><button class="studio-btn" data-studio="restore">استيراد نسخة احتياطية</button></div></article><article class="studio-card"><h3>📅 سجل الاستماع</h3><p>ملخص زمني لنشاط الاستماع المسجل داخل لحن.</p><div class="studio-actions"><button class="studio-btn" data-studio="stats">فتح التقارير</button></div></article><div id="studioReport" class="studio-wide">${statsHTML()}</div></section></div>`;}
+function importBackup(){const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{const f=input.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.app!=='Lahn'||!d.library||!d.library.lib)throw new Error('invalid');if(!confirm('استيراد النسخة سيضيف بياناتها إلى مكتبتك الحالية. هل تريد المتابعة؟'))return;Object.assign(DB,d.library);if(d.stats){ST.t=Object.assign({},ST.t,d.stats.t||{});ST.d=Object.assign({},ST.d,d.stats.d||{});}persistSafe();render();toastSafe('تم استيراد النسخة الاحتياطية');}catch(_){toastSafe(lx('backupInvalid'));}};input.click();}
+function renderStudioPage(){
+  const L=$('#list');
+  if(!L)return;
+  L.innerHTML=`
+    <div class="studio-page">
+      <header class="studio-intro">
+        <h2>${lx('studioTitle')} 🎧</h2>
+        <p>${lx('studioDesc')}</p>
+      </header>
+      <section class="studio-grid">
+        <article class="studio-card">
+          <h3>📻 ${lx('radioTitle')}</h3>
+          <p>${lx('radioDesc')}</p>
+          <div class="studio-actions">
+            <button class="studio-btn primary" data-studio="radio">${lx('startRadio')}</button>
+            <button class="studio-btn" data-studio="discover">${lx('discoverRandom')}</button>
+          </div>
+        </article>
+        <article class="studio-card">
+          <h3>📊 ${lx('wrappedTitle')}</h3>
+          <p>${lx('wrappedDesc')}</p>
+          <div class="studio-actions"><button class="studio-btn primary" data-studio="stats">${lx('viewStats')}</button></div>
+        </article>
+        <article class="studio-card">
+          <h3>🧠 ${lx('smartListTitle')}</h3>
+          <p>${lx('smartListDesc')}</p>
+          <div class="studio-actions"><button class="studio-btn primary" data-studio="smartlist">${lx('createSmartList')}</button></div>
+        </article>
+        <article class="studio-card">
+          <h3>🏷️ ${lx('tagTitle')}</h3>
+          <p>${lx('tagDesc')}</p>
+          <div class="studio-actions"><button class="studio-btn primary" data-studio="tags">${lx('editTags')}</button></div>
+          <small class="studio-muted">${lx('tagNote')}</small>
+        </article>
+        <article class="studio-card">
+          <h3>🩺 ${lx('doctorTitle')}</h3>
+          <p>${lx('doctorDesc')}</p>
+          <div class="studio-actions"><button class="studio-btn primary" data-studio="doctor">${lx('runCheck')}</button></div>
+        </article>
+        <article class="studio-card">
+          <h3>🔎 ${lx('duplicateTitle')}</h3>
+          <p>${lx('duplicateDesc')}</p>
+          <div class="studio-actions"><button class="studio-btn primary" data-studio="duplicates">${lx('scanDuplicates')}</button></div>
+        </article>
+        <article class="studio-card">
+          <h3>🎚️ ${lx('playbackTools')}</h3>
+          <p>${lx('playbackToolsDesc')}</p>
+          <div class="studio-actions">
+            <button class="studio-btn" data-studio="mini">${lx('toggleMini')}</button>
+            <button class="studio-btn" data-studio="normalize">${localStorage.ng_norm==='1'?lx('disable'):lx('enable')} ${lx('normalization')}</button>
+          </div>
+        </article>
+        <article class="studio-card">
+          <h3>💾 ${lx('backupTitle')}</h3>
+          <p>${lx('backupDesc')}</p>
+          <div class="studio-actions">
+            <button class="studio-btn primary" data-studio="backup">${lx('exportBackup')}</button>
+            <button class="studio-btn" data-studio="restore">${lx('importBackup')}</button>
+          </div>
+        </article>
+        <article class="studio-card">
+          <h3>📅 ${lx('history')}</h3>
+          <p>${lx('studioHistoryDesc')}</p>
+          <div class="studio-actions"><button class="studio-btn" data-studio="stats">${lx('openReports')}</button></div>
+        </article>
+        <div id="studioReport" class="studio-wide">${statsHTML()}</div>
+      </section>
+    </div>`;
+}
+// ===== Lahn Feature Pack: history, playlist folders, real waveform, custom keys, auto backups, mini player =====
+const LX = (() => {
+  const lang = () => (typeof LG === 'string' ? LG : (localStorage.ng_lang || 'ar'));
+  const words = {
+    ar: {
+      history:'سجل الاستماع المتقدم', historyDesc:'ابحث في سجل التشغيل وفلتره حسب الفترة الزمنية.', playlists:'مجلدات قوائم التشغيل', playlistsDesc:'رتّب قوائمك داخل مجلدات، مع استيراد وتصدير M3U.', keys:'اختصارات قابلة للتخصيص', keysDesc:'عيّن مفاتيحك الخاصة لأوامر المشغل.', backups:'نسخ احتياطي تلقائي', backupsDesc:'يحفظ نسخة كل 5 دقائق ويحتفظ بآخر 8 نسخ من المكتبة والإحصائيات والسجل على جهازك.', wave:'موجة صوتية حقيقية', waveDesc:'يحلل الملفات المحلية لعرض شكل الصوت الفعلي بدل الموجة الزخرفية.', mini:'مشغل مصغّر عائم', miniDesc:'نافذة مصغرة بعناصر تحكم قابلة للسحب، مع دعم Picture-in-Picture عند توفره.', open:'فتح', all:'الكل', today:'اليوم', week:'آخر 7 أيام', month:'آخر 30 يومًا', search:'ابحث باسم الأغنية أو الفنان…', clear:'مسح السجل', close:'إغلاق', noHistory:'لا توجد نتائج في هذه الفترة.', total:'إجمالي مرات التشغيل', unique:'أغانٍ مختلفة', newFolder:'مجلد جديد', folderName:'اسم المجلد', create:'إنشاء', playlist:'القائمة', folder:'المجلد', assign:'إضافة للمجلد', remove:'إزالة من المجلد', importM3U:'استيراد M3U', exportM3U:'تصدير M3U', ungrouped:'بدون مجلد', noPlaylists:'لا توجد قوائم تشغيل بعد.', save:'حفظ', reset:'إعادة الافتراضي', record:'اضغط لتسجيل الاختصار', listening:'اضغط المفتاح أو التركيبة الآن…', assigned:'تم حفظ الاختصار', conflict:'كان الاختصار مستخدمًا؛ تم نقله لهذا الأمر.', reserved:'هذا الاختصار محجوز للمتصفح أو للمشغل الأساسي.', enabled:'تفعيل النسخ التلقائي', backupNow:'إنشاء نسخة الآن', restore:'استعادة نسخة', noBackup:'لا توجد نسخ تلقائية محفوظة بعد.', backupSaved:'تم حفظ النسخة الاحتياطية', backupFailed:'تعذر حفظ النسخة التلقائية في هذا المتصفح.', restoreConfirm:'سيتم استبدال بيانات المكتبة والسجل بالنسخة المحددة. هل تريد المتابعة؟', restored:'تمت الاستعادة. سيتم إعادة تحميل لحن.', miniOn:'إظهار المشغل المصغّر', miniOff:'إخفاء المشغل المصغّر', pip:'فتح نافذة Picture-in-Picture', localOnly:'تحليل الموجة متاح للملفات المحلية حتى 40 ميجابايت. الملفات الأكبر أو البعيدة تعرض الموجة العامة.', noAudio:'لا توجد أغنية قيد التشغيل.', action:'الأمر', shortcut:'الاختصار', playPause:'تشغيل / إيقاف', next:'الأغنية التالية', previous:'الأغنية السابقة', forward:'تقديم 10 ثوانٍ', backward:'رجوع 10 ثوانٍ', mute:'كتم / إلغاء الكتم', favorite:'إضافة / إزالة من المفضلة', shuffle:'تشغيل عشوائي', repeat:'تغيير التكرار', lyrics:'إظهار الكلمات', miniAction:'المشغل المصغّر', none:'غير معيّن', seconds:'ث', playedAt:'وقت التشغيل', title:'الأغنية', artist:'الفنان', backupCount:'نسخ محفوظة'
+    },
+    en: {history:'Listening history',historyDesc:'Search playback history and filter it by date.',playlists:'Playlist folders',playlistsDesc:'Organize playlists into folders and use M3U import/export.',keys:'Custom keyboard shortcuts',keysDesc:'Assign your own keys to player actions.',backups:'Automatic backups',backupsDesc:'Saves every 5 minutes and keeps the last 8 snapshots of your library, stats and history on this device.',wave:'Real audio waveform',waveDesc:'Analyzes local audio files to show their actual waveform.',mini:'Floating mini player',miniDesc:'A draggable compact player with Picture-in-Picture support when available.',open:'Open',all:'All',today:'Today',week:'Last 7 days',month:'Last 30 days',search:'Search title or artist…',clear:'Clear history',close:'Close',noHistory:'No results for this period.',total:'Total plays',unique:'Unique tracks',newFolder:'New folder',folderName:'Folder name',create:'Create',playlist:'Playlist',folder:'Folder',assign:'Add to folder',remove:'Remove from folder',importM3U:'Import M3U',exportM3U:'Export M3U',ungrouped:'Unsorted',noPlaylists:'No playlists yet.',save:'Save',reset:'Reset defaults',record:'Press to record shortcut',listening:'Press a key or combination now…',assigned:'Shortcut saved',conflict:'That shortcut was assigned elsewhere and has been moved.',reserved:'This shortcut is reserved by the browser or core player.',enabled:'Enable automatic backups',backupNow:'Back up now',restore:'Restore backup',noBackup:'No automatic backups yet.',backupSaved:'Backup saved',backupFailed:'Automatic backup is unavailable in this browser.',restoreConfirm:'This will replace your library and history with the selected backup. Continue?',restored:'Restored. Lahn will reload.',miniOn:'Show mini player',miniOff:'Hide mini player',pip:'Open Picture-in-Picture window',localOnly:'Waveform analysis supports local files up to 40 MB. Larger or remote files use the fallback waveform.',noAudio:'No track is playing.',action:'Action',shortcut:'Shortcut',playPause:'Play / pause',next:'Next track',previous:'Previous track',forward:'Seek forward 10 seconds',backward:'Seek back 10 seconds',mute:'Mute / unmute',favorite:'Toggle favorite',shuffle:'Toggle shuffle',repeat:'Change repeat mode',lyrics:'Show lyrics',miniAction:'Mini player',none:'Not assigned',seconds:'s',playedAt:'Played at',title:'Track',artist:'Artist',backupCount:'Saved backups'},
+    fr: {history:'Historique d’écoute',historyDesc:'Recherchez et filtrez les écoutes par date.',playlists:'Dossiers de playlists',playlistsDesc:'Classez les playlists et utilisez M3U.',keys:'Raccourcis personnalisés',keysDesc:'Attribuez vos propres touches aux commandes.',backups:'Sauvegarde automatique',backupsDesc:'Enregistre périodiquement la bibliothèque et l’historique sur cet appareil.',wave:'Forme d’onde réelle',waveDesc:'Analyse les fichiers locaux pour afficher leur forme d’onde.',mini:'Mini-lecteur flottant',miniDesc:'Mini-lecteur déplaçable avec Picture-in-Picture si disponible.',open:'Ouvrir',all:'Tout',today:'Aujourd’hui',week:'7 derniers jours',month:'30 derniers jours',search:'Rechercher titre ou artiste…',clear:'Effacer l’historique',close:'Fermer',noHistory:'Aucun résultat.',total:'Lectures totales',unique:'Titres différents',newFolder:'Nouveau dossier',folderName:'Nom du dossier',create:'Créer',playlist:'Playlist',folder:'Dossier',assign:'Ajouter au dossier',remove:'Retirer du dossier',importM3U:'Importer M3U',exportM3U:'Exporter M3U',ungrouped:'Sans dossier',noPlaylists:'Aucune playlist.',save:'Enregistrer',reset:'Réinitialiser',record:'Enregistrer le raccourci',listening:'Appuyez sur une touche…',assigned:'Raccourci enregistré',conflict:'Raccourci réaffecté.',reserved:'Raccourci réservé.',enabled:'Activer les sauvegardes',backupNow:'Sauvegarder',restore:'Restaurer',noBackup:'Aucune sauvegarde.',backupSaved:'Sauvegarde enregistrée',backupFailed:'Sauvegarde indisponible.',restoreConfirm:'Remplacer les données actuelles ?',restored:'Restauré. Rechargement…',miniOn:'Afficher le mini-lecteur',miniOff:'Masquer le mini-lecteur',pip:'Ouvrir Picture-in-Picture',localOnly:'Analyse locale jusqu’à 40 Mo.',noAudio:'Aucune piste.',action:'Action',shortcut:'Raccourci',playPause:'Lecture / pause',next:'Piste suivante',previous:'Piste précédente',forward:'Avancer de 10 s',backward:'Reculer de 10 s',mute:'Muet',favorite:'Favori',shuffle:'Aléatoire',repeat:'Répétition',lyrics:'Paroles',miniAction:'Mini-lecteur',none:'Non défini',seconds:'s',playedAt:'Écouté à',title:'Titre',artist:'Artiste',backupCount:'Sauvegardes'},
+    es: {history:'Historial de escucha',historyDesc:'Busca y filtra reproducciones por fecha.',playlists:'Carpetas de listas',playlistsDesc:'Organiza listas y usa M3U.',keys:'Atajos personalizados',keysDesc:'Asigna teclas propias a las acciones.',backups:'Copias automáticas',backupsDesc:'Guarda periódicamente biblioteca e historial en este dispositivo.',wave:'Forma de onda real',waveDesc:'Analiza archivos locales para mostrar su onda real.',mini:'Minirreproductor flotante',miniDesc:'Reproductor compacto arrastrable con Picture-in-Picture si está disponible.',open:'Abrir',all:'Todo',today:'Hoy',week:'Últimos 7 días',month:'Últimos 30 días',search:'Buscar título o artista…',clear:'Borrar historial',close:'Cerrar',noHistory:'No hay resultados.',total:'Reproducciones',unique:'Pistas únicas',newFolder:'Nueva carpeta',folderName:'Nombre de carpeta',create:'Crear',playlist:'Lista',folder:'Carpeta',assign:'Añadir a carpeta',remove:'Quitar de carpeta',importM3U:'Importar M3U',exportM3U:'Exportar M3U',ungrouped:'Sin carpeta',noPlaylists:'No hay listas.',save:'Guardar',reset:'Restablecer',record:'Grabar atajo',listening:'Pulsa una tecla…',assigned:'Atajo guardado',conflict:'Atajo reasignado.',reserved:'Atajo reservado.',enabled:'Activar copias automáticas',backupNow:'Guardar ahora',restore:'Restaurar copia',noBackup:'Aún no hay copias.',backupSaved:'Copia guardada',backupFailed:'Copia automática no disponible.',restoreConfirm:'¿Reemplazar los datos actuales?',restored:'Restaurado. Recargando…',miniOn:'Mostrar minirreproductor',miniOff:'Ocultar minirreproductor',pip:'Abrir Picture-in-Picture',localOnly:'Análisis local hasta 40 MB.',noAudio:'No hay pista.',action:'Acción',shortcut:'Atajo',playPause:'Reproducir / pausar',next:'Siguiente',previous:'Anterior',forward:'Avanzar 10 s',backward:'Retroceder 10 s',mute:'Silenciar',favorite:'Favorito',shuffle:'Aleatorio',repeat:'Repetir',lyrics:'Mostrar letra',miniAction:'Minirreproductor',none:'Sin asignar',seconds:'s',playedAt:'Reproducido',title:'Pista',artist:'Artista',backupCount:'Copias'},
+    tr: {history:'Dinleme geçmişi',historyDesc:'Çalma geçmişini ara ve tarihe göre filtrele.',playlists:'Çalma listesi klasörleri',playlistsDesc:'Listeleri klasörlerde düzenle ve M3U kullan.',keys:'Özel klavye kısayolları',keysDesc:'Oynatıcı işlemlerine tuş ata.',backups:'Otomatik yedekleme',backupsDesc:'Kitaplığı ve geçmişi bu cihaza düzenli kaydeder.',wave:'Gerçek ses dalga biçimi',waveDesc:'Yerel dosyaları analiz ederek dalga biçimini gösterir.',mini:'Yüzen mini oynatıcı',miniDesc:'Sürüklenebilir mini oynatıcı ve desteklenirse Picture-in-Picture.',open:'Aç',all:'Tümü',today:'Bugün',week:'Son 7 gün',month:'Son 30 gün',search:'Şarkı veya sanatçı ara…',clear:'Geçmişi temizle',close:'Kapat',noHistory:'Sonuç yok.',total:'Toplam çalma',unique:'Farklı parçalar',newFolder:'Yeni klasör',folderName:'Klasör adı',create:'Oluştur',playlist:'Liste',folder:'Klasör',assign:'Klasöre ekle',remove:'Klasörden çıkar',importM3U:'M3U içe aktar',exportM3U:'M3U dışa aktar',ungrouped:'Klasörsüz',noPlaylists:'Henüz liste yok.',save:'Kaydet',reset:'Sıfırla',record:'Kısayolu kaydet',listening:'Bir tuşa bas…',assigned:'Kısayol kaydedildi',conflict:'Kısayol başka işlemden taşındı.',reserved:'Bu kısayol ayrılmış.',enabled:'Otomatik yedeklemeyi etkinleştir',backupNow:'Şimdi yedekle',restore:'Yedeği geri yükle',noBackup:'Henüz yedek yok.',backupSaved:'Yedek kaydedildi',backupFailed:'Otomatik yedekleme kullanılamıyor.',restoreConfirm:'Geçerli veriler değiştirilsin mi?',restored:'Geri yüklendi. Yenileniyor…',miniOn:'Mini oynatıcıyı göster',miniOff:'Mini oynatıcıyı gizle',pip:'Picture-in-Picture aç',localOnly:'40 MB’a kadar yerel dosyalar analiz edilir.',noAudio:'Çalan parça yok.',action:'İşlem',shortcut:'Kısayol',playPause:'Oynat / duraklat',next:'Sonraki',previous:'Önceki',forward:'10 sn ileri',backward:'10 sn geri',mute:'Sessiz',favorite:'Favori',shuffle:'Karışık',repeat:'Tekrar',lyrics:'Şarkı sözleri',miniAction:'Mini oynatıcı',none:'Atanmadı',seconds:'sn',playedAt:'Çalma zamanı',title:'Parça',artist:'Sanatçı',backupCount:'Yedekler'},
+    de: {history:'Wiedergabeverlauf',historyDesc:'Verlauf durchsuchen und nach Datum filtern.',playlists:'Playlist-Ordner',playlistsDesc:'Playlists ordnen und M3U verwenden.',keys:'Eigene Tastenkürzel',keysDesc:'Tasten Player-Aktionen zuweisen.',backups:'Automatische Sicherungen',backupsDesc:'Speichert Bibliothek und Verlauf regelmäßig auf diesem Gerät.',wave:'Echte Audiowellenform',waveDesc:'Analysiert lokale Dateien und zeigt ihre Wellenform.',mini:'Schwebender Mini-Player',miniDesc:'Verschiebbarer Mini-Player mit Picture-in-Picture, falls verfügbar.',open:'Öffnen',all:'Alle',today:'Heute',week:'Letzte 7 Tage',month:'Letzte 30 Tage',search:'Titel oder Interpret suchen…',clear:'Verlauf löschen',close:'Schließen',noHistory:'Keine Ergebnisse.',total:'Wiedergaben',unique:'Einzigartige Titel',newFolder:'Neuer Ordner',folderName:'Ordnername',create:'Erstellen',playlist:'Playlist',folder:'Ordner',assign:'Zum Ordner hinzufügen',remove:'Aus Ordner entfernen',importM3U:'M3U importieren',exportM3U:'M3U exportieren',ungrouped:'Ohne Ordner',noPlaylists:'Noch keine Playlists.',save:'Speichern',reset:'Zurücksetzen',record:'Kürzel aufnehmen',listening:'Taste drücken…',assigned:'Kürzel gespeichert',conflict:'Kürzel wurde neu zugewiesen.',reserved:'Dieses Kürzel ist reserviert.',enabled:'Automatische Sicherungen aktivieren',backupNow:'Jetzt sichern',restore:'Sicherung wiederherstellen',noBackup:'Noch keine Sicherungen.',backupSaved:'Sicherung gespeichert',backupFailed:'Automatische Sicherung nicht verfügbar.',restoreConfirm:'Aktuelle Daten ersetzen?',restored:'Wiederhergestellt. Neu laden…',miniOn:'Mini-Player anzeigen',miniOff:'Mini-Player ausblenden',pip:'Picture-in-Picture öffnen',localOnly:'Lokale Dateien bis 40 MB.',noAudio:'Keine Wiedergabe.',action:'Aktion',shortcut:'Kürzel',playPause:'Wiedergabe / Pause',next:'Nächster Titel',previous:'Vorheriger Titel',forward:'10 s vor',backward:'10 s zurück',mute:'Stumm',favorite:'Favorit',shuffle:'Zufallswiedergabe',repeat:'Wiederholen',lyrics:'Songtext',miniAction:'Mini-Player',none:'Nicht festgelegt',seconds:'s',playedAt:'Wiedergegeben',title:'Titel',artist:'Interpret',backupCount:'Sicherungen'},
+    id: {history:'Riwayat mendengarkan',historyDesc:'Cari riwayat dan filter berdasarkan tanggal.',playlists:'Folder playlist',playlistsDesc:'Atur playlist dalam folder dan gunakan M3U.',keys:'Pintasan keyboard khusus',keysDesc:'Tetapkan tombol untuk tindakan pemutar.',backups:'Cadangan otomatis',backupsDesc:'Menyimpan pustaka dan riwayat secara berkala di perangkat ini.',wave:'Gelombang audio asli',waveDesc:'Menganalisis file lokal untuk menampilkan gelombang sebenarnya.',mini:'Pemutar mini mengambang',miniDesc:'Pemutar ringkas yang dapat digeser dengan Picture-in-Picture jika tersedia.',open:'Buka',all:'Semua',today:'Hari ini',week:'7 hari terakhir',month:'30 hari terakhir',search:'Cari judul atau artis…',clear:'Hapus riwayat',close:'Tutup',noHistory:'Tidak ada hasil.',total:'Total pemutaran',unique:'Lagu unik',newFolder:'Folder baru',folderName:'Nama folder',create:'Buat',playlist:'Playlist',folder:'Folder',assign:'Tambahkan ke folder',remove:'Hapus dari folder',importM3U:'Impor M3U',exportM3U:'Ekspor M3U',ungrouped:'Tanpa folder',noPlaylists:'Belum ada playlist.',save:'Simpan',reset:'Atur ulang',record:'Rekam pintasan',listening:'Tekan tombol…',assigned:'Pintasan disimpan',conflict:'Pintasan dipindahkan.',reserved:'Pintasan ini dicadangkan.',enabled:'Aktifkan cadangan otomatis',backupNow:'Cadangkan sekarang',restore:'Pulihkan cadangan',noBackup:'Belum ada cadangan.',backupSaved:'Cadangan tersimpan',backupFailed:'Cadangan otomatis tidak tersedia.',restoreConfirm:'Ganti data saat ini?',restored:'Dipulihkan. Memuat ulang…',miniOn:'Tampilkan pemutar mini',miniOff:'Sembunyikan pemutar mini',pip:'Buka Picture-in-Picture',localOnly:'Analisis file lokal hingga 40 MB.',noAudio:'Tidak ada lagu.',action:'Tindakan',shortcut:'Pintasan',playPause:'Putar / jeda',next:'Berikutnya',previous:'Sebelumnya',forward:'Maju 10 dtk',backward:'Mundur 10 dtk',mute:'Bisukan',favorite:'Favorit',shuffle:'Acak',repeat:'Ulangi',lyrics:'Lirik',miniAction:'Pemutar mini',none:'Belum diatur',seconds:'dtk',playedAt:'Diputar pada',title:'Lagu',artist:'Artis',backupCount:'Cadangan'},
+    ur: {history:'سننے کی ہسٹری',historyDesc:'پلے بیک ہسٹری تلاش اور تاریخ کے مطابق فلٹر کریں۔',playlists:'پلے لسٹ فولڈرز',playlistsDesc:'پلے لسٹس کو فولڈرز میں ترتیب دیں اور M3U استعمال کریں۔',keys:'حسب ضرورت کی بورڈ شارٹ کٹس',keysDesc:'پلیئر کے کاموں کے لیے اپنی چابیاں مقرر کریں۔',backups:'خودکار بیک اپ',backupsDesc:'لائبریری اور ہسٹری اس ڈیوائس پر محفوظ کرتا ہے۔',wave:'اصل آڈیو ویوفارم',waveDesc:'مقامی فائلوں کو تجزیہ کرکے حقیقی ویوفارم دکھاتا ہے۔',mini:'فلوٹنگ منی پلیئر',miniDesc:'قابلِ حرکت چھوٹا پلیئر، دستیابی پر Picture-in-Picture کے ساتھ۔',open:'کھولیں',all:'سب',today:'آج',week:'گزشتہ 7 دن',month:'گزشتہ 30 دن',search:'گانے یا فنکار کو تلاش کریں…',clear:'ہسٹری صاف کریں',close:'بند کریں',noHistory:'کوئی نتیجہ نہیں۔',total:'کل پلے',unique:'مختلف گانے',newFolder:'نیا فولڈر',folderName:'فولڈر کا نام',create:'بنائیں',playlist:'پلے لسٹ',folder:'فولڈر',assign:'فولڈر میں شامل کریں',remove:'فولڈر سے ہٹائیں',importM3U:'M3U درآمد کریں',exportM3U:'M3U برآمد کریں',ungrouped:'بغیر فولڈر',noPlaylists:'ابھی کوئی پلے لسٹ نہیں۔',save:'محفوظ کریں',reset:'ری سیٹ',record:'شارٹ کٹ ریکارڈ کریں',listening:'اب کوئی بٹن دبائیں…',assigned:'شارٹ کٹ محفوظ ہوگیا',conflict:'شارٹ کٹ دوسری جگہ سے منتقل ہوگیا۔',reserved:'یہ شارٹ کٹ محفوظ ہے۔',enabled:'خودکار بیک اپ فعال کریں',backupNow:'ابھی بیک اپ',restore:'بیک اپ بحال کریں',noBackup:'ابھی کوئی بیک اپ نہیں۔',backupSaved:'بیک اپ محفوظ ہوگیا',backupFailed:'خودکار بیک اپ دستیاب نہیں۔',restoreConfirm:'موجودہ ڈیٹا تبدیل کریں؟',restored:'بحال ہوگیا۔ دوبارہ لوڈ ہو رہا ہے۔',miniOn:'منی پلیئر دکھائیں',miniOff:'منی پلیئر چھپائیں',pip:'Picture-in-Picture کھولیں',localOnly:'40 MB تک مقامی فائلوں کا تجزیہ۔',noAudio:'کوئی گانا نہیں چل رہا۔',action:'عمل',shortcut:'شارٹ کٹ',playPause:'چلائیں / روکیں',next:'اگلا گانا',previous:'پچھلا گانا',forward:'10 سیکنڈ آگے',backward:'10 سیکنڈ پیچھے',mute:'آواز بند / کھولیں',favorite:'پسندیدہ',shuffle:'شفل',repeat:'دہرائیں',lyrics:'بول دکھائیں',miniAction:'منی پلیئر',none:'متعین نہیں',seconds:'سیکنڈ',playedAt:'چلانے کا وقت',title:'گانا',artist:'فنکار',backupCount:'محفوظ بیک اپ'}
+  };
+  const extra={
+    ar:{historyCsv:'تصدير سجل الاستماع',historyCsvDesc:'احفظ سجل الاستماع في ملف CSV قابل للفتح في Excel.',favoritesExport:'تصدير المفضلة',favoritesExportDesc:'صدّر الأغاني المفضلة كقائمة M3U.',queueSave:'حفظ قائمة الانتظار',queueSaveDesc:'حوّل قائمة التشغيل الحالية إلى قائمة محفوظة.',playlistReport:'تحليل قائمة تشغيل',playlistReportDesc:'اعرض المدة وعدد الفنانين والأنواع في أي قائمة.',focus:'وضع التركيز',focusDesc:'أخفِ العناصر الجانبية لتجربة استماع أكثر هدوءًا.',goal:'هدف الاستماع اليومي',goalDesc:'حدد هدفًا بالدقائق وتابع تقدمك اليومي.',audit:'تقرير سلامة المكتبة',auditDesc:'اعرف البيانات الناقصة والملفات غير المتاحة.',shuffleList:'خلط قائمة تشغيل',shuffleListDesc:'أعد ترتيب أغاني قائمة محفوظة عشوائيًا.',libraryExport:'تصدير المكتبة',libraryExportDesc:'احفظ بيانات المكتبة والإحصائيات وسجل الاستماع في JSON.',historyExported:'تم تصدير سجل الاستماع.',noFavorites:'لا توجد أغانٍ في المفضلة.',favoritesExported:'تم تصدير المفضلة.',queueEmpty:'قائمة الانتظار فارغة.',queuePlaylistDefault:'قائمة الانتظار المحفوظة',queuePlaylistName:'اسم القائمة الجديدة:',queueSaved:'تم حفظ قائمة الانتظار.',choosePlaylist:'اختر قائمة تشغيل:',playlistNotFound:'لم يتم العثور على القائمة.',trackCount:'عدد الأغاني',duration:'المدة الإجمالية',artistCount:'عدد الفنانين',genreCount:'عدد الأنواع',focusEnabled:'تم تفعيل وضع التركيز.',focusDisabled:'تم إيقاف وضع التركيز.',goalPrompt:'حدد هدف الاستماع اليومي بالدقائق:',dailyGoal:'هدف اليوم',minutes:'دقيقة',todayListened:'وقت الاستماع اليوم',goalProgress:'نسبة تحقيق الهدف',libraryAudit:'تقرير سلامة المكتبة',title:'العنوان',artist:'الفنان',album:'الألبوم',genre:'النوع',unavailable:'ملفات غير متاحة',playlistShuffled:'تم خلط القائمة وحفظ الترتيب.',libraryExported:'تم تصدير بيانات المكتبة.'},
+    en:{historyCsv:'Export listening history',historyCsvDesc:'Save listening history as a CSV file for spreadsheet apps.',favoritesExport:'Export favorites',favoritesExportDesc:'Export favorite tracks as an M3U playlist.',queueSave:'Save current queue',queueSaveDesc:'Turn the current playback queue into a saved playlist.',playlistReport:'Playlist analyzer',playlistReportDesc:'Review duration, artist count and genres in a playlist.',focus:'Focus mode',focusDesc:'Hide side elements for a quieter listening experience.',goal:'Daily listening goal',goalDesc:'Set a listening target in minutes and track today’s progress.',audit:'Library health report',auditDesc:'Find missing metadata and unavailable files.',shuffleList:'Shuffle a playlist',shuffleListDesc:'Randomize and save the order of a saved playlist.',libraryExport:'Export library',libraryExportDesc:'Save library data, stats and listening history as JSON.',historyExported:'Listening history exported.',noFavorites:'There are no favorite tracks.',favoritesExported:'Favorites exported.',queueEmpty:'The playback queue is empty.',queuePlaylistDefault:'Saved playback queue',queuePlaylistName:'Name the new playlist:',queueSaved:'Queue saved as a playlist.',choosePlaylist:'Choose a playlist:',playlistNotFound:'Playlist not found.',trackCount:'Track count',duration:'Total duration',artistCount:'Artists',genreCount:'Genres',focusEnabled:'Focus mode enabled.',focusDisabled:'Focus mode disabled.',goalPrompt:'Set your daily listening goal in minutes:',dailyGoal:'Daily goal',minutes:'minutes',todayListened:'Listened today',goalProgress:'Goal progress',libraryAudit:'Library health report',title:'Title',artist:'Artist',album:'Album',genre:'Genre',unavailable:'Unavailable files',playlistShuffled:'Playlist shuffled and saved.',libraryExported:'Library data exported.'},
+    fr:{historyCsv:'Exporter l’historique',historyCsvDesc:'Enregistrer l’historique au format CSV.',favoritesExport:'Exporter les favoris',favoritesExportDesc:'Exporter les favoris en liste M3U.',queueSave:'Enregistrer la file',queueSaveDesc:'Enregistrer la file actuelle comme playlist.',playlistReport:'Analyser une playlist',playlistReportDesc:'Afficher durée, artistes et genres.',focus:'Mode concentration',focusDesc:'Masquer les éléments latéraux.',goal:'Objectif quotidien',goalDesc:'Définir un objectif d’écoute quotidien.',audit:'État de la bibliothèque',auditDesc:'Repérer les métadonnées manquantes.',shuffleList:'Mélanger une playlist',shuffleListDesc:'Mélanger et enregistrer l’ordre.',libraryExport:'Exporter la bibliothèque',libraryExportDesc:'Exporter bibliothèque, statistiques et historique.',historyExported:'Historique exporté.',noFavorites:'Aucun favori.',favoritesExported:'Favoris exportés.',queueEmpty:'File vide.',queuePlaylistDefault:'File enregistrée',queuePlaylistName:'Nom de la playlist :',queueSaved:'File enregistrée.',choosePlaylist:'Choisir une playlist :',playlistNotFound:'Playlist introuvable.',trackCount:'Nombre de titres',duration:'Durée totale',artistCount:'Artistes',genreCount:'Genres',focusEnabled:'Mode concentration activé.',focusDisabled:'Mode concentration désactivé.',goalPrompt:'Objectif quotidien en minutes :',dailyGoal:'Objectif quotidien',minutes:'minutes',todayListened:'Écouté aujourd’hui',goalProgress:'Progression',libraryAudit:'État de la bibliothèque',title:'Titre',artist:'Artiste',album:'Album',genre:'Genre',unavailable:'Fichiers indisponibles',playlistShuffled:'Playlist mélangée.',libraryExported:'Bibliothèque exportée.'},
+    es:{historyCsv:'Exportar historial',historyCsvDesc:'Guardar el historial en CSV.',favoritesExport:'Exportar favoritos',favoritesExportDesc:'Exportar favoritos como lista M3U.',queueSave:'Guardar cola',queueSaveDesc:'Guardar la cola actual como lista.',playlistReport:'Analizar lista',playlistReportDesc:'Ver duración, artistas y géneros.',focus:'Modo concentración',focusDesc:'Ocultar elementos laterales.',goal:'Objetivo diario',goalDesc:'Definir una meta diaria de escucha.',audit:'Estado de biblioteca',auditDesc:'Detectar metadatos incompletos.',shuffleList:'Mezclar lista',shuffleListDesc:'Aleatorizar y guardar el orden.',libraryExport:'Exportar biblioteca',libraryExportDesc:'Exportar biblioteca, estadísticas e historial.',historyExported:'Historial exportado.',noFavorites:'No hay favoritos.',favoritesExported:'Favoritos exportados.',queueEmpty:'La cola está vacía.',queuePlaylistDefault:'Cola guardada',queuePlaylistName:'Nombre de la lista:',queueSaved:'Cola guardada.',choosePlaylist:'Elegir lista:',playlistNotFound:'Lista no encontrada.',trackCount:'Canciones',duration:'Duración total',artistCount:'Artistas',genreCount:'Géneros',focusEnabled:'Modo concentración activado.',focusDisabled:'Modo concentración desactivado.',goalPrompt:'Objetivo diario en minutos:',dailyGoal:'Objetivo diario',minutes:'minutos',todayListened:'Escuchado hoy',goalProgress:'Progreso',libraryAudit:'Estado de biblioteca',title:'Título',artist:'Artista',album:'Álbum',genre:'Género',unavailable:'Archivos no disponibles',playlistShuffled:'Lista mezclada.',libraryExported:'Biblioteca exportada.'},
+    tr:{historyCsv:'Dinleme geçmişini dışa aktar',historyCsvDesc:'Geçmişi CSV olarak kaydet.',favoritesExport:'Favorileri dışa aktar',favoritesExportDesc:'Favorileri M3U listesi olarak kaydet.',queueSave:'Sırayı kaydet',queueSaveDesc:'Geçerli sırayı çalma listesine dönüştür.',playlistReport:'Liste analizi',playlistReportDesc:'Süreyi, sanatçıları ve türleri göster.',focus:'Odak modu',focusDesc:'Yan öğeleri gizle.',goal:'Günlük dinleme hedefi',goalDesc:'Dakika cinsinden günlük hedef belirle.',audit:'Kitaplık sağlık raporu',auditDesc:'Eksik etiketleri ve dosyaları bul.',shuffleList:'Listeyi karıştır',shuffleListDesc:'Liste sırasını karıştırıp kaydet.',libraryExport:'Kitaplığı dışa aktar',libraryExportDesc:'Kitaplık, istatistik ve geçmişi JSON kaydet.',historyExported:'Geçmiş dışa aktarıldı.',noFavorites:'Favori yok.',favoritesExported:'Favoriler dışa aktarıldı.',queueEmpty:'Çalma sırası boş.',queuePlaylistDefault:'Kaydedilen sıra',queuePlaylistName:'Yeni liste adı:',queueSaved:'Sıra kaydedildi.',choosePlaylist:'Liste seç:',playlistNotFound:'Liste bulunamadı.',trackCount:'Parça sayısı',duration:'Toplam süre',artistCount:'Sanatçılar',genreCount:'Türler',focusEnabled:'Odak modu açık.',focusDisabled:'Odak modu kapalı.',goalPrompt:'Günlük hedefi dakika olarak gir:',dailyGoal:'Günlük hedef',minutes:'dakika',todayListened:'Bugün dinlenen',goalProgress:'Hedef ilerlemesi',libraryAudit:'Kitaplık raporu',title:'Başlık',artist:'Sanatçı',album:'Albüm',genre:'Tür',unavailable:'Erişilemeyen dosyalar',playlistShuffled:'Liste karıştırıldı.',libraryExported:'Kitaplık dışa aktarıldı.'},
+    de:{historyCsv:'Hörverlauf exportieren',historyCsvDesc:'Verlauf als CSV speichern.',favoritesExport:'Favoriten exportieren',favoritesExportDesc:'Favoriten als M3U-Liste exportieren.',queueSave:'Warteschlange speichern',queueSaveDesc:'Aktuelle Warteschlange als Playlist speichern.',playlistReport:'Playlist analysieren',playlistReportDesc:'Dauer, Künstler und Genres anzeigen.',focus:'Fokusmodus',focusDesc:'Seitenelemente ausblenden.',goal:'Tägliches Hörziel',goalDesc:'Ein tägliches Ziel in Minuten festlegen.',audit:'Bibliotheksbericht',auditDesc:'Fehlende Metadaten und Dateien finden.',shuffleList:'Playlist mischen',shuffleListDesc:'Playlist-Reihenfolge mischen und speichern.',libraryExport:'Bibliothek exportieren',libraryExportDesc:'Bibliothek, Statistiken und Verlauf als JSON sichern.',historyExported:'Verlauf exportiert.',noFavorites:'Keine Favoriten.',favoritesExported:'Favoriten exportiert.',queueEmpty:'Warteschlange ist leer.',queuePlaylistDefault:'Gespeicherte Warteschlange',queuePlaylistName:'Name der Playlist:',queueSaved:'Warteschlange gespeichert.',choosePlaylist:'Playlist auswählen:',playlistNotFound:'Playlist nicht gefunden.',trackCount:'Titelanzahl',duration:'Gesamtdauer',artistCount:'Künstler',genreCount:'Genres',focusEnabled:'Fokusmodus aktiviert.',focusDisabled:'Fokusmodus deaktiviert.',goalPrompt:'Tägliches Hörziel in Minuten:',dailyGoal:'Tagesziel',minutes:'Minuten',todayListened:'Heute gehört',goalProgress:'Fortschritt',libraryAudit:'Bibliotheksbericht',title:'Titel',artist:'Künstler',album:'Album',genre:'Genre',unavailable:'Nicht verfügbare Dateien',playlistShuffled:'Playlist gemischt.',libraryExported:'Bibliothek exportiert.'},
+    id:{historyCsv:'Ekspor riwayat dengar',historyCsvDesc:'Simpan riwayat sebagai CSV.',favoritesExport:'Ekspor favorit',favoritesExportDesc:'Ekspor favorit sebagai daftar M3U.',queueSave:'Simpan antrean',queueSaveDesc:'Simpan antrean saat ini sebagai playlist.',playlistReport:'Analisis playlist',playlistReportDesc:'Lihat durasi, artis, dan genre.',focus:'Mode fokus',focusDesc:'Sembunyikan elemen samping.',goal:'Target mendengarkan harian',goalDesc:'Atur target mendengarkan dalam menit.',audit:'Laporan kesehatan pustaka',auditDesc:'Temukan metadata dan file yang hilang.',shuffleList:'Acak playlist',shuffleListDesc:'Acak dan simpan urutan playlist.',libraryExport:'Ekspor pustaka',libraryExportDesc:'Ekspor pustaka, statistik, dan riwayat ke JSON.',historyExported:'Riwayat diekspor.',noFavorites:'Tidak ada favorit.',favoritesExported:'Favorit diekspor.',queueEmpty:'Antrean kosong.',queuePlaylistDefault:'Antrean tersimpan',queuePlaylistName:'Nama playlist baru:',queueSaved:'Antrean disimpan.',choosePlaylist:'Pilih playlist:',playlistNotFound:'Playlist tidak ditemukan.',trackCount:'Jumlah lagu',duration:'Durasi total',artistCount:'Artis',genreCount:'Genre',focusEnabled:'Mode fokus aktif.',focusDisabled:'Mode fokus nonaktif.',goalPrompt:'Atur target harian dalam menit:',dailyGoal:'Target harian',minutes:'menit',todayListened:'Didengarkan hari ini',goalProgress:'Kemajuan target',libraryAudit:'Laporan pustaka',title:'Judul',artist:'Artis',album:'Album',genre:'Genre',unavailable:'File tidak tersedia',playlistShuffled:'Playlist diacak.',libraryExported:'Pustaka diekspor.'},
+    ur:{historyCsv:'سننے کی ہسٹری برآمد کریں',historyCsvDesc:'ہسٹری کو CSV فائل میں محفوظ کریں۔',favoritesExport:'پسندیدہ گانے برآمد کریں',favoritesExportDesc:'پسندیدہ گانوں کی M3U فہرست بنائیں۔',queueSave:'موجودہ قطار محفوظ کریں',queueSaveDesc:'موجودہ قطار کو پلے لسٹ بنائیں۔',playlistReport:'پلے لسٹ کا تجزیہ',playlistReportDesc:'دورانیہ، فنکار اور انواع دیکھیں۔',focus:'فوکس موڈ',focusDesc:'سائیڈ عناصر چھپائیں۔',goal:'روزانہ سننے کا ہدف',goalDesc:'منٹ میں روزانہ کا ہدف مقرر کریں۔',audit:'لائبریری کی رپورٹ',auditDesc:'نامکمل معلومات اور غائب فائلیں تلاش کریں۔',shuffleList:'پلے لسٹ شفل کریں',shuffleListDesc:'پلے لسٹ کی ترتیب بدل کر محفوظ کریں۔',libraryExport:'لائبریری برآمد کریں',libraryExportDesc:'لائبریری، اعدادوشمار اور ہسٹری JSON میں محفوظ کریں۔',historyExported:'ہسٹری برآمد ہوگئی۔',noFavorites:'کوئی پسندیدہ گانا نہیں۔',favoritesExported:'پسندیدہ گانے برآمد ہوگئے۔',queueEmpty:'پلے بیک قطار خالی ہے۔',queuePlaylistDefault:'محفوظ قطار',queuePlaylistName:'نئی پلے لسٹ کا نام:',queueSaved:'قطار محفوظ ہوگئی۔',choosePlaylist:'پلے لسٹ منتخب کریں:',playlistNotFound:'پلے لسٹ نہیں ملی۔',trackCount:'گانوں کی تعداد',duration:'کل دورانیہ',artistCount:'فنکار',genreCount:'انواع',focusEnabled:'فوکس موڈ فعال ہوگیا۔',focusDisabled:'فوکس موڈ بند ہوگیا۔',goalPrompt:'روزانہ کا ہدف منٹ میں لکھیں:',dailyGoal:'روزانہ ہدف',minutes:'منٹ',todayListened:'آج سنا گیا',goalProgress:'ہدف کی پیشرفت',libraryAudit:'لائبریری کی رپورٹ',title:'عنوان',artist:'فنکار',album:'البم',genre:'نوع',unavailable:'دستیاب نہ ہونے والی فائلیں',playlistShuffled:'پلے لسٹ شفل ہوگئی۔',libraryExported:'لائبریری برآمد ہوگئی.'}
+  };
+  const studioWords={
+    ar:{studioTitle:'استوديو لحن',studioDesc:'مساحة متكاملة لاكتشاف الموسيقى وإدارة المكتبة وتحليل الاستماع وأدوات الصيانة.',radioTitle:'راديو لحن الذكي',radioDesc:'أنشئ محطة محلية من الأغاني المشابهة حسب الفنان والألبوم والنوع والمدة.',startRadio:'ابدأ الراديو الذكي',discoverRandom:'اكتشاف عشوائي',wrappedTitle:'ملخص لحن السنوي',wrappedDesc:'إحصائيات الاستماع وأعلى الأغاني ووقت الاستماع والنشاط اليومي.',viewStats:'عرض الإحصائيات',smartListTitle:'منشئ القوائم الذكية',smartListDesc:'أنشئ قوائم تلقائية وفق شروط تشغيل ومفضلة ومدة وفنان.',createSmartList:'إنشاء قائمة ذكية',tagTitle:'محرر بيانات الأغاني',tagDesc:'عدّل العنوان والفنان والألبوم والنوع في قاعدة بيانات المكتبة.',editTags:'تعديل بيانات أغنية',tagNote:'التعديلات تخص بيانات لحن ولا تكتب وسوم ID3 داخل الملف الأصلي.',doctorTitle:'طبيب المكتبة',doctorDesc:'اكتشف الملفات غير المتاحة والبيانات الناقصة في مكتبتك.',runCheck:'فحص المكتبة',duplicateTitle:'فحص النسخ المتطابقة',duplicateDesc:'قارن بصمة SHA-256 للملفات المحلية لاكتشاف التطابق الثنائي.',scanDuplicates:'فحص بالبصمة',playbackTools:'أدوات التشغيل',playbackToolsDesc:'إدارة المشغل المصغر وتطبيع الصوت. الانتقال المتداخل متاح من الإعدادات.',toggleMini:'تبديل المشغل المصغر',normalization:'تطبيع الصوت',disable:'إيقاف',enable:'تفعيل',backupTitle:'النسخ الاحتياطي',backupDesc:'احفظ بيانات المكتبة والقوائم والإحصائيات في ملف قابل للنقل.',exportBackup:'تصدير نسخة احتياطية',importBackup:'استيراد نسخة احتياطية',studioHistoryDesc:'ملخص نشاط الاستماع المسجل داخل لحن.',openReports:'فتح التقارير',librarySongs:'أغاني المكتبة',playsRecorded:'مرات التشغيل المسجلة',listeningTime:'وقت الاستماع المسجل',favorites:'المفضلة',mostPlayed:'الأكثر استماعًا',last7Days:'نشاط آخر 7 أيام',unknownArtist:'فنان غير معروف',listenToSeeStats:'ابدأ الاستماع لتظهر إحصائياتك هنا.',noDailyStats:'لا توجد بيانات يومية بعد.'},
+    en:{studioTitle:'Lahn Studio',studioDesc:'A complete workspace for music discovery, library management, listening insights and maintenance tools.',radioTitle:'Lahn Smart Radio',radioDesc:'Create a local station from tracks similar by artist, album, genre and duration.',startRadio:'Start smart radio',discoverRandom:'Random discovery',wrappedTitle:'Lahn Wrapped',wrappedDesc:'Listening statistics, top tracks, listening time and daily activity.',viewStats:'View statistics',smartListTitle:'Smart playlist builder',smartListDesc:'Build automatic playlists using play history, favorites, duration and artist rules.',createSmartList:'Create smart playlist',tagTitle:'Track metadata editor',tagDesc:'Edit title, artist, album and genre in the library database.',editTags:'Edit track details',tagNote:'Changes update Lahn library metadata; they do not write ID3 tags into the original file.',doctorTitle:'Library Doctor',doctorDesc:'Find unavailable files and missing metadata in your library.',runCheck:'Scan library',duplicateTitle:'Exact duplicate scanner',duplicateDesc:'Compare SHA-256 fingerprints of local files to find byte-identical copies.',scanDuplicates:'Scan fingerprints',playbackTools:'Playback tools',playbackToolsDesc:'Manage the mini player and audio normalization. Crossfade is available in Settings.',toggleMini:'Toggle mini player',normalization:'audio normalization',disable:'Disable',enable:'Enable',backupTitle:'Backups',backupDesc:'Save library, playlists and statistics to a portable file.',exportBackup:'Export backup',importBackup:'Import backup',studioHistoryDesc:'A summary of listening activity recorded in Lahn.',openReports:'Open reports',librarySongs:'Library tracks',playsRecorded:'Recorded plays',listeningTime:'Listening time',favorites:'Favorites',mostPlayed:'Most played',last7Days:'Last 7 days',unknownArtist:'Unknown artist',listenToSeeStats:'Start listening to see your statistics here.',noDailyStats:'No daily data yet.'},
+    fr:{studioTitle:'Studio Lahn',studioDesc:'Un espace complet pour découvrir la musique, gérer la bibliothèque et analyser l’écoute.',radioTitle:'Radio intelligente',radioDesc:'Créer une station locale selon l’artiste, l’album, le genre et la durée.',startRadio:'Démarrer la radio',discoverRandom:'Découverte aléatoire',wrappedTitle:'Bilan Lahn',wrappedDesc:'Statistiques, titres favoris, durée d’écoute et activité quotidienne.',viewStats:'Voir les statistiques',smartListTitle:'Créateur de playlists intelligentes',smartListDesc:'Créer des listes selon l’historique, les favoris, la durée et l’artiste.',createSmartList:'Créer une playlist',tagTitle:'Éditeur de métadonnées',tagDesc:'Modifier le titre, l’artiste, l’album et le genre dans la bibliothèque.',editTags:'Modifier les détails',tagNote:'Les modifications concernent la bibliothèque Lahn, pas les tags ID3 du fichier.',doctorTitle:'Diagnostic de bibliothèque',doctorDesc:'Repérer les fichiers indisponibles et les métadonnées manquantes.',runCheck:'Analyser',duplicateTitle:'Recherche de doublons exacts',duplicateDesc:'Comparer les empreintes SHA-256 des fichiers locaux.',scanDuplicates:'Analyser les empreintes',playbackTools:'Outils de lecture',playbackToolsDesc:'Gérer le mini-lecteur et la normalisation audio.',toggleMini:'Basculer le mini-lecteur',normalization:'normalisation audio',disable:'Désactiver',enable:'Activer',backupTitle:'Sauvegardes',backupDesc:'Enregistrer bibliothèque, listes et statistiques dans un fichier.',exportBackup:'Exporter',importBackup:'Importer',studioHistoryDesc:'Résumé de l’activité d’écoute enregistrée dans Lahn.',openReports:'Voir les rapports',librarySongs:'Titres',playsRecorded:'Lectures enregistrées',listeningTime:'Temps d’écoute',favorites:'Favoris',mostPlayed:'Les plus écoutés',last7Days:'7 derniers jours',unknownArtist:'Artiste inconnu',listenToSeeStats:'Écoutez pour afficher les statistiques.',noDailyStats:'Aucune donnée quotidienne.'},
+    es:{studioTitle:'Estudio Lahn',studioDesc:'Espacio completo para descubrir música, gestionar la biblioteca y analizar la escucha.',radioTitle:'Radio inteligente',radioDesc:'Crea una emisora local según artista, álbum, género y duración.',startRadio:'Iniciar radio',discoverRandom:'Descubrimiento aleatorio',wrappedTitle:'Resumen Lahn',wrappedDesc:'Estadísticas, canciones principales, tiempo y actividad diaria.',viewStats:'Ver estadísticas',smartListTitle:'Creador de listas inteligentes',smartListDesc:'Crear listas según historial, favoritos, duración y artista.',createSmartList:'Crear lista inteligente',tagTitle:'Editor de metadatos',tagDesc:'Editar título, artista, álbum y género en la biblioteca.',editTags:'Editar datos',tagNote:'Los cambios afectan a Lahn, no escriben etiquetas ID3 en el archivo original.',doctorTitle:'Diagnóstico de biblioteca',doctorDesc:'Detecta archivos no disponibles y metadatos incompletos.',runCheck:'Analizar biblioteca',duplicateTitle:'Buscador de duplicados exactos',duplicateDesc:'Compara huellas SHA-256 de archivos locales.',scanDuplicates:'Analizar huellas',playbackTools:'Herramientas de reproducción',playbackToolsDesc:'Gestiona el mini reproductor y la normalización de audio.',toggleMini:'Alternar mini reproductor',normalization:'normalización de audio',disable:'Desactivar',enable:'Activar',backupTitle:'Copias de seguridad',backupDesc:'Guarda biblioteca, listas y estadísticas en un archivo portable.',exportBackup:'Exportar copia',importBackup:'Importar copia',studioHistoryDesc:'Resumen de actividad de escucha registrada en Lahn.',openReports:'Abrir informes',librarySongs:'Canciones',playsRecorded:'Reproducciones registradas',listeningTime:'Tiempo de escucha',favorites:'Favoritos',mostPlayed:'Más escuchadas',last7Days:'Últimos 7 días',unknownArtist:'Artista desconocido',listenToSeeStats:'Escucha música para ver tus estadísticas.',noDailyStats:'Aún no hay datos diarios.'},
+    tr:{studioTitle:'Lahn Stüdyosu',studioDesc:'Müzik keşfi, kitaplık yönetimi ve dinleme analizleri için tam çalışma alanı.',radioTitle:'Akıllı Lahn Radyosu',radioDesc:'Sanatçı, albüm, tür ve süreye göre yerel radyo oluştur.',startRadio:'Radyoyu başlat',discoverRandom:'Rastgele keşfet',wrappedTitle:'Lahn Özeti',wrappedDesc:'Dinleme istatistikleri, en çok çalınanlar ve günlük etkinlik.',viewStats:'İstatistikleri gör',smartListTitle:'Akıllı liste oluşturucu',smartListDesc:'Geçmiş, favoriler, süre ve sanatçı kurallarıyla liste oluştur.',createSmartList:'Akıllı liste oluştur',tagTitle:'Parça bilgisi düzenleyici',tagDesc:'Kitaplıkta başlık, sanatçı, albüm ve türü düzenle.',editTags:'Parça bilgilerini düzenle',tagNote:'Değişiklikler Lahn veritabanına kaydedilir, özgün ID3 etiketleri değişmez.',doctorTitle:'Kitaplık doktoru',doctorDesc:'Eksik bilgileri ve kullanılamayan dosyaları bul.',runCheck:'Kitaplığı tara',duplicateTitle:'Tam kopya tarayıcı',duplicateDesc:'Yerel dosyaların SHA-256 parmak izlerini karşılaştır.',scanDuplicates:'Parmak izlerini tara',playbackTools:'Oynatma araçları',playbackToolsDesc:'Mini oynatıcıyı ve ses normalizasyonunu yönet.',toggleMini:'Mini oynatıcıyı değiştir',normalization:'ses normalizasyonu',disable:'Kapat',enable:'Aç',backupTitle:'Yedekler',backupDesc:'Kitaplığı, listeleri ve istatistikleri dosyaya kaydet.',exportBackup:'Yedeği dışa aktar',importBackup:'Yedeği içe aktar',studioHistoryDesc:'Lahn içinde kaydedilen dinleme etkinliğinin özeti.',openReports:'Raporları aç',librarySongs:'Kitaplık parçaları',playsRecorded:'Kaydedilen çalma',listeningTime:'Dinleme süresi',favorites:'Favoriler',mostPlayed:'En çok çalınan',last7Days:'Son 7 gün',unknownArtist:'Bilinmeyen sanatçı',listenToSeeStats:'İstatistikleri görmek için müzik dinle.',noDailyStats:'Henüz günlük veri yok.'},
+    de:{studioTitle:'Lahn Studio',studioDesc:'Ein kompletter Bereich für Musikentdeckung, Bibliotheksverwaltung und Höranalysen.',radioTitle:'Lahn Smart Radio',radioDesc:'Lokales Radio nach Künstler, Album, Genre und Dauer erstellen.',startRadio:'Radio starten',discoverRandom:'Zufällig entdecken',wrappedTitle:'Lahn Rückblick',wrappedDesc:'Hörstatistiken, Top-Titel, Hörzeit und tägliche Aktivität.',viewStats:'Statistik anzeigen',smartListTitle:'Intelligenter Playlist-Builder',smartListDesc:'Listen nach Verlauf, Favoriten, Dauer und Künstler erstellen.',createSmartList:'Playlist erstellen',tagTitle:'Metadaten bearbeiten',tagDesc:'Titel, Künstler, Album und Genre in der Bibliothek ändern.',editTags:'Trackdaten bearbeiten',tagNote:'Änderungen betreffen Lahn-Metadaten, nicht die ID3-Tags der Originaldatei.',doctorTitle:'Bibliotheksdiagnose',doctorDesc:'Nicht verfügbare Dateien und fehlende Metadaten finden.',runCheck:'Bibliothek prüfen',duplicateTitle:'Exakte Duplikatsuche',duplicateDesc:'SHA-256-Fingerprints lokaler Dateien vergleichen.',scanDuplicates:'Fingerprints prüfen',playbackTools:'Wiedergabewerkzeuge',playbackToolsDesc:'Mini-Player und Audio-Normalisierung verwalten.',toggleMini:'Mini-Player umschalten',normalization:'Audio-Normalisierung',disable:'Deaktivieren',enable:'Aktivieren',backupTitle:'Sicherungen',backupDesc:'Bibliothek, Listen und Statistiken in einer Datei speichern.',exportBackup:'Sicherung exportieren',importBackup:'Sicherung importieren',studioHistoryDesc:'Zusammenfassung der in Lahn erfassten Höraktivität.',openReports:'Berichte öffnen',librarySongs:'Bibliothekstitel',playsRecorded:'Erfasste Wiedergaben',listeningTime:'Hörzeit',favorites:'Favoriten',mostPlayed:'Meistgespielt',last7Days:'Letzte 7 Tage',unknownArtist:'Unbekannter Künstler',listenToSeeStats:'Höre Musik, um Statistiken zu sehen.',noDailyStats:'Noch keine Tagesdaten.'},
+    id:{studioTitle:'Studio Lahn',studioDesc:'Ruang lengkap untuk menemukan musik, mengelola pustaka, dan menganalisis aktivitas mendengarkan.',radioTitle:'Radio pintar Lahn',radioDesc:'Buat radio lokal berdasarkan artis, album, genre, dan durasi.',startRadio:'Mulai radio',discoverRandom:'Temukan acak',wrappedTitle:'Ringkasan Lahn',wrappedDesc:'Statistik, lagu teratas, waktu mendengarkan, dan aktivitas harian.',viewStats:'Lihat statistik',smartListTitle:'Pembuat playlist pintar',smartListDesc:'Buat daftar berdasarkan riwayat, favorit, durasi, dan artis.',createSmartList:'Buat playlist pintar',tagTitle:'Editor metadata lagu',tagDesc:'Ubah judul, artis, album, dan genre di pustaka.',editTags:'Edit detail lagu',tagNote:'Perubahan hanya pada data Lahn, bukan tag ID3 file asli.',doctorTitle:'Dokter pustaka',doctorDesc:'Temukan file yang tidak tersedia dan metadata yang hilang.',runCheck:'Periksa pustaka',duplicateTitle:'Pemindai duplikat persis',duplicateDesc:'Bandingkan sidik jari SHA-256 file lokal.',scanDuplicates:'Pindai sidik jari',playbackTools:'Alat pemutaran',playbackToolsDesc:'Kelola pemutar mini dan normalisasi audio.',toggleMini:'Ubah pemutar mini',normalization:'normalisasi audio',disable:'Nonaktifkan',enable:'Aktifkan',backupTitle:'Cadangan',backupDesc:'Simpan pustaka, daftar, dan statistik ke file.',exportBackup:'Ekspor cadangan',importBackup:'Impor cadangan',studioHistoryDesc:'Ringkasan aktivitas mendengarkan yang tercatat di Lahn.',openReports:'Buka laporan',librarySongs:'Lagu pustaka',playsRecorded:'Pemutaran tercatat',listeningTime:'Waktu mendengarkan',favorites:'Favorit',mostPlayed:'Paling sering diputar',last7Days:'7 hari terakhir',unknownArtist:'Artis tidak dikenal',listenToSeeStats:'Mulai mendengarkan untuk melihat statistik.',noDailyStats:'Belum ada data harian.'},
+    ur:{studioTitle:'لحن اسٹوڈیو',studioDesc:'موسیقی دریافت کرنے، لائبریری سنبھالنے اور سننے کے تجزیے کے لیے مکمل جگہ۔',radioTitle:'لحن اسمارٹ ریڈیو',radioDesc:'فنکار، البم، نوع اور دورانیے کے مطابق مقامی ریڈیو بنائیں۔',startRadio:'اسمارٹ ریڈیو شروع کریں',discoverRandom:'بے ترتیب دریافت',wrappedTitle:'لحن سالانہ خلاصہ',wrappedDesc:'سننے کے اعدادوشمار، مقبول گانے اور روزانہ سرگرمی۔',viewStats:'اعدادوشمار دیکھیں',smartListTitle:'اسمارٹ پلے لسٹ ساز',smartListDesc:'ہسٹری، پسندیدہ، دورانیے اور فنکار کے مطابق فہرست بنائیں۔',createSmartList:'اسمارٹ فہرست بنائیں',tagTitle:'گانے کی معلومات کا ایڈیٹر',tagDesc:'لائبریری میں عنوان، فنکار، البم اور نوع تبدیل کریں۔',editTags:'گانے کی معلومات بدلیں',tagNote:'تبدیلیاں صرف لحن کی معلومات میں ہوں گی، اصل فائل کے ID3 ٹیگز میں نہیں۔',doctorTitle:'لائبریری ڈاکٹر',doctorDesc:'غائب معلومات اور دستیاب نہ ہونے والی فائلیں تلاش کریں۔',runCheck:'لائبریری چیک کریں',duplicateTitle:'بالکل یکساں فائلوں کی تلاش',duplicateDesc:'مقامی فائلوں کے SHA-256 فنگرپرنٹس کا موازنہ کریں۔',scanDuplicates:'فنگرپرنٹ اسکین',playbackTools:'پلے بیک ٹولز',playbackToolsDesc:'منی پلیئر اور آڈیو نارملائزیشن سنبھالیں۔',toggleMini:'منی پلیئر تبدیل کریں',normalization:'آڈیو نارملائزیشن',disable:'بند کریں',enable:'فعال کریں',backupTitle:'بیک اپ',backupDesc:'لائبریری، فہرستیں اور اعدادوشمار فائل میں محفوظ کریں۔',exportBackup:'بیک اپ برآمد کریں',importBackup:'بیک اپ درآمد کریں',studioHistoryDesc:'لحن میں محفوظ سننے کی سرگرمی کا خلاصہ۔',openReports:'رپورٹس کھولیں',librarySongs:'لائبریری کے گانے',playsRecorded:'محفوظ پلے',listeningTime:'سننے کا وقت',favorites:'پسندیدہ',mostPlayed:'سب سے زیادہ چلائے گئے',last7Days:'گزشتہ 7 دن',unknownArtist:'نامعلوم فنکار',listenToSeeStats:'اعدادوشمار دیکھنے کے لیے موسیقی سنیں۔',noDailyStats:'ابھی روزانہ کا ڈیٹا نہیں۔'}
+  };
+  const runtimeWords={
+    ar:{hoursShort:'س',minutesShort:'د',noAvailableTracks:'لا توجد ملفات متاحة للتشغيل.',addMusicFirst:'أضف أغاني إلى مكتبتك أولاً.',radioCreated:'تم إنشاء الراديو الذكي. عدد الأغاني:',randomReady:'تم تجهيز اكتشاف عشوائي.',libraryEmpty:'المكتبة فارغة.',smartConditionPrompt:'اختر شرط القائمة الذكية:',neverPlayed:'أغانٍ لم تُشغّل من قبل',favoritesOnly:'الأغاني المفضلة',shortTracks:'أغانٍ أقل من 4 دقائق',recentAdded:'أضيفت خلال آخر 30 يومًا',sameArtist:'من نفس فنان الأغنية الحالية',invalidChoice:'الاختيار غير صحيح.',noMatches:'لا توجد أغانٍ تطابق الشرط.',smartListName:'اسم القائمة الذكية:',smartListCreated:'تم إنشاء القائمة:',doctorTitle:'فحص المكتبة',missingArtist:'بدون فنان',missingAlbum:'بدون ألبوم',missingDuration:'بدون مدة',scanNoFiles:'لا توجد ملفات محلية للفحص.',scanRunning:'جارٍ فحص بصمات الملفات…',scanResultNone:'لم يتم العثور على ملفات متطابقة تمامًا.',scanResultTitle:'نتيجة فحص SHA-256',trackPickPrompt:'اكتب رقم الأغنية أو جزءًا من اسمها:',titlePrompt:'اسم الأغنية:',artistPrompt:'اسم الفنان:',albumPrompt:'اسم الألبوم:',genrePrompt:'النوع الموسيقي:',trackNotFound:'لم يتم العثور على الأغنية.',tagsUpdated:'تم تحديث بيانات الأغنية في مكتبة لحن.',backupSpaceError:'تعذر الحفظ؛ مساحة التخزين غير كافية.',backupInvalid:'ملف النسخة الاحتياطية غير صالح.'},
+    en:{hoursShort:'h',minutesShort:'m',noAvailableTracks:'No available files to play.',addMusicFirst:'Add tracks to your library first.',radioCreated:'Smart radio created. Track count:',randomReady:'Random discovery queue is ready.',libraryEmpty:'The library is empty.',smartConditionPrompt:'Choose a smart playlist rule:',neverPlayed:'Never played tracks',favoritesOnly:'Favorite tracks',shortTracks:'Tracks under 4 minutes',recentAdded:'Added in the last 30 days',sameArtist:'Same artist as current track',invalidChoice:'Invalid choice.',noMatches:'No tracks match this rule.',smartListName:'Name the smart playlist:',smartListCreated:'Playlist created:',doctorTitle:'Library scan',missingArtist:'Missing artist',missingAlbum:'Missing album',missingDuration:'Missing duration',scanNoFiles:'No local files available to scan.',scanRunning:'Scanning file fingerprints…',scanResultNone:'No byte-identical files were found.',scanResultTitle:'SHA-256 scan result',trackPickPrompt:'Enter a track number or part of its title:',titlePrompt:'Track title:',artistPrompt:'Artist name:',albumPrompt:'Album name:',genrePrompt:'Music genre:',trackNotFound:'Track not found.',tagsUpdated:'Track metadata updated in Lahn.',backupSpaceError:'Could not save; storage space is insufficient.',backupInvalid:'The backup file is invalid.'},
+    fr:{hoursShort:'h',minutesShort:'min',noAvailableTracks:'Aucun fichier disponible.',addMusicFirst:'Ajoutez d’abord des titres.',radioCreated:'Radio créée. Nombre de titres :',randomReady:'Sélection aléatoire prête.',libraryEmpty:'La bibliothèque est vide.',smartConditionPrompt:'Choisir une règle de playlist :',neverPlayed:'Titres jamais écoutés',favoritesOnly:'Titres favoris',shortTracks:'Titres de moins de 4 minutes',recentAdded:'Ajoutés durant les 30 derniers jours',sameArtist:'Même artiste que le titre actuel',invalidChoice:'Choix invalide.',noMatches:'Aucun titre correspondant.',smartListName:'Nom de la playlist :',smartListCreated:'Playlist créée :',doctorTitle:'Analyse de la bibliothèque',missingArtist:'Artiste manquant',missingAlbum:'Album manquant',missingDuration:'Durée manquante',scanNoFiles:'Aucun fichier local à analyser.',scanRunning:'Analyse des empreintes…',scanResultNone:'Aucun fichier identique trouvé.',scanResultTitle:'Résultat SHA-256',trackPickPrompt:'Numéro ou partie du titre :',titlePrompt:'Titre :',artistPrompt:'Artiste :',albumPrompt:'Album :',genrePrompt:'Genre musical :',trackNotFound:'Titre introuvable.',tagsUpdated:'Métadonnées mises à jour.',backupSpaceError:'Espace de stockage insuffisant.',backupInvalid:'Fichier de sauvegarde invalide.'},
+    es:{hoursShort:'h',minutesShort:'min',noAvailableTracks:'No hay archivos disponibles.',addMusicFirst:'Añade canciones primero.',radioCreated:'Radio creada. Número de canciones:',randomReady:'Selección aleatoria preparada.',libraryEmpty:'La biblioteca está vacía.',smartConditionPrompt:'Elige una regla para la lista:',neverPlayed:'Canciones nunca reproducidas',favoritesOnly:'Favoritos',shortTracks:'Canciones de menos de 4 minutos',recentAdded:'Añadidas en los últimos 30 días',sameArtist:'Mismo artista que la canción actual',invalidChoice:'Opción no válida.',noMatches:'No hay canciones que coincidan.',smartListName:'Nombre de la lista inteligente:',smartListCreated:'Lista creada:',doctorTitle:'Análisis de biblioteca',missingArtist:'Artista ausente',missingAlbum:'Álbum ausente',missingDuration:'Duración ausente',scanNoFiles:'No hay archivos locales para analizar.',scanRunning:'Analizando huellas…',scanResultNone:'No se encontraron archivos idénticos.',scanResultTitle:'Resultado SHA-256',trackPickPrompt:'Introduce número o parte del título:',titlePrompt:'Título:',artistPrompt:'Artista:',albumPrompt:'Álbum:',genrePrompt:'Género musical:',trackNotFound:'Canción no encontrada.',tagsUpdated:'Metadatos actualizados.',backupSpaceError:'No hay espacio suficiente.',backupInvalid:'El archivo de copia no es válido.'},
+    tr:{hoursShort:'sa',minutesShort:'dk',noAvailableTracks:'Oynatılabilir dosya yok.',addMusicFirst:'Önce kitaplığa şarkı ekle.',radioCreated:'Akıllı radyo oluşturuldu. Parça sayısı:',randomReady:'Rastgele keşif hazır.',libraryEmpty:'Kitaplık boş.',smartConditionPrompt:'Akıllı liste kuralı seç:',neverPlayed:'Hiç çalınmamış parçalar',favoritesOnly:'Favoriler',shortTracks:'4 dakikadan kısa parçalar',recentAdded:'Son 30 günde eklenenler',sameArtist:'Geçerli parçayla aynı sanatçı',invalidChoice:'Geçersiz seçim.',noMatches:'Eşleşen parça yok.',smartListName:'Akıllı liste adı:',smartListCreated:'Liste oluşturuldu:',doctorTitle:'Kitaplık taraması',missingArtist:'Sanatçı eksik',missingAlbum:'Albüm eksik',missingDuration:'Süre eksik',scanNoFiles:'Taranacak yerel dosya yok.',scanRunning:'Dosya parmak izleri taranıyor…',scanResultNone:'Aynı dosya bulunamadı.',scanResultTitle:'SHA-256 sonucu',trackPickPrompt:'Parça numarası veya adından bir bölüm:',titlePrompt:'Parça adı:',artistPrompt:'Sanatçı:',albumPrompt:'Albüm:',genrePrompt:'Müzik türü:',trackNotFound:'Parça bulunamadı.',tagsUpdated:'Parça bilgileri güncellendi.',backupSpaceError:'Depolama alanı yetersiz.',backupInvalid:'Yedek dosyası geçersiz.'},
+    de:{hoursShort:'Std.',minutesShort:'Min.',noAvailableTracks:'Keine abspielbaren Dateien.',addMusicFirst:'Füge zuerst Titel hinzu.',radioCreated:'Radio erstellt. Titelanzahl:',randomReady:'Zufallsauswahl ist bereit.',libraryEmpty:'Die Bibliothek ist leer.',smartConditionPrompt:'Regel für intelligente Playlist wählen:',neverPlayed:'Nie gespielte Titel',favoritesOnly:'Favoriten',shortTracks:'Titel unter 4 Minuten',recentAdded:'In den letzten 30 Tagen hinzugefügt',sameArtist:'Gleicher Künstler wie aktueller Titel',invalidChoice:'Ungültige Auswahl.',noMatches:'Keine passenden Titel.',smartListName:'Name der intelligenten Playlist:',smartListCreated:'Playlist erstellt:',doctorTitle:'Bibliotheksprüfung',missingArtist:'Künstler fehlt',missingAlbum:'Album fehlt',missingDuration:'Dauer fehlt',scanNoFiles:'Keine lokalen Dateien zum Prüfen.',scanRunning:'Datei-Fingerprints werden geprüft…',scanResultNone:'Keine identischen Dateien gefunden.',scanResultTitle:'SHA-256-Ergebnis',trackPickPrompt:'Titelnummer oder Teil des Titels eingeben:',titlePrompt:'Titel:',artistPrompt:'Künstler:',albumPrompt:'Album:',genrePrompt:'Musikgenre:',trackNotFound:'Titel nicht gefunden.',tagsUpdated:'Trackdaten aktualisiert.',backupSpaceError:'Nicht genügend Speicherplatz.',backupInvalid:'Ungültige Sicherungsdatei.'},
+    id:{hoursShort:'j',minutesShort:'m',noAvailableTracks:'Tidak ada file yang dapat diputar.',addMusicFirst:'Tambahkan lagu ke pustaka terlebih dahulu.',radioCreated:'Radio pintar dibuat. Jumlah lagu:',randomReady:'Pilihan acak siap.',libraryEmpty:'Pustaka kosong.',smartConditionPrompt:'Pilih aturan playlist pintar:',neverPlayed:'Lagu belum pernah diputar',favoritesOnly:'Lagu favorit',shortTracks:'Lagu di bawah 4 menit',recentAdded:'Ditambahkan dalam 30 hari terakhir',sameArtist:'Artis yang sama dengan lagu saat ini',invalidChoice:'Pilihan tidak valid.',noMatches:'Tidak ada lagu yang cocok.',smartListName:'Nama playlist pintar:',smartListCreated:'Playlist dibuat:',doctorTitle:'Pemindaian pustaka',missingArtist:'Artis kosong',missingAlbum:'Album kosong',missingDuration:'Durasi kosong',scanNoFiles:'Tidak ada file lokal untuk dipindai.',scanRunning:'Memindai sidik jari file…',scanResultNone:'Tidak ditemukan file yang identik.',scanResultTitle:'Hasil SHA-256',trackPickPrompt:'Masukkan nomor atau sebagian judul lagu:',titlePrompt:'Judul lagu:',artistPrompt:'Nama artis:',albumPrompt:'Nama album:',genrePrompt:'Genre musik:',trackNotFound:'Lagu tidak ditemukan.',tagsUpdated:'Metadata lagu diperbarui.',backupSpaceError:'Ruang penyimpanan tidak cukup.',backupInvalid:'File cadangan tidak valid.'},
+    ur:{hoursShort:'گھنٹے',minutesShort:'منٹ',noAvailableTracks:'چلانے کے لیے فائل دستیاب نہیں۔',addMusicFirst:'پہلے لائبریری میں گانے شامل کریں۔',radioCreated:'اسمارٹ ریڈیو بن گیا۔ گانوں کی تعداد:',randomReady:'بے ترتیب انتخاب تیار ہے۔',libraryEmpty:'لائبریری خالی ہے۔',smartConditionPrompt:'اسمارٹ فہرست کی شرط منتخب کریں:',neverPlayed:'کبھی نہ چلائے گئے گانے',favoritesOnly:'پسندیدہ گانے',shortTracks:'چار منٹ سے کم گانے',recentAdded:'گزشتہ 30 دن میں شامل کیے گئے',sameArtist:'موجودہ گانے والا ہی فنکار',invalidChoice:'غلط انتخاب۔',noMatches:'کوئی گانا اس شرط پر پورا نہیں اترتا۔',smartListName:'اسمارٹ فہرست کا نام:',smartListCreated:'فہرست بن گئی:',doctorTitle:'لائبریری کی جانچ',missingArtist:'فنکار غائب',missingAlbum:'البم غائب',missingDuration:'دورانیہ غائب',scanNoFiles:'اسکین کے لیے مقامی فائلیں نہیں۔',scanRunning:'فائل فنگرپرنٹس چیک ہو رہے ہیں…',scanResultNone:'یکساں فائل نہیں ملی۔',scanResultTitle:'SHA-256 نتیجہ',trackPickPrompt:'گانے کا نمبر یا نام کا حصہ لکھیں:',titlePrompt:'گانے کا عنوان:',artistPrompt:'فنکار:',albumPrompt:'البم:',genrePrompt:'موسیقی کی نوع:',trackNotFound:'گانا نہیں ملا۔',tagsUpdated:'گانے کی معلومات اپ ڈیٹ ہوگئیں۔',backupSpaceError:'اسٹوریج میں جگہ کم ہے۔',backupInvalid:'بیک اپ فائل درست نہیں۔'}
+  };
+  return { t(k){ const l=words[lang()]||words.ar; return l[k]||extra[lang()]?.[k]||studioWords[lang()]?.[k]||runtimeWords[lang()]?.[k]||extra.en[k]||studioWords.en[k]||runtimeWords.en[k]||words.en[k]||words.ar[k]||k; } };
+})();
+const lx = (k) => LX.t(k);
+function lxEscape(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function lxModal(html, wide=false){
+  let old=document.getElementById('lahnExtraModal'); if(old) old.remove();
+  const el=document.createElement('div'); el.id='lahnExtraModal'; el.className='lx-overlay';
+  el.innerHTML=`<section class="lx-dialog ${wide?'wide':''}" role="dialog" aria-modal="true">${html}</section>`;
+  document.body.append(el);
+  el.addEventListener('click',e=>{if(e.target===el||e.target.closest('[data-lx-close]'))el.remove();});
+  return el;
+}
+
+// 1) Advanced searchable listening history, built on the existing HIST array.
+function lxOpenHistory(){
+  if(!Array.isArray(HIST)) HIST=[];
+  const modal=lxModal(`<header class="lx-head"><div><h2>${lx('history')}</h2><p>${lx('historyDesc')}</p></div><button class="lx-close" data-lx-close>✕</button></header>
+  <div class="lx-stats" id="lxHistoryStats"></div>
+  <div class="lx-toolbar"><input id="lxHistorySearch" placeholder="${lxEscape(lx('search'))}"><select id="lxHistoryRange"><option value="all">${lx('all')}</option><option value="today">${lx('today')}</option><option value="week">${lx('week')}</option><option value="month">${lx('month')}</option></select><button class="studio-btn" id="lxHistoryClear">${lx('clear')}</button></div>
+  <div class="lx-history-list" id="lxHistoryList"></div>` ,true);
+  const draw=()=>{
+    const range=modal.querySelector('#lxHistoryRange').value, query=modal.querySelector('#lxHistorySearch').value.trim().toLowerCase();
+    const now=Date.now(), cut=range==='today'?new Date().setHours(0,0,0,0):range==='week'?now-7*864e5:range==='month'?now-30*864e5:0;
+    const rows=[...HIST].reverse().filter(x=>x&&x.k&&Number(x.t)>=cut).filter(x=>{const m=DB.lib[x.k]||{};return !query||String(m.title||x.k).toLowerCase().includes(query)||String(m.artist||'').toLowerCase().includes(query);});
+    const unique=new Set(rows.map(x=>x.k)).size;
+    modal.querySelector('#lxHistoryStats').innerHTML=`<div><b>${rows.length}</b><span>${lx('total')}</span></div><div><b>${unique}</b><span>${lx('unique')}</span></div>`;
+    modal.querySelector('#lxHistoryList').innerHTML=rows.length?rows.slice(0,1000).map(x=>{const m=DB.lib[x.k]||{};return `<button class="lx-history-row" data-lx-play="${lxEscape(x.k)}"><span class="lx-history-cover">♫</span><span class="lx-history-name"><b>${lxEscape(m.title||x.k.split('|')[0])}</b><small>${lxEscape(m.artist||'')}</small></span><time>${new Date(x.t).toLocaleString(lang(),{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</time><span class="lx-playmark">▶</span></button>`;}).join(''):`<div class="lx-empty">${lx('noHistory')}</div>`;
+  };
+  modal.querySelector('#lxHistorySearch').addEventListener('input',draw); modal.querySelector('#lxHistoryRange').addEventListener('change',draw);
+  modal.querySelector('#lxHistoryClear').onclick=()=>{if(confirm(lx('clear')+'؟')){HIST=[];try{localStorage.ng_hist='[]';}catch(_){};draw();lxScheduleBackup();}};
+  modal.querySelector('#lxHistoryList').addEventListener('click',e=>{const b=e.target.closest('[data-lx-play]');if(b){playFrom(b.dataset.lxPlay);modal.remove();}});
+  draw();
+}
+
+// 2) Playlist folder management and real M3U shortcuts. Existing M3U parser/exporter is reused.
+if(!DB.playlistFolders||typeof DB.playlistFolders!=='object') DB.playlistFolders={};
+function lxFolderDialog(){
+  const names=Object.keys(DB.lists||{}); if(!names.length) return toast(lx('noPlaylists'));
+  const modal=lxModal(`<header class="lx-head"><div><h2>${lx('playlists')}</h2><p>${lx('playlistsDesc')}</p></div><button class="lx-close" data-lx-close>✕</button></header>
+  <div class="lx-folder-create"><input id="lxNewFolderName" placeholder="${lxEscape(lx('folderName'))}"><button class="studio-btn primary" id="lxCreateFolder">${lx('newFolder')}</button></div>
+  <div class="lx-folder-assign"><label>${lx('playlist')}<select id="lxFolderPlaylist">${names.map(n=>`<option value="${lxEscape(n)}">${lxEscape(n)}</option>`).join('')}</select></label><label>${lx('folder')}<select id="lxFolderTarget"><option value="">${lx('ungrouped')}</option>${Object.keys(DB.playlistFolders).map(n=>`<option value="${lxEscape(n)}">${lxEscape(n)}</option>`).join('')}</select></label><button class="studio-btn primary" id="lxAssignFolder">${lx('assign')}</button></div>
+  <div id="lxFolderList" class="lx-folder-list"></div>
+  <div class="lx-toolbar"><button class="studio-btn" id="lxImportM3U">${lx('importM3U')}</button><button class="studio-btn" id="lxExportM3U">${lx('exportM3U')}</button></div>` ,true);
+  const refresh=()=>{
+    const root=modal.querySelector('#lxFolderList');
+    root.innerHTML=Object.entries(DB.playlistFolders).map(([f,items])=>`<div class="lx-folder-item"><div><b>📁 ${lxEscape(f)}</b><small>${(items||[]).filter(n=>DB.lists[n]).length} ${lx('playlist')}</small></div><button class="studio-btn" data-lx-delete-folder="${lxEscape(f)}">✕</button></div>`).join('')||`<div class="lx-empty">${lx('ungrouped')}</div>`;
+    const sel=modal.querySelector('#lxFolderTarget'), old=sel.value;
+    sel.innerHTML=`<option value="">${lx('ungrouped')}</option>`+Object.keys(DB.playlistFolders).map(n=>`<option value="${lxEscape(n)}">${lxEscape(n)}</option>`).join('');
+    if([...sel.options].some(o=>o.value===old))sel.value=old;
+  };
+  modal.querySelector('#lxCreateFolder').onclick=()=>{const n=modal.querySelector('#lxNewFolderName').value.trim();if(!n)return;if(DB.playlistFolders[n])return toast('المجلد موجود بالفعل');DB.playlistFolders[n]=[];persistSafe();modal.querySelector('#lxNewFolderName').value='';refresh();renderSide();lxScheduleBackup();};
+  modal.querySelector('#lxAssignFolder').onclick=()=>{const p=modal.querySelector('#lxFolderPlaylist').value, f=modal.querySelector('#lxFolderTarget').value;Object.keys(DB.playlistFolders).forEach(n=>DB.playlistFolders[n]=DB.playlistFolders[n].filter(x=>x!==p));if(f)DB.playlistFolders[f].push(p);persistSafe();refresh();renderSide();lxScheduleBackup();toast(lx('assigned'));};
+  modal.querySelector('#lxFolderList').addEventListener('click',e=>{const b=e.target.closest('[data-lx-delete-folder]');if(!b)return;const n=b.dataset.lxDeleteFolder;if(!confirm('حذف المجلد فقط؟ القوائم لن تُحذف.'))return;delete DB.playlistFolders[n];persistSafe();refresh();renderSide();lxScheduleBackup();});
+  modal.querySelector('#lxImportM3U').onclick=()=>{modal.remove();importM3U();};
+  modal.querySelector('#lxExportM3U').onclick=()=>{const p=modal.querySelector('#lxFolderPlaylist').value, old=view;view='pl:'+p;exportM3U();view=old;};
+  refresh();
+}
+function lxArrangeFolders(){
+  const root=document.getElementById('pls'); if(!root)return;
+  const folders=DB.playlistFolders||{}; if(!Object.keys(folders).length)return;
+  const buttons=[...root.querySelectorAll(':scope > button[data-v^="pl:"]')]; if(!buttons.length)return;
+  const byName=new Map(buttons.map(b=>[b.dataset.v.slice(3),b]));
+  root.innerHTML=''; const used=new Set();
+  Object.entries(folders).forEach(([folder,items])=>{
+    const valid=(items||[]).filter(n=>byName.has(n)); if(!valid.length)return;
+    const details=document.createElement('details');details.className='lx-side-folder';details.open=localStorage['ng_folder_open_'+folder]!=='0';
+    const summary=document.createElement('summary');summary.textContent=`📁 ${folder} (${valid.length})`;details.append(summary);
+    valid.forEach(n=>{const b=byName.get(n);if(b){details.append(b);used.add(n);}});
+    details.addEventListener('toggle',()=>{try{localStorage['ng_folder_open_'+folder]=details.open?'1':'0';}catch(_){}});
+    root.append(details);
+  });
+  buttons.forEach(b=>{const n=b.dataset.v.slice(3);if(!used.has(n))root.append(b);});
+}
+const lxOldRenderSide=renderSide;
+renderSide=function(){lxOldRenderSide();lxArrangeFolders();};
+
+// 3) Preserve the original seek-bar waveform exactly as designed.
+// The waveform remains in its original position and is intentionally not
+// rebuilt from decoded audio or recolored according to playback progress.
+// This avoids moving/resizing the visual and keeps the original player feel.
+
+// 4) User-editable shortcuts. Capture phase keeps them from conflicting with legacy handlers.
+const lxShortcutActions=[['playPause','playPause'],['next','next'],['previous','previous'],['forward','forward'],['backward','backward'],['mute','mute'],['favorite','favorite'],['shuffle','shuffle'],['repeat','repeat'],['lyrics','lyrics'],['miniAction','miniAction']];
+const lxDefaultBindings={playPause:'Space',forward:'Right',backward:'Left'};
+let lxShortcuts={};try{lxShortcuts=JSON.parse(localStorage.ng_custom_shortcuts||'{}')||{};}catch(_){lxShortcuts={};}
+let lxRecordingAction=null;
+function lxKeyCombo(e){const parts=[];if(e.ctrlKey)parts.push('Ctrl');if(e.altKey)parts.push('Alt');if(e.shiftKey)parts.push('Shift');if(e.metaKey)parts.push('Meta');let k=e.key;if(k===' ')k='Space';else if(k.length===1)k=k.toUpperCase();else k=k.replace(/^Arrow/,'');if(['Control','Alt','Shift','Meta'].includes(k))return '';parts.push(k);return parts.join('+');}
+function lxKeyLabel(k){return k||lx('none');}
+function lxRunShortcut(action){const a=activeIsRemote?remoteAudio:audio;switch(action){case'playPause':toggle();break;case'next':step(1,false);break;case'previous':step(-1,false);break;case'forward':a.currentTime=Math.min(a.duration||Infinity,a.currentTime+10);break;case'backward':a.currentTime=Math.max(0,a.currentTime-10);break;case'mute':a.muted=!a.muted;audio.muted=a.muted;remoteAudio.muted=a.muted;break;case'favorite':if(curKey())toggleFav(curKey());break;case'shuffle':$('#shuffle').click();break;case'repeat':$('#repeat').click();break;case'lyrics':$('#lyricBtn').click();break;case'miniAction':lxToggleMini();break;}}
+function lxShortcutDialog(){
+  const modal=lxModal(`<header class="lx-head"><div><h2>${lx('keys')}</h2><p>${lx('keysDesc')}</p></div><button class="lx-close" data-lx-close>✕</button></header><div class="lx-shortcut-list" id="lxShortcutList"></div><div class="lx-toolbar"><button class="studio-btn" id="lxShortcutReset">${lx('reset')}</button></div>` ,true);
+  const draw=()=>{modal.querySelector('#lxShortcutList').innerHTML=lxShortcutActions.map(([id,label])=>`<div class="lx-shortcut-row"><span>${lx(label)}</span><button class="studio-btn" data-lx-record="${id}">${lxEscape(lxKeyLabel(lxShortcuts[id]||lxDefaultBindings[id]||''))}</button><button class="studio-btn lx-clear-key" data-lx-clear="${id}" title="Clear">✕</button></div>`).join('');};
+  draw();modal.querySelector('#lxShortcutReset').onclick=()=>{lxShortcuts={};localStorage.removeItem('ng_custom_shortcuts');draw();};
+  modal.querySelector('#lxShortcutList').addEventListener('click',e=>{const b=e.target.closest('[data-lx-record]');if(b){lxRecordingAction=b.dataset.lxRecord;b.textContent=lx('listening');b.classList.add('recording');}const c=e.target.closest('[data-lx-clear]');if(c){delete lxShortcuts[c.dataset.lxClear];localStorage.ng_custom_shortcuts=JSON.stringify(lxShortcuts);draw();}});
+  modal.__drawShortcuts=draw;
+}
+document.addEventListener('keydown',e=>{
+  if(lxRecordingAction){e.preventDefault();e.stopImmediatePropagation();const key=lxKeyCombo(e);if(!key)return;const defaultConflict=Object.entries(lxDefaultBindings).some(([name,defaultKey])=>name!==lxRecordingAction&&defaultKey===key&&!lxShortcuts[name]);const reserved=defaultConflict||(!e.ctrlKey&&!e.altKey&&!e.metaKey&&['Escape','Tab','Enter'].includes(key))||(e.ctrlKey&&['R','W','T','L','N'].includes(key)&&!e.shiftKey);if(reserved){toast(lx('reserved'));lxRecordingAction=null;const m=document.getElementById('lahnExtraModal');m?.querySelector('#lxShortcutList')?.querySelectorAll('[data-lx-record]').forEach(b=>b.textContent=lxKeyLabel(lxShortcuts[b.dataset.lxRecord]||''));return;}Object.keys(lxShortcuts).forEach(k=>{if(lxShortcuts[k]===key)delete lxShortcuts[k];});lxShortcuts[lxRecordingAction]=key;localStorage.ng_custom_shortcuts=JSON.stringify(lxShortcuts);lxRecordingAction=null;const m=document.getElementById('lahnExtraModal');if(m?.__drawShortcuts)m.__drawShortcuts();toast(lx('assigned'));e.preventDefault();return;}
+  if(e.defaultPrevented||e.target.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]'))return;
+  const key=lxKeyCombo(e);if(!key)return;const action=Object.keys(lxShortcuts).find(k=>lxShortcuts[k]===key)||Object.keys(lxDefaultBindings).find(k=>!lxShortcuts[k]&&lxDefaultBindings[k]===key);if(action){e.preventDefault();e.stopImmediatePropagation();lxRunShortcut(action);return;}const replacedDefault=Object.entries(lxDefaultBindings).some(([name,defaultKey])=>defaultKey===key&&lxShortcuts[name]&&lxShortcuts[name]!==defaultKey);if(replacedDefault){e.preventDefault();e.stopImmediatePropagation();}
+},true);
+
+// 5) Automatic rotating IndexedDB backups (8 snapshots). The existing JSON export remains available too.
+let lxAutoDBPromise=null,lxBackupBusy=false,lxLastBackup=0;
+function lxOpenBackupDB(){if(lxAutoDBPromise)return lxAutoDBPromise;lxAutoDBPromise=new Promise((resolve,reject)=>{if(!window.indexedDB)return reject(new Error('IndexedDB unavailable'));const req=indexedDB.open('LahnAutoBackups',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('snapshots'))req.result.createObjectStore('snapshots');};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});return lxAutoDBPromise;}
+function lxSnapshot(){return {app:'Lahn',version:2,savedAt:Date.now(),db:JSON.parse(JSON.stringify(DB)),stats:JSON.parse(JSON.stringify(ST)),history:JSON.parse(JSON.stringify(HIST||[])),queue:(tracks||[]).map(t=>t.path),index:Number.isInteger(cur)?cur:-1,position:{key:curKey(),time:Number(audio.currentTime)||0},prefs:{skin:localStorage.ng_skin||'',display:localStorage.ng_display_mode||'',lang:localStorage.ng_lang||'ar'}};}
+async function lxSaveBackup(force=false){if(lxBackupBusy||(!force&&localStorage.ng_auto_backup==='0'))return false;if(!force&&Date.now()-lxLastBackup<60000)return false;lxBackupBusy=true;try{const snap=lxSnapshot(),db=await lxOpenBackupDB(),stamp=snap.savedAt;await new Promise((resolve,reject)=>{const tx=db.transaction('snapshots','readwrite'),store=tx.objectStore('snapshots');store.put(snap,stamp);const keys=store.getAllKeys();keys.onsuccess=()=>{const sorted=(keys.result||[]).sort((a,b)=>Number(a)-Number(b));sorted.slice(0,Math.max(0,sorted.length-8)).forEach(k=>store.delete(k));};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});lxLastBackup=stamp;localStorage.ng_auto_backup_last=String(stamp);const status=document.getElementById('lxBackupStatus');if(status)status.textContent=lx('backupSaved')+' · '+new Date(stamp).toLocaleString(lang());return true;}catch(e){console.warn('Lahn auto backup failed',e);const status=document.getElementById('lxBackupStatus');if(status)status.textContent=lx('backupFailed');return false;}finally{lxBackupBusy=false;}}
+function lxScheduleBackup(){if(localStorage.ng_auto_backup==='0')return;clearTimeout(window.__lxBackupTimer);window.__lxBackupTimer=setTimeout(()=>lxSaveBackup(false),12000);}
+async function lxListBackups(){const db=await lxOpenBackupDB();return new Promise((resolve,reject)=>{const tx=db.transaction('snapshots','readonly'),req=tx.objectStore('snapshots').getAll();req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>b.savedAt-a.savedAt));req.onerror=()=>reject(req.error);});}
+function lxBackupDialog(){
+  const modal=lxModal(`<header class="lx-head"><div><h2>${lx('backups')}</h2><p>${lx('backupsDesc')}</p></div><button class="lx-close" data-lx-close>✕</button></header>
+  <label class="lx-check"><input type="checkbox" id="lxAutoEnabled" ${localStorage.ng_auto_backup==='0'?'':'checked'}> ${lx('enabled')}</label>
+  <div class="lx-toolbar"><button class="studio-btn primary" id="lxBackupNow">${lx('backupNow')}</button><button class="studio-btn" id="lxBackupDownload">JSON ↓</button><button class="studio-btn" id="lxBackupImport">JSON ↑</button></div>
+  <div id="lxBackupStatus" class="lx-status"></div><div class="lx-backup-list" id="lxBackupList"></div>`);
+  const list=modal.querySelector('#lxBackupList');
+  const refresh=async()=>{try{const items=await lxListBackups();list.innerHTML=items.length?items.map((s,i)=>`<div class="lx-backup-item"><span><b>${new Date(s.savedAt).toLocaleString(lang())}</b><small>${Object.keys(s.db?.lib||{}).length} · ${Object.keys(s.db?.lists||{}).length}</small></span><button class="studio-btn" data-lx-restore="${s.savedAt}">${lx('restore')}</button></div>`).join(''):`<div class="lx-empty">${lx('noBackup')}</div>`;}catch(_){list.innerHTML=`<div class="lx-empty">${lx('backupFailed')}</div>`;}};
+  modal.querySelector('#lxAutoEnabled').onchange=e=>{localStorage.ng_auto_backup=e.target.checked?'1':'0';if(e.target.checked)lxSaveBackup(true);};
+  modal.querySelector('#lxBackupNow').onclick=async()=>{const ok=await lxSaveBackup(true);modal.querySelector('#lxBackupStatus').textContent=ok?lx('backupSaved'):lx('backupFailed');refresh();};
+  modal.querySelector('#lxBackupDownload').onclick=()=>{const blob=new Blob([JSON.stringify(lxSnapshot(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Lahn-Backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);};
+  modal.querySelector('#lxBackupImport').onclick=()=>{const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{const f=input.files&&input.files[0];if(!f)return;try{const data=JSON.parse(await f.text()),dbData=data.db||data.library;if(!dbData||!dbData.lib||!(data.app==='Lahn'||data.version))throw new Error('invalid');if(!confirm(lx('restoreConfirm')))return;localStorage.ng2=JSON.stringify(dbData);if(data.stats)localStorage.ng_stats=JSON.stringify(data.stats);if(data.history)localStorage.ng_hist=JSON.stringify(data.history);if(data.queue)localStorage.q=JSON.stringify(data.queue);if(Number.isInteger(data.index))localStorage.i=String(data.index);if(data.position)localStorage.ng_pos=JSON.stringify({k:data.position.key,p:data.position.time});if(data.prefs){if(data.prefs.skin)localStorage.ng_skin=data.prefs.skin;if(data.prefs.display)localStorage.ng_display_mode=data.prefs.display;if(data.prefs.lang)localStorage.ng_lang=data.prefs.lang;}location.reload();}catch(_){toast('ملف النسخة الاحتياطية غير صالح');}};input.click();};
+  list.addEventListener('click',async e=>{const b=e.target.closest('[data-lx-restore]');if(!b)return;const stamp=Number(b.dataset.lxRestore);const items=await lxListBackups();const snap=items.find(x=>x.savedAt===stamp);if(!snap||!confirm(lx('restoreConfirm')))return;try{localStorage.ng2=JSON.stringify(snap.db);localStorage.ng_stats=JSON.stringify(snap.stats);localStorage.ng_hist=JSON.stringify(snap.history||[]);if(snap.queue)localStorage.q=JSON.stringify(snap.queue);if(Number.isInteger(snap.index))localStorage.i=String(snap.index);if(snap.position)localStorage.ng_pos=JSON.stringify({k:snap.position.key,p:snap.position.time});if(snap.prefs){if(snap.prefs.skin)localStorage.ng_skin=snap.prefs.skin;if(snap.prefs.display)localStorage.ng_display_mode=snap.prefs.display;if(snap.prefs.lang)localStorage.ng_lang=snap.prefs.lang;}location.reload();}catch(err){toast(lx('backupFailed'));}});
+  refresh();lxSaveBackup(false);
+}
+// A low-frequency snapshot catches stats changes, while user actions request a debounced one.
+document.addEventListener('click',()=>lxScheduleBackup(),true);
+setTimeout(()=>lxSaveBackup(false),25000);
+setInterval(()=>lxSaveBackup(false),5*60*1000);
+window.addEventListener('pagehide',()=>{if(localStorage.ng_auto_backup!=='0'&&Date.now()-lxLastBackup>60000)lxSaveBackup(true);});
+
+// 6) A draggable in-app mini player plus the existing true Document Picture-in-Picture window.
+let lxMiniTimer=null;
+function lxMiniUpdate(){const box=document.getElementById('lxMiniPlayer');if(!box)return;const key=curKey(),m=key?(DB.lib[key]||{}):{};box.querySelector('.lx-mini-title').textContent=m.title||$('#title')?.textContent||lx('noAudio');box.querySelector('.lx-mini-artist').textContent=m.artist||$('#artist')?.textContent||'';const art=(key&&DB.covers[key])||document.getElementById('art')?.getAttribute('src')||'';const img=box.querySelector('.lx-mini-art');if(art&&art!=='about:blank'){img.src=art;img.style.visibility='visible';}else{img.removeAttribute('src');img.style.visibility='hidden';}const a=activeIsRemote?remoteAudio:audio;const p=box.querySelector('.lx-mini-progress');p.max=Number.isFinite(a.duration)&&a.duration>0?a.duration:100;p.value=a.currentTime||0;box.querySelector('[data-mini-play]').textContent=a.paused?'▶':'Ⅱ';}
+function lxToggleMini(){let box=document.getElementById('lxMiniPlayer');if(box){box.remove();clearInterval(lxMiniTimer);lxMiniTimer=null;return;}box=document.createElement('section');box.id='lxMiniPlayer';box.className='lx-mini-player';box.innerHTML=`<header class="lx-mini-head"><img class="lx-mini-art" alt=""><span class="lx-mini-meta"><b class="lx-mini-title"></b><small class="lx-mini-artist"></small></span><button data-mini-close title="${lx('close')}">✕</button></header><input class="lx-mini-progress" type="range" min="0" max="100" value="0"><footer><button data-mini-prev>⏮</button><button data-mini-play>▶</button><button data-mini-next>⏭</button><button data-mini-pip title="${lx('pip')}">▣</button></footer>`;document.body.append(box);
+  box.querySelector('[data-mini-close]').onclick=()=>lxToggleMini();box.querySelector('[data-mini-prev]').onclick=()=>$('#prev').click();box.querySelector('[data-mini-next]').onclick=()=>$('#next').click();box.querySelector('[data-mini-play]').onclick=()=>toggle();
+  box.querySelector('[data-mini-pip]').onclick=()=>{if('documentPictureInPicture'in window&&location.protocol!=='file:')$('#pipBtn').click();else toast(lx('pip')+' غير متاحة هنا؛ استخدم النافذة المصغرة.');};
+  const seek=box.querySelector('.lx-mini-progress');seek.addEventListener('input',()=>{const a=activeIsRemote?remoteAudio:audio;if(a.duration)a.currentTime=a.duration*(Number(seek.value)/100);});
+  const head=box.querySelector('.lx-mini-head');let drag=null;head.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;const r=box.getBoundingClientRect();drag={x:e.clientX-r.left,y:e.clientY-r.top};head.setPointerCapture?.(e.pointerId);});head.addEventListener('pointermove',e=>{if(!drag)return;box.style.left=Math.max(0,Math.min(innerWidth-box.offsetWidth,e.clientX-drag.x))+'px';box.style.top=Math.max(0,Math.min(innerHeight-box.offsetHeight,e.clientY-drag.y))+'px';box.style.right='auto';box.style.bottom='auto';});head.addEventListener('pointerup',()=>drag=null);head.addEventListener('pointercancel',()=>drag=null);
+  try{const pos=JSON.parse(localStorage.ng_mini_position||'null');if(pos){box.style.left=pos.left;box.style.top=pos.top;box.style.right='auto';box.style.bottom='auto';}}catch(_){}
+  lxMiniUpdate();lxMiniTimer=setInterval(lxMiniUpdate,450);
+}
+// Save floating position before it is removed.
+const lxOriginalToggleMini=lxToggleMini;
+lxToggleMini=function(){const old=document.getElementById('lxMiniPlayer');if(old){try{localStorage.ng_mini_position=JSON.stringify({left:old.style.left,top:old.style.top});}catch(_){}}lxOriginalToggleMini();};
+
+// Extend the existing Studio dashboard with the six feature cards.
+const lxOriginalStudioRender=renderStudioPage;
+renderStudioPage=function(){lxOriginalStudioRender();const grid=document.querySelector('.studio-page .studio-grid');if(!grid||grid.querySelector('[data-lx-feature]'))return;const cards=[
+  ['history','🕘','history','historyDesc','history'],['playlists','📁','playlists','playlistsDesc','playlists'],['keys','⌨️','keys','keysDesc','keys'],['backups','💾','backups','backupsDesc','backups'],['mini','▣','mini','miniDesc','mini'],['historyCsv','📄','historyCsv','historyCsvDesc','historyCsv'],['favoritesExport','⭐','favoritesExport','favoritesExportDesc','favoritesExport'],['queueSave','📥','queueSave','queueSaveDesc','queueSave'],['playlistReport','📈','playlistReport','playlistReportDesc','playlistReport'],['focus','🧘','focus','focusDesc','focus'],['goal','🎯','goal','goalDesc','goal'],['audit','🧹','audit','auditDesc','audit'],['shuffleList','🔀','shuffleList','shuffleListDesc','shuffleList'],['libraryExport','🗃️','libraryExport','libraryExportDesc','libraryExport']
+];
+  const report=grid.querySelector('#studioReport');cards.forEach(([id,icon,title,desc,action])=>{const card=document.createElement('article');card.className='studio-card';card.dataset.lxFeature=id;card.innerHTML=`<h3>${icon} ${lx(title)}</h3><p>${lx(desc)}</p><div class="studio-actions"><button class="studio-btn primary" data-lx-feature-action="${action}">${lx('open')}</button>${id==='mini'?`<button class="studio-btn" data-lx-feature-action="pip">${lx('pip')}</button>`:''}</div>`;if(report)grid.insertBefore(card,report);else grid.append(card);});
+  const oldMini=grid.querySelector('[data-studio="mini"]');if(oldMini){oldMini.removeAttribute('data-studio');oldMini.setAttribute('data-lx-feature-action','mini');oldMini.textContent=lx('miniOn');}
+};
+
+// 6) Additional practical Studio tools: exports, queue tools, focus and reports.
+function lxDownloadText(name,content,type='text/plain;charset=utf-8'){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1800);
+}
+function lxCsvCell(value){
+  const text=String(value??'');
+  return '"'+text.replace(/"/g,'""')+'"';
+}
+function lxExportHistoryCsv(){
+  const rows=Array.isArray(HIST)?HIST:[];
+  const header=['title','artist','played_at','track_key'];
+  const lines=[header.map(lxCsvCell).join(',')];
+  rows.forEach(row=>{
+    if(!row||!row.k)return;
+    const item=DB.lib[row.k]||{};
+    lines.push([
+      item.title||String(row.k).split('|')[0],
+      item.artist||'',
+      row.t?new Date(row.t).toISOString():'',
+      row.k
+    ].map(lxCsvCell).join(','));
+  });
+  lxDownloadText('Lahn-Listening-History.csv','\ufeff'+lines.join('\r\n'),'text/csv;charset=utf-8');
+  toast(lx('historyExported'));
+}
+function lxExportFavorites(){
+  const keys=(DB.favs||[]).filter(k=>DB.lib[k]);
+  if(!keys.length)return toast(lx('noFavorites'));
+  const lines=['#EXTM3U'];
+  keys.forEach(key=>{
+    const item=DB.lib[key]||{};
+    const duration=Math.max(-1,Math.round(Number(item.duration)||-1));
+    lines.push(`#EXTINF:${duration},${item.artist||''} - ${item.title||key}`);
+    lines.push(item.url||item.path||key);
+  });
+  lxDownloadText('Lahn-Favorites.m3u',lines.join('\n'),'audio/x-mpegurl;charset=utf-8');
+  toast(lx('favoritesExported'));
+}
+function lxSaveCurrentQueue(){
+  const keys=(Array.isArray(tracks)?tracks:[])
+    .map(track=>track&& (track.path||track.key||track.id))
+    .filter(key=>key&&DB.lib[key]);
+  const unique=[...new Set(keys)];
+  if(!unique.length)return toast(lx('queueEmpty'));
+  const suggested=lx('queuePlaylistDefault');
+  const name=prompt(lx('queuePlaylistName'),suggested);
+  if(!name||!name.trim())return;
+  DB.lists[name.trim()]=unique;
+  persistSafe();
+  renderSide();
+  toast(lx('queueSaved'));
+}
+function lxPlaylistReport(){
+  const names=Object.keys(DB.lists||{});
+  if(!names.length)return toast(lx('noPlaylists'));
+  const chosen=prompt(lx('choosePlaylist')+'\n'+names.map((n,i)=>`${i+1}. ${n}`).join('\n'),'1');
+  if(!chosen)return;
+  const name=names.find((n,i)=>String(i+1)===chosen.trim())||names.find(n=>n===chosen.trim());
+  if(!name)return toast(lx('playlistNotFound'));
+  const keys=(DB.lists[name]||[]).filter(k=>DB.lib[k]);
+  const seconds=keys.reduce((sum,k)=>sum+(Number(DB.lib[k].duration)||0),0);
+  const artists=new Set(keys.map(k=>String(DB.lib[k].artist||'').trim()).filter(Boolean));
+  const genres=new Set(keys.map(k=>String(DB.lib[k].genre||'').trim()).filter(Boolean));
+  alert(`${lx('playlist')}: ${name}\n${lx('trackCount')}: ${keys.length}\n${lx('duration')}: ${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}\n${lx('artistCount')}: ${artists.size}\n${lx('genreCount')}: ${genres.size}`);
+}
+function lxToggleFocus(){
+  const enabled=document.body.classList.toggle('lx-focus-mode');
+  try{localStorage.ng_focus_mode=enabled?'1':'0';}catch(_){}
+  toast(enabled?lx('focusEnabled'):lx('focusDisabled'));
+}
+function lxDailyGoal(){
+  const day=new Date().toISOString().slice(0,10);
+  const seconds=Number(ST?.d?.[day])||0;
+  const defaultMinutes=Number(localStorage.ng_daily_goal)||60;
+  const entered=prompt(lx('goalPrompt'),String(defaultMinutes));
+  if(entered===null)return;
+  const goal=Math.max(5,Math.min(1440,Number(entered)||60));
+  localStorage.ng_daily_goal=String(goal);
+  const percent=Math.min(100,Math.round(seconds/(goal*60)*100));
+  alert(`${lx('dailyGoal')}: ${goal} ${lx('minutes')}\n${lx('todayListened')}: ${Math.floor(seconds/60)} ${lx('minutes')}\n${lx('goalProgress')}: ${percent}%`);
+}
+function lxLibraryAudit(){
+  const keys=Object.keys(DB.lib||{});
+  const missingTitle=keys.filter(k=>!String(DB.lib[k].title||'').trim()).length;
+  const missingArtist=keys.filter(k=>!String(DB.lib[k].artist||'').trim()).length;
+  const missingAlbum=keys.filter(k=>!String(DB.lib[k].album||'').trim()).length;
+  const missingGenre=keys.filter(k=>!String(DB.lib[k].genre||'').trim()).length;
+  const unreachable=keys.filter(k=>!files.has(k)&&!DB.lib[k].url).length;
+  alert(`${lx('libraryAudit')}\n\n${lx('title')}: ${missingTitle}\n${lx('artist')}: ${missingArtist}\n${lx('album')}: ${missingAlbum}\n${lx('genre')}: ${missingGenre}\n${lx('unavailable')}: ${unreachable}`);
+}
+function lxShuffleList(){
+  const keys=Object.keys(DB.lists||{});
+  if(!keys.length)return toast(lx('noPlaylists'));
+  const pick=prompt(lx('choosePlaylist')+'\n'+keys.map((n,i)=>`${i+1}. ${n}`).join('\n'),'1');
+  if(!pick)return;
+  const name=keys.find((n,i)=>String(i+1)===pick.trim())||keys.find(n=>n===pick.trim());
+  if(!name)return toast(lx('playlistNotFound'));
+  const list=[...(DB.lists[name]||[])];
+  for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
+  DB.lists[name]=list;
+  persistSafe();
+  toast(lx('playlistShuffled'));
+}
+function lxExportLibraryJson(){
+  const data={app:'Lahn',version:2,exportedAt:new Date().toISOString(),library:DB,stats:ST,history:HIST||[]};
+  lxDownloadText('Lahn-Library-Export.json',JSON.stringify(data,null,2),'application/json');
+  toast(lx('libraryExported'));
+}
+
+// Bind all new Studio actions once; existing Studio tools remain untouched.
+const lxStudioRoot=document.getElementById('list');
+if(lxStudioRoot&&!lxStudioRoot.dataset.lxFeaturesBound){lxStudioRoot.dataset.lxFeaturesBound='1';lxStudioRoot.addEventListener('click',e=>{const b=e.target.closest('[data-lx-feature-action]');if(!b)return;const action=b.dataset.lxFeatureAction;if(action==='history')lxOpenHistory();else if(action==='playlists')lxFolderDialog();else if(action==='keys')lxShortcutDialog();else if(action==='backups')lxBackupDialog();else if(action==='mini')lxToggleMini();else if(action==='pip'){if('documentPictureInPicture'in window&&location.protocol!=='file:')$('#pipBtn').click();else lxToggleMini();}else if(action==='historyCsv')lxExportHistoryCsv();else if(action==='favoritesExport')lxExportFavorites();else if(action==='queueSave')lxSaveCurrentQueue();else if(action==='playlistReport')lxPlaylistReport();else if(action==='focus')lxToggleFocus();else if(action==='goal')lxDailyGoal();else if(action==='audit')lxLibraryAudit();else if(action==='shuffleList')lxShuffleList();else if(action==='libraryExport')lxExportLibraryJson();});}
+
+
 const baseRender=window.render;
 if(typeof baseRender==='function'){window.render=function(){baseRender();if(view==='studio')renderStudioPage();};}
 const side=$('.side');if(side&&!side.dataset.studioBound){side.dataset.studioBound='1';side.addEventListener('click',e=>{const b=e.target.closest('[data-v="studio"]');if(b){view='studio';render();}});}
 const L=$('#list');if(L&&!L.dataset.studioBound){L.dataset.studioBound='1';L.addEventListener('click',e=>{const b=e.target.closest('[data-studio]');if(!b)return;const act=b.dataset.studio;if(act==='radio')smartRadio();else if(act==='discover')discover();else if(act==='smartlist')makeSmartList();else if(act==='tags')editTags();else if(act==='doctor')doctor();else if(act==='duplicates')deepDuplicates();else if(act==='mini'){document.body.classList.toggle('studio-mini-player');toastSafe(document.body.classList.contains('studio-mini-player')?'تم تفعيل المشغل المصغر':'تم إيقاف المشغل المصغر');}else if(act==='normalize'){localStorage.ng_norm=localStorage.ng_norm==='1'?'0':'1';b.textContent=localStorage.ng_norm==='1'?'إيقاف تطبيع الصوت':'تفعيل تطبيع الصوت';toastSafe('تم تحديث إعداد تطبيع الصوت');}else if(act==='backup')exportStats();else if(act==='restore')importBackup();else if(act==='stats'){$('#studioReport').innerHTML=statsHTML();}});}
+try{if(localStorage.ng_focus_mode==='1')document.body.classList.add('lx-focus-mode');}catch(_){}
 })();
 </script>
 
