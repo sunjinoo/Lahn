@@ -20310,12 +20310,21 @@ try{if(localStorage.ng_focus_mode==='1')document.body.classList.add('lx-focus-mo
   height: 7px;
   transform: translateY(-50%);
   border-radius: 999px;
-  background: linear-gradient(90deg,
+  /* Default LTR: filled portion grows from the left. */
+  background: linear-gradient(to right,
     var(--tint) 0%,
     var(--tint) var(--lahn-range-fill, 0%),
     rgba(150,150,150,.34) var(--lahn-range-fill, 0%),
     rgba(150,150,150,.34) 100%);
   pointer-events: none;
+}
+/* RTL languages: the same value fills from the right edge. */
+html[dir="rtl"] .lahn-settings-range__track {
+  background: linear-gradient(to left,
+    var(--tint) 0%,
+    var(--tint) var(--lahn-range-fill, 0%),
+    rgba(150,150,150,.34) var(--lahn-range-fill, 0%),
+    rgba(150,150,150,.34) 100%);
 }
 .lahn-settings-range__input {
   position: absolute !important;
