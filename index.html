@@ -14866,7 +14866,7 @@ function renderSettingsPage() {
       <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <label class="field-lbl">كود المزامنة:</label>
+          <label class="field-lbl">كود المزامنة (الكود الكامل يظهر بعد أول رفع):</label>
           <div style="display:flex; gap:8px;">
             <input type="text" id="syncKeyInput" style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(var(--w),.05); color:var(--text); text-align:center; font-weight:bold; letter-spacing:1px;" value="${localStorage.ng_sync_key || ''}" placeholder="لا يوجد كود بعد">
             <!-- ✨ الزر الجديد هنا -->
@@ -15277,108 +15277,280 @@ if (toggleWatchBtn) {
 }
 
 
-  // --- المزامنة السحابية ---
+  // --- مزامنة Lahn السحابية (BrewPage JSON API) ---
   const syncKeyInput = document.getElementById('syncKeyInput');
-
-  // --- زر توليد كود المزامنة ---
+  const cloudUploadBtn = document.getElementById('cloudUploadBtn');
+  const cloudDownloadBtn = document.getElementById('cloudDownloadBtn');
   const generateSyncBtn = document.getElementById('generateSyncBtn');
-  if (generateSyncBtn) {
-    generateSyncBtn.onclick = () => {
-      const newKey = crypto.randomUUID().replace(/-/g, '').substring(0, 12);
-      localStorage.ng_sync_key = newKey;
-      if (syncKeyInput) syncKeyInput.value = newKey;
-      toast('تم توليد كود مزامنة جديد: ' + newKey);
-    };
-  }
-  
-   // رفع للسحابة باستخدام jsonblob
-  // دالة توليد كود فريد للمزامنة
-  const generateSyncCode = () => {
-    return 'lahn_' + Math.random().toString(36).substring(2, 9) + Math.random().toString(36).substring(2, 9);
+  const LAHN_CLOUD_API = 'https://brewpage.app/api';
+  const LAHN_CLOUD_MAX_BYTES = 950000; // هامش أمان تحت حد BrewPage البالغ 1 MB لكل مستند JSON.
+
+  const lahnCloudRandom = (length = 14) => {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = new Uint8Array(length);
+    if (window.crypto?.getRandomValues) crypto.getRandomValues(bytes);
+    else for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    return Array.from(bytes, value => alphabet[value % alphabet.length]).join('');
   };
 
-  // رفع للسحابة باستخدام BrewPage API
-  document.getElementById('cloudUploadBtn')?.addEventListener('click', async () => {
-    let key = syncKeyInput.value.trim();
-    const btn = document.getElementById('cloudUploadBtn');
-    btn.textContent = '⏳ جاري الرفع...';
-    
-    // لو مفيش كود، هنولد كود جديد
-    if (!key) {
-      key = 'lahn_' + Math.random().toString(36).substring(2, 9) + Math.random().toString(36).substring(2, 9);
-      localStorage.ng_sync_key = key;
-      syncKeyInput.value = key;
+  // BrewPage يقبل namespace من a-z و0-9 والشرطة فقط، ولا يقبل الشرطة السفلية.
+  const lahnCloudNormalizeNamespace = raw => {
+    let value = String(raw || '').trim().toLowerCase();
+    value = value.replace(/[_.\s]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32);
+    if (!value) value = 'lahn-' + lahnCloudRandom(14);
+    return value;
+  };
+
+  const lahnCloudNewNamespace = () => 'lahn-' + lahnCloudRandom(16);
+  const lahnCloudShareCode = (namespace, documentId) => `${namespace}.${documentId}`;
+
+  const lahnCloudParseShareCode = value => {
+    const code = String(value || '').trim();
+    const match = code.match(/^([a-z0-9-]{1,32})\.([a-zA-Z0-9]{10})$/);
+    return match ? { namespace: match[1], id: match[2] } : null;
+  };
+
+  const lahnCloudBytesToBase64 = bytes => {
+    let binary = '';
+    const step = 0x8000;
+    for (let i = 0; i < bytes.length; i += step) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + step));
     }
-    
+    return btoa(binary);
+  };
+
+  const lahnCloudBase64ToBytes = encoded => {
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  };
+
+  // نضغط نسخة البيانات لتفادي حد المستند السحابي، مع دعم JSON القديم عند التنزيل.
+  const lahnCloudPreparePayload = async data => {
+    const source = JSON.stringify(data);
+    let payloadObject = data;
+    if ('CompressionStream' in window) {
+      try {
+        const compressedStream = new Blob([source]).stream().pipeThrough(new CompressionStream('gzip'));
+        const compressedBytes = new Uint8Array(await new Response(compressedStream).arrayBuffer());
+        const encoded = lahnCloudBytesToBase64(compressedBytes);
+        const compressedEnvelope = {
+          __lahnCloudFormat: 'gzip-base64-v1',
+          payload: encoded,
+          originalBytes: new TextEncoder().encode(source).byteLength
+        };
+        if (JSON.stringify(compressedEnvelope).length < source.length) payloadObject = compressedEnvelope;
+      } catch (compressionError) {
+        console.warn('Lahn cloud compression fallback:', compressionError);
+      }
+    }
+    const body = JSON.stringify(payloadObject);
+    const byteLength = new TextEncoder().encode(body).byteLength;
+    if (byteLength > LAHN_CLOUD_MAX_BYTES) {
+      throw new Error(`حجم النسخة بعد الضغط ${(byteLength / 1024).toFixed(0)} KB، والحد الآمن 928 KB. قلّل سجل الاستماع أو الكلمات المحفوظة ثم حاول مجددًا.`);
+    }
+    return body;
+  };
+
+  const lahnCloudDecodePayload = async raw => {
+    if (raw && raw.__lahnCloudFormat === 'gzip-base64-v1') {
+      if (!('DecompressionStream' in window)) {
+        throw new Error('المتصفح لا يدعم فك ضغط النسخة السحابية. افتحها بآخر إصدار من Chrome أو Edge.');
+      }
+      const bytes = lahnCloudBase64ToBytes(raw.payload || '');
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      const decodedText = await new Response(stream).text();
+      return JSON.parse(decodedText);
+    }
+    // صيغة قديمة كانت تُرفع مباشرة ككائن {db, stats, hist}.
+    return raw && raw.__lahnCloudFormat === 'json-v1' ? raw.data : raw;
+  };
+
+  const lahnCloudReadError = async response => {
+    const rawText = await response.text().catch(() => '');
+    let detail = rawText;
     try {
-      // بناخد نسخة من الداتا ونشيل الصور الثقيلة عشان الملف يصغر
+      const parsed = JSON.parse(rawText);
+      detail = parsed.message || parsed.error || parsed.code || parsed.detail || rawText;
+    } catch (_) {}
+    const cleanDetail = String(detail || '').replace(/[<>]/g, '').slice(0, 220).trim();
+    if (response.status === 400) {
+      return `طلب غير صالح (400)${cleanDetail ? ': ' + cleanDetail : ''}. راجع كود المزامنة وحجم النسخة.`;
+    }
+    if (response.status === 401 || response.status === 403) return 'السيرفر رفض صلاحية تحديث النسخة. أنشئ كود مزامنة جديدًا من هذا الجهاز.';
+    if (response.status === 404) return 'النسخة غير موجودة أو انتهت صلاحيتها. تأكد من كود المزامنة.';
+    if (response.status === 413) return 'النسخة أكبر من الحد المسموح به في خدمة التخزين.';
+    if (response.status === 429) return 'تم تجاوز عدد الطلبات المسموح. انتظر قليلًا ثم حاول مرة أخرى.';
+    if (response.status >= 500) return 'خدمة التخزين تواجه مشكلة مؤقتة. حاول لاحقًا.';
+    return `فشل الطلب (${response.status})${cleanDetail ? ': ' + cleanDetail : ''}`;
+  };
+
+  const lahnCloudFetchJSON = async (url, options = {}) => {
+    const response = await fetch(url, {
+      ...options,
+      headers: { Accept: 'application/json', ...(options.headers || {}) }
+    });
+    if (!response.ok) throw new Error(await lahnCloudReadError(response));
+    const text = await response.text();
+    try { return text ? JSON.parse(text) : {}; }
+    catch (_) { throw new Error('السيرفر أرسل استجابة غير مفهومة.'); }
+  };
+
+  const generateSyncCode = () => {
+    const newKey = lahnCloudNewNamespace();
+    if (syncKeyInput) syncKeyInput.value = newKey;
+    localStorage.ng_sync_key = newKey;
+    toast('تم إنشاء كود مبدئي. بعد أول رفع سيظهر الكود الكامل للمشاركة.');
+    return newKey;
+  };
+
+  if (generateSyncBtn) {
+    generateSyncBtn.onclick = generateSyncCode;
+  }
+
+  if (cloudUploadBtn) cloudUploadBtn.addEventListener('click', async () => {
+    if (!syncKeyInput) return toast('حقل كود المزامنة غير موجود.');
+    const originalText = cloudUploadBtn.textContent;
+    cloudUploadBtn.disabled = true;
+    cloudUploadBtn.textContent = '⏳ جاري تجهيز النسخة...';
+
+    try {
+      let typedCode = syncKeyInput.value.trim();
+      if (!typedCode) typedCode = lahnCloudNewNamespace();
+
+      const pastedShareCode = lahnCloudParseShareCode(typedCode);
+      const savedNamespace = String(localStorage.getItem('ng_sync_ns') || '');
+      const savedDocumentId = String(localStorage.getItem('ng_sync_doc_id') || '');
+      const savedOwnerToken = String(localStorage.getItem('ng_sync_owner_token') || '');
+      let namespace = pastedShareCode ? pastedShareCode.namespace : lahnCloudNormalizeNamespace(typedCode);
+      let documentId = pastedShareCode?.id || '';
+      let ownerToken = '';
+      let canUpdateExisting = false;
+
+      if (savedNamespace && savedDocumentId && savedOwnerToken && savedNamespace === namespace && savedDocumentId === documentId) {
+        ownerToken = savedOwnerToken;
+        canUpdateExisting = true;
+      } else if (!pastedShareCode && savedNamespace && savedDocumentId && savedOwnerToken && savedNamespace === namespace) {
+        documentId = savedDocumentId;
+        ownerToken = savedOwnerToken;
+        canUpdateExisting = true;
+      }
+
+      // كود المشاركة وحده مخصص للقراءة على جهاز آخر؛ لا يحتوي على صلاحية المالك.
+      // عند الرفع من جهاز آخر ننشئ مستندًا جديدًا وكودًا جديدًا بدل محاولة PUT بصلاحية مفقودة.
+      if (pastedShareCode && !canUpdateExisting) {
+        namespace = lahnCloudNewNamespace();
+        documentId = '';
+      }
+
+      cloudUploadBtn.textContent = '⏳ جاري تجهيز بياناتك...';
       const dbClone = JSON.parse(JSON.stringify(DB));
-      dbClone.covers = {}; 
+      dbClone.covers = {};
       dbClone.artistCovers = {};
       dbClone.albumCovers = {};
-      
-      const dataToSync = { db: dbClone, stats: ST, hist: HIST, updatedAt: new Date().toISOString() };
-      
-      // بنستخدم BrewPage API
-      const url = `https://brewpage.app/api/json?ns=${key}`;
-      
-      const res = await fetch(url, {
-        method: 'POST', // BrewPage بيستخدم POST عشان ينشئ أو يحدث
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSync)
-      });
-      
-      if (res.ok) {
-        const result = await res.json();
-        // BrewPage بيرجع لينك، بس إحنا محتاجين نتأكد إنه اترفع
-        toast('تم الرفع! كود المزامنة بتاعك: ' + key);
-        console.log('BrewPage Response:', result);
+      dbClone.listCovers = {};
+      const dataToSync = {
+        app: 'Lahn Music Player',
+        schemaVersion: 2,
+        db: dbClone,
+        stats: ST,
+        hist: HIST,
+        updatedAt: new Date().toISOString()
+      };
+      const requestBody = await lahnCloudPreparePayload(dataToSync);
+      cloudUploadBtn.textContent = '⏳ جاري الرفع...';
+
+      let result;
+      if (canUpdateExisting && documentId && ownerToken) {
+        result = await lahnCloudFetchJSON(`${LAHN_CLOUD_API}/json/${encodeURIComponent(namespace)}/${encodeURIComponent(documentId)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Owner-Token': ownerToken },
+          body: requestBody
+        });
       } else {
-        const errText = await res.text();
-        console.error('BrewPage Error:', res.status, errText);
-        throw new Error('السيرفر رفض الطلب (كود: ' + res.status + ')');
+        result = await lahnCloudFetchJSON(`${LAHN_CLOUD_API}/json?ns=${encodeURIComponent(namespace)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: requestBody
+        });
+        documentId = String(result.id || '');
+        ownerToken = String(result.ownerToken || '');
+        if (!documentId) throw new Error('السيرفر استلم الطلب لكنه لم يُرجع معرّف النسخة.');
       }
-    } catch (e) { 
-      console.error('Upload Error:', e);
-      toast('فشل الرفع: ' + e.message); 
+
+      if (!ownerToken) ownerToken = savedOwnerToken;
+      if (ownerToken) localStorage.setItem('ng_sync_owner_token', ownerToken);
+      localStorage.setItem('ng_sync_ns', namespace);
+      localStorage.setItem('ng_sync_doc_id', documentId);
+      const shareCode = lahnCloudShareCode(namespace, documentId);
+      localStorage.setItem('ng_sync_key', shareCode);
+      syncKeyInput.value = shareCode;
+      toast((canUpdateExisting ? 'تم تحديث النسخة السحابية! ' : 'تم رفع النسخة بنجاح! ') + 'كود المزامنة: ' + shareCode);
+      console.log('Lahn cloud upload completed:', { namespace, documentId, bytes: new TextEncoder().encode(requestBody).byteLength, updated: canUpdateExisting });
+    } catch (error) {
+      console.error('Lahn cloud upload error:', error);
+      toast('فشل الرفع: ' + (error?.message || 'خطأ غير معروف'));
+    } finally {
+      cloudUploadBtn.disabled = false;
+      cloudUploadBtn.textContent = originalText || 'رفع للسحابة ☁️';
     }
-    btn.textContent = 'رفع للسحابة ☁️';
   });
 
-  // تنزيل من السحابة
-  document.getElementById('cloudDownloadBtn')?.addEventListener('click', async () => {
-    const key = syncKeyInput.value.trim();
-    if (!key) return toast('اكتب كود المزامنة الأول');
-    const btn = document.getElementById('cloudDownloadBtn');
-    btn.textContent = '⏳ جاري التنزيل...';
-    
+  if (cloudDownloadBtn) cloudDownloadBtn.addEventListener('click', async () => {
+    if (!syncKeyInput) return toast('حقل كود المزامنة غير موجود.');
+    let typedCode = syncKeyInput.value.trim();
+    if (!typedCode) return toast('اكتب كود المزامنة الأول');
+    const originalText = cloudDownloadBtn.textContent;
+    cloudDownloadBtn.disabled = true;
+    cloudDownloadBtn.textContent = '⏳ جاري التنزيل...';
+
     try {
-      // BrewPage بيستخدم نفس اللينك للقراءة
-      const res = await fetch(`https://brewpage.app/api/json?ns=${key}`);
-      
-      if (res.ok) {
-        const data = await res.json();
-        if (data.db) {
-          // بنحافظ على الصور اللي عندك في الجهاز
-          data.db.covers = { ...DB.covers, ...(data.db.covers || {}) };
-          data.db.artistCovers = { ...DB.artistCovers, ...(data.db.artistCovers || {}) };
-          data.db.albumCovers = { ...DB.albumCovers, ...(data.db.albumCovers || {}) };
-          localStorage.ng2 = JSON.stringify(data.db); 
+      let share = lahnCloudParseShareCode(typedCode);
+      if (!share) {
+        const legacyNamespace = lahnCloudNormalizeNamespace(typedCode);
+        const savedNamespace = String(localStorage.getItem('ng_sync_ns') || '');
+        const savedDocumentId = String(localStorage.getItem('ng_sync_doc_id') || '');
+        const savedOwnerToken = String(localStorage.getItem('ng_sync_owner_token') || '');
+        if (savedNamespace === legacyNamespace && savedDocumentId) {
+          share = { namespace: savedNamespace, id: savedDocumentId };
+        } else if (savedOwnerToken) {
+          // توافق مع كود قديم على نفس الجهاز: اطلب قائمة مستندات المالك ثم افتح أحدث مستند في نفس namespace.
+          const owned = await lahnCloudFetchJSON(`${LAHN_CLOUD_API}/json?ns=${encodeURIComponent(legacyNamespace)}`, {
+            headers: { 'X-Owner-Token': savedOwnerToken }
+          });
+          const match = Array.isArray(owned) ? owned.find(item => item?.id) : null;
+          if (match) share = { namespace: legacyNamespace, id: String(match.id) };
         }
-        if (data.stats) { localStorage.ng_stats = JSON.stringify(data.stats); }
-        if (data.hist) { localStorage.ng_hist = JSON.stringify(data.hist); }
-        
-        localStorage.ng_sync_key = key;
-        toast('تم التنزيل! جاري إعادة التحميل...');
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        toast('مفيش بيانات بالكود ده، أو الكود غلط');
       }
-    } catch (e) { 
-      console.error('Download Error:', e);
-      toast('فشل التنزيل: ' + e.message); 
+      if (!share) throw new Error('الكود ده قديم أو ناقص. استخدم الكود الكامل الذي يظهر بعد نجاح الرفع، ويكون بالشكل: namespace.id');
+
+      const rawData = await lahnCloudFetchJSON(`${LAHN_CLOUD_API}/json/${encodeURIComponent(share.namespace)}/${encodeURIComponent(share.id)}`);
+      const data = await lahnCloudDecodePayload(rawData);
+      if (!data || typeof data !== 'object' || !data.db || typeof data.db !== 'object') {
+        throw new Error('المستند السحابي لا يحتوي على نسخة Lahn صالحة.');
+      }
+
+      const restoredDB = data.db;
+      restoredDB.covers = { ...(DB.covers || {}), ...(restoredDB.covers || {}) };
+      restoredDB.artistCovers = { ...(DB.artistCovers || {}), ...(restoredDB.artistCovers || {}) };
+      restoredDB.albumCovers = { ...(DB.albumCovers || {}), ...(restoredDB.albumCovers || {}) };
+      restoredDB.listCovers = { ...(DB.listCovers || {}), ...(restoredDB.listCovers || {}) };
+      localStorage.setItem('ng2', JSON.stringify(restoredDB));
+      if (data.stats && typeof data.stats === 'object') localStorage.setItem('ng_stats', JSON.stringify(data.stats));
+      if (Array.isArray(data.hist)) localStorage.setItem('ng_hist', JSON.stringify(data.hist));
+
+      localStorage.setItem('ng_sync_key', lahnCloudShareCode(share.namespace, share.id));
+      syncKeyInput.value = lahnCloudShareCode(share.namespace, share.id);
+      toast('تم تنزيل البيانات بنجاح! سيتم إعادة تشغيل Lahn...');
+      setTimeout(() => location.reload(), 1200);
+    } catch (error) {
+      console.error('Lahn cloud download error:', error);
+      toast('فشل التنزيل: ' + (error?.message || 'خطأ غير معروف'));
+    } finally {
+      cloudDownloadBtn.disabled = false;
+      cloudDownloadBtn.textContent = originalText || 'تنزيل من السحابة ⬇️';
     }
-    btn.textContent = 'تنزيل من السحابة ⬇️';
   });
 }
 // دالة التحديث
