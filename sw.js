@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lahn-v40';
+const CACHE_NAME = 'lahn-v41';
 const ASSETS = [
   './',
   './index.html',
