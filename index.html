@@ -10328,6 +10328,12 @@ body.display-apple.apple-night .top .search-wrap #q:focus {
 }
 
 </style>
+
+<style id="lahn-studio-pro-css">
+.studio-page{display:grid;gap:18px;padding:4px 0 36px}.studio-intro{padding:22px;border-radius:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--tint) 28%,var(--panel)),var(--panel));border:1px solid var(--line)}.studio-intro h2{margin:0 0 7px;font-size:clamp(22px,4vw,32px)}.studio-intro p{margin:0;color:var(--mute);line-height:1.7}.studio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:12px}.studio-card{min-width:0;padding:17px;border-radius:18px;border:1px solid var(--line);background:var(--panel);box-shadow:0 8px 24px #0000000a}.studio-card h3{margin:0 0 7px;font-size:16px}.studio-card p{margin:0 0 13px;color:var(--mute);font-size:13px;line-height:1.6}.studio-card .studio-actions{display:flex;flex-wrap:wrap;gap:8px}.studio-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--tint) 10%,var(--panel));color:var(--text);border-radius:11px;padding:9px 12px;cursor:pointer;font:inherit;font-size:13px}.studio-btn.primary{background:var(--tint);color:white;border-color:transparent}.studio-btn:focus-visible{outline:2px solid var(--tint);outline-offset:2px}.studio-stat{font-size:27px;font-weight:800;color:var(--text);margin:8px 0}.studio-muted{color:var(--mute);font-size:12px}.studio-track-list{display:grid;gap:7px;margin-top:10px}.studio-track{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:10px;background:color-mix(in srgb,var(--tint) 7%,var(--panel));min-width:0}.studio-track span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.studio-bar{height:8px;border-radius:20px;background:var(--line);overflow:hidden}.studio-bar i{display:block;height:100%;background:var(--tint);border-radius:20px}.studio-wide{grid-column:1/-1}.studio-select,.studio-input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;margin:5px 0 10px}.studio-mini-player body{overflow:hidden}.studio-mini-player .bar{position:fixed!important;z-index:9999!important;left:14px!important;right:14px!important;bottom:14px!important;max-width:900px!important;margin:auto!important;border-radius:18px!important;box-shadow:0 15px 60px #0008!important}.studio-mini-player .app{padding-bottom:120px!important}
+@media(max-width:600px){.studio-intro{padding:16px}.studio-card{padding:14px}.studio-grid{grid-template-columns:1fr}.studio-page{gap:12px}}
+</style>
+
 </head>
 <body>
 
@@ -10384,6 +10390,10 @@ body.display-apple.apple-night .top .search-wrap #q:focus {
   <button class="nv" data-v="fav">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
     <span>المفضلة</span>
+  </button>
+  <button class="nv" data-v="studio">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7"/><circle cx="19" cy="6" r="2"/></svg>
+    <span>استوديو لحن</span>
   </button>
   <button class="nv" data-v="hist">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -10893,7 +10903,7 @@ if (!DB.listCovers) DB.listCovers = {};
 const api = {
   async meta(k) {
     const f = files.get(k), tg = await readTags(k), url = URL.createObjectURL(f);
-    return { path: k, url, title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, duration: await dur(url) };
+    return { path: k, url, title: tg.title || f.name.replace(/\.[^.]+$/, ''), artist: tg.artist, album: tg.album, genre: tg.genre || '', year: tg.year || '', duration: await dur(url) };
   },
   cover: (k) => {
     if (DB.covers && DB.covers[k]) return Promise.resolve(DB.covers[k]);
@@ -12814,7 +12824,7 @@ function renderSide() {
 
  const vt = $('#vt');
 if (vt) {
-  const titles = { queue: 'قايمة التشغيل', lib: 'أغانيك', fav: 'المفضلة', recent: 'أضيف حديثاً', mostplayed: 'الأكثر استماعاً', settings: 'الإعدادات' };
+  const titles = { queue: 'قايمة التشغيل', lib: 'أغانيك', fav: 'المفضلة', recent: 'أضيف حديثاً', mostplayed: 'الأكثر استماعاً', settings: 'الإعدادات', studio: 'استوديو لحن' };
   vt.textContent = titles[view] || view.slice(3);
 }
   if (window.__v8) {
@@ -14502,8 +14512,16 @@ document.addEventListener('contextmenu', (e) => {
   if (c('#next,#prev')) return showMenu(x, y, [[svgIcons.next + ' التالي', () => $('#next').click()], [svgIcons.arrowRight + ' السابق', () => $('#prev').click()], [svgIcons.play + ' من الأول', () => { getActiveAudio().currentTime = 0; }]]);
   if (c('#shuffle')) return showMenu(x, y, [[svgIcons.share + ' عشوائي (تشغيل/إيقاف)', () => $('#shuffle').click()]]);
   if ((el = c('button[id]')) && ['repeat', 'spd', 'slp', 'eqb', 'skn', 'lang', 'vm', 'qb', 'np', 'addf', 'addd', 'lyricBtn', 'viewMode'].includes(el.id)) return el.click();
+  if (c('.bar')) return showMenu(x, y, [
+    [svgIcons.zap + ' سرعة التشغيل', () => showMenu(x, y,
+      [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3].map((v) => [v + '×', () => setSpeed(v)])
+    )],
+    [svgIcons.zap + ' مؤقت النوم', () => { const timer = $('#slw'); if (timer) timer.hidden = false; }],
+    [svgIcons.sliders + ' المؤثرات الصوتية', () => { const effects = $('#audioFxBtn'); if (effects) effects.click(); }],
+    ['⌨️ اختصارات الكيبورد', () => { const modal = $('#shortcutsModal'); if (modal) modal.hidden = false; }]
+  ]);
   if (c('.hero,#vt,.top,#list,main,.sub')) return showMenu(x, y, [[svgIcons.plus + ' إضافة ملفات', () => $('#addf').click()], [svgIcons.folder + ' إضافة مجلد', () => $('#addd').click()], [svgIcons.checkSquare + ' تحديد الكل', () => { visKeys().forEach((k) => SEL.add(k)); paintSel(); }], [svgIcons.plus + ' المزيد…', () => $('#vm').click()]]);
-  showMenu(x, y, [[svgIcons.palette + ' الشكل', () => $('#skn').click()], [svgIcons.globe + ' اللغة', () => $('#lang').click()], [svgIcons.sliders + ' المعادل', () => $('#eqb').click()], [svgIcons.zap + ' مؤقت النوم', () => $('#slp').click()], [svgIcons.zap + ' السرعة', () => $('#spd').click()]]);
+  showMenu(x, y, [[svgIcons.sliders + ' المعادل', () => $('#eqb').click()], [svgIcons.zap + ' مؤقت النوم', () => $('#slp').click()], [svgIcons.zap + ' السرعة', () => $('#spd').click()], ['⌨️ اختصارات الكيبورد', () => { const modal = $('#shortcutsModal'); if (modal) modal.hidden = false; }]]);
 });
 
 let isOldSkin = localStorage.ng_old_skin === '1';
@@ -19300,6 +19318,39 @@ body.display-apple[data-display-tone="dark"] .app main > #list :is(input,textare
 }
 
 </style>
+
+
+<script id="lahn-studio-pro-module">
+(()=>{
+'use strict';
+const $=(q,r=document)=>r.querySelector(q);
+const escHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const allKeys=()=>Object.keys(DB.lib||{});
+const meta=k=>DB.lib[k]||{};
+const titleOf=k=>meta(k).title||String(k).split('|')[0];
+const artistOf=k=>meta(k).artist||'فنان غير معروف';
+const toastSafe=m=>{if(typeof toast==='function')toast(m);else console.info(m)};
+const fmtMin=n=>{n=Math.max(0,Math.round(n||0));return Math.floor(n/60)+' س '+(n%60)+' د'};
+const persistSafe=()=>{try{persist();localStorage.setItem('ng_stats',JSON.stringify(ST));}catch(e){toastSafe('تعذر حفظ البيانات: مساحة التخزين ممتلئة');}};
+let studioLastRadio=[];
+function playKeys(keys){const valid=keys.filter(k=>files.has(k)||(meta(k)&&meta(k).url));if(!valid.length)return toastSafe('لا توجد ملفات متاحة للتشغيل في هذه المجموعة');startQueue(valid,valid[0]);}
+function smartRadio(){const keys=allKeys();if(!keys.length)return toastSafe('أضف أغاني إلى مكتبتك أولاً');const current=curKey();const cm=meta(current)||{};const norm=v=>String(v||'').toLowerCase().trim();let scored=keys.filter(k=>k!==current).map(k=>{const m=meta(k);let score=Math.random()*2;if(cm.artist&&norm(m.artist)===norm(cm.artist))score+=5;if(cm.album&&norm(m.album)===norm(cm.album))score+=2;if(cm.genre&&norm(m.genre)===norm(cm.genre))score+=5;if(cm.genre&&norm(m.genre)!==norm(cm.genre))score-=1;if(cm.year&&m.year&&Math.abs(Number(cm.year)-Number(m.year))<=2)score+=1;if(cm.duration&&m.duration&&Math.abs(m.duration-cm.duration)<45)score+=1;return {k,score};}).sort((a,b)=>b.score-a.score);let chosen=scored.slice(0,Math.min(30,scored.length)).map(x=>x.k);if(current)chosen.unshift(current);studioLastRadio=chosen;playKeys(chosen);toastSafe('تم إنشاء راديو ذكي من '+chosen.length+' أغنية');}
+function discover(){const keys=allKeys().filter(k=>files.has(k)||(meta(k)&&meta(k).url));for(let i=keys.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[keys[i],keys[j]]=[keys[j],keys[i]];}const pick=keys.slice(0,Math.min(25,keys.length));studioLastRadio=pick;playKeys(pick);}
+function makeSmartList(){const keys=allKeys();if(!keys.length)return toastSafe('المكتبة فارغة');const mode=prompt('اكتب شرط القائمة:\n1 = أغاني لم تُشغّل من قبل\n2 = المفضلة\n3 = أغاني قصيرة أقل من 4 دقائق\n4 = أضيفت آخر 30 يومًا\n5 = نفس فنان الأغنية الحالية','1');if(!mode)return;let out=[];if(mode==='1')out=keys.filter(k=>!(ST.t[k]?.p));else if(mode==='2')out=[...DB.favs];else if(mode==='3')out=keys.filter(k=>Number(meta(k).duration)>0&&Number(meta(k).duration)<240);else if(mode==='4')out=keys.filter(k=>Date.now()-(meta(k).added||0)<30*864e5);else if(mode==='5'){const a=artistOf(curKey());out=keys.filter(k=>artistOf(k)===a);}else return toastSafe('الاختيار غير صحيح');if(!out.length)return toastSafe('لا توجد أغاني تطابق الشرط');const name=prompt('اسم القائمة الذكية:','قائمة ذكية');if(!name)return;DB.lists[name]=[...new Set(out)];persistSafe();render();toastSafe('تم إنشاء قائمة '+name+' ('+out.length+' أغنية)');}
+function statsHTML(){const keys=allKeys();const total=keys.length;const totalPlays=keys.reduce((n,k)=>n+(ST.t[k]?.p||0),0);const seconds=keys.reduce((n,k)=>n+(ST.t[k]?.s||0),0);const fav=DB.favs.length;const top=keys.map(k=>({k,p:ST.t[k]?.p||0,s:ST.t[k]?.s||0})).sort((a,b)=>b.p-a.p).slice(0,5);const days=Object.entries(ST.d||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7).reverse();const max=Math.max(1,...days.map(x=>x[1]));return `<div class="studio-grid"><article class="studio-card"><div class="studio-muted">أغاني المكتبة</div><div class="studio-stat">${total}</div></article><article class="studio-card"><div class="studio-muted">مرات التشغيل المسجلة</div><div class="studio-stat">${totalPlays}</div></article><article class="studio-card"><div class="studio-muted">وقت الاستماع المسجل</div><div class="studio-stat">${fmtMin(seconds/60)}</div></article><article class="studio-card"><div class="studio-muted">المفضلة</div><div class="studio-stat">${fav}</div></article><article class="studio-card studio-wide"><h3>الأكثر استماعًا</h3>${top.length?`<div class="studio-track-list">${top.map(x=>`<div class="studio-track"><span>${escHTML(titleOf(x.k))} · ${escHTML(artistOf(x.k))}</span><b>${x.p}</b></div>`).join('')}</div>`:'<p>ابدأ الاستماع لتظهر إحصائياتك هنا.</p>'}</article><article class="studio-card studio-wide"><h3>نشاط آخر 7 أيام</h3>${days.length?days.map(([d,v])=>`<div style="display:grid;grid-template-columns:90px 1fr 48px;gap:8px;align-items:center;margin:9px 0"><small>${escHTML(d)}</small><div class="studio-bar"><i style="width:${Math.round(v/max*100)}%"></i></div><small>${fmtMin(v/60)}</small></div>`).join(''):'<p>لا توجد بيانات يومية بعد.</p>'}</article></div>`;}
+function doctor(){const keys=allKeys();const missing=keys.filter(k=>!files.has(k)&&!meta(k).url);const noArtist=keys.filter(k=>!meta(k).artist);const noAlbum=keys.filter(k=>!meta(k).album);const noDuration=keys.filter(k=>!meta(k).duration);const report=`فحص المكتبة:\nعدد الأغاني: ${keys.length}\nملفات غير متاحة: ${missing.length}\nبدون اسم فنان: ${noArtist.length}\nبدون ألبوم: ${noAlbum.length}\nبدون مدة: ${noDuration.length}\n\n${missing.slice(0,30).map(titleOf).join('\n')}`;alert(report);}
+async function hashFile(file){const buf=await file.arrayBuffer();const digest=await crypto.subtle.digest('SHA-256',buf);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function deepDuplicates(){const entries=allKeys().map(k=>[k,files.get(k)]).filter(x=>x[1]);if(!entries.length)return toastSafe('لا توجد ملفات محلية للفحص');toastSafe('جاري حساب بصمات الملفات…');const map=new Map();for(let i=0;i<entries.length;i++){const [k,f]=entries[i];try{const h=await hashFile(f);if(!map.has(h))map.set(h,[]);map.get(h).push(k);}catch(_){}}const groups=[...map.values()].filter(g=>g.length>1);const msg=groups.length?groups.map(g=>g.map(titleOf).join(' = ')).join('\n\n'):'لم يتم العثور على ملفات متطابقة تمامًا.';alert('نتيجة فحص البصمة الصوتية SHA-256:\n\n'+msg);}
+function editTags(){const keys=allKeys();if(!keys.length)return toastSafe('المكتبة فارغة');const pick=prompt('اكتب جزءًا من اسم الأغنية لاختيارها:\n'+keys.slice(0,25).map((k,i)=>(i+1)+'. '+titleOf(k)).join('\n'));if(!pick)return;const k=keys.find((x,i)=>String(i+1)===pick.trim())||keys.find(x=>titleOf(x).toLowerCase().includes(pick.toLowerCase()));if(!k)return toastSafe('لم أجد الأغنية');const m=meta(k);const t=prompt('اسم الأغنية:',m.title||'');if(t===null)return;const a=prompt('اسم الفنان:',m.artist||'');if(a===null)return;const al=prompt('اسم الألبوم:',m.album||'');if(al===null)return;const g=prompt('النوع الموسيقي:',m.genre||'');if(g===null)return;Object.assign(m,{title:t.trim()||m.title,artist:a.trim(),album:al.trim(),genre:g.trim(),editedAt:Date.now()});persistSafe();render();toastSafe('تم تحديث بيانات الأغنية داخل مكتبة لحن');}
+function exportStats(){const data={app:'Lahn',version:1,exportedAt:new Date().toISOString(),library:DB,stats:ST,playlists:DB.lists};const blob=new Blob([JSON.stringify(data)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Lahn-Backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);}
+function importBackup(){const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{const f=input.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.app!=='Lahn'||!d.library||!d.library.lib)throw new Error('invalid');if(!confirm('استيراد النسخة سيضيف بياناتها إلى مكتبتك الحالية. هل تريد المتابعة؟'))return;Object.assign(DB,d.library);if(d.stats){ST.t=Object.assign({},ST.t,d.stats.t||{});ST.d=Object.assign({},ST.d,d.stats.d||{});}persistSafe();render();toastSafe('تم استيراد النسخة الاحتياطية');}catch(_){toastSafe('ملف النسخة الاحتياطية غير صالح');}};input.click();}
+function renderStudioPage(){const L=$('#list');if(!L)return;L.innerHTML=`<div class="studio-page"><header class="studio-intro"><h2>استوديو لحن 🎧</h2><p>مركز التحكم الذكي في مكتبتك الموسيقية: اكتشاف، إحصائيات، تنظيم، أدوات صيانة ونسخ احتياطي.</p></header><section class="studio-grid"><article class="studio-card"><h3>📻 Lahn Radio</h3><p>كوّن راديو من الأغاني المشابهة للأغنية الحالية حسب الفنان والألبوم والنوع والمدة.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="radio">ابدأ الراديو الذكي</button><button class="studio-btn" data-studio="discover">اكتشاف عشوائي</button></div></article><article class="studio-card"><h3>📊 Lahn Wrapped</h3><p>إحصائيات الاستماع، أكثر الأغاني تشغيلًا، وقت الاستماع ونشاط الأيام.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="stats">عرض الإحصائيات</button></div></article><article class="studio-card"><h3>🧠 Smart Playlist Builder</h3><p>أنشئ قوائم تلقائية من شروط ذكية بدل ترتيب كل أغنية يدويًا.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="smartlist">إنشاء قائمة ذكية</button></div></article><article class="studio-card"><h3>🏷️ Tag Editor</h3><p>عدّل اسم الأغنية والفنان والألبوم والنوع داخل قاعدة بيانات لحن.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="tags">تعديل بيانات أغنية</button></div><small class="studio-muted">التعديل هنا في بيانات المكتبة، وليس كتابة ID3 داخل الملف الأصلي.</small></article><article class="studio-card"><h3>🩺 Library Doctor</h3><p>اكتشف الملفات غير المتاحة وبيانات الفنان والألبوم والمدة الناقصة.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="doctor">فحص المكتبة</button></div></article><article class="studio-card"><h3>🔎 Advanced Duplicate Scan</h3><p>مقارنة بصمة SHA-256 للملفات المحلية لاكتشاف النسخ المتطابقة فعليًا.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="duplicates">فحص بالبصمة</button></div></article><article class="studio-card"><h3>🎚️ أدوات التشغيل</h3><p>Crossfade موجود بالفعل، ويمكنك تفعيل تطبيع الصوت من الإعدادات. كما نوفر وضع المشغل المصغر.</p><div class="studio-actions"><button class="studio-btn" data-studio="mini">تبديل المشغل المصغر</button><button class="studio-btn" data-studio="normalize">${localStorage.ng_norm==='1'?'إيقاف':'تفعيل'} تطبيع الصوت</button></div></article><article class="studio-card"><h3>💾 النسخ الاحتياطي</h3><p>احفظ بيانات المكتبة والقوائم والإحصائيات في ملف JSON قابل للنقل.</p><div class="studio-actions"><button class="studio-btn primary" data-studio="backup">تصدير نسخة احتياطية</button><button class="studio-btn" data-studio="restore">استيراد نسخة احتياطية</button></div></article><article class="studio-card"><h3>📅 سجل الاستماع</h3><p>ملخص زمني لنشاط الاستماع المسجل داخل لحن.</p><div class="studio-actions"><button class="studio-btn" data-studio="stats">فتح التقارير</button></div></article><div id="studioReport" class="studio-wide">${statsHTML()}</div></section></div>`;}
+const baseRender=window.render;
+if(typeof baseRender==='function'){window.render=function(){baseRender();if(view==='studio')renderStudioPage();};}
+const side=$('.side');if(side&&!side.dataset.studioBound){side.dataset.studioBound='1';side.addEventListener('click',e=>{const b=e.target.closest('[data-v="studio"]');if(b){view='studio';render();}});}
+const L=$('#list');if(L&&!L.dataset.studioBound){L.dataset.studioBound='1';L.addEventListener('click',e=>{const b=e.target.closest('[data-studio]');if(!b)return;const act=b.dataset.studio;if(act==='radio')smartRadio();else if(act==='discover')discover();else if(act==='smartlist')makeSmartList();else if(act==='tags')editTags();else if(act==='doctor')doctor();else if(act==='duplicates')deepDuplicates();else if(act==='mini'){document.body.classList.toggle('studio-mini-player');toastSafe(document.body.classList.contains('studio-mini-player')?'تم تفعيل المشغل المصغر':'تم إيقاف المشغل المصغر');}else if(act==='normalize'){localStorage.ng_norm=localStorage.ng_norm==='1'?'0':'1';b.textContent=localStorage.ng_norm==='1'?'إيقاف تطبيع الصوت':'تفعيل تطبيع الصوت';toastSafe('تم تحديث إعداد تطبيع الصوت');}else if(act==='backup')exportStats();else if(act==='restore')importBackup();else if(act==='stats'){$('#studioReport').innerHTML=statsHTML();}});}
+})();
+</script>
 
 </body>
 </html>
