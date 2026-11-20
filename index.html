@@ -861,6 +861,32 @@ body.seek-normal #waveformCanvas {
   
 }
 
+body.seek-normal #seek {
+  opacity: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    var(--tint) 0%, var(--tint) var(--p, 0%),
+    rgba(128,128,128,.38) var(--p, 0%), rgba(128,128,128,.38) 100%) !important;
+  outline: none;
+}
+
+/* Keep the seek bar clean: no circular thumb/playhead marker. */
+body.seek-normal #seek::-webkit-slider-thumb {
+  opacity: 0 !important;
+  width: 0;
+  height: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+body.seek-normal #seek::-moz-range-thumb {
+  opacity: 0 !important;
+  width: 0;
+  height: 0;
+  border: 0;
+  box-shadow: none;
+}
 
 input[type=range] {
   -webkit-appearance:none;
@@ -10969,7 +10995,14 @@ function unproxyFromRemote() {
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (s) => { if (!isFinite(s) || s < 0) s = 0; return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
-const fill = (el) => el.style.setProperty('--p', (el.value / el.max * 100) + '%');
+const fill = (el) => {
+  if (!el) return;
+  const min = Number(el.min || 0);
+  const max = Number(el.max || 100);
+  const value = Number(el.value || 0);
+  const ratio = max > min ? Math.max(0, Math.min(1, (value - min) / (max - min))) : 0;
+  el.style.setProperty('--p', (ratio * 100) + '%');
+};
 const save = () => { try { localStorage.q = JSON.stringify(tracks.map((t) => t.path)); localStorage.i = cur; } catch (_) {} };
 
 audio.volume = +(localStorage.vol ?? 0.8);
@@ -11134,17 +11167,26 @@ function drawSeekWaveform() {
   const ctx = seekWaveContext;
   ctx.clearRect(0, 0, width, height);
   const tint = getComputedStyle(document.documentElement).getPropertyValue('--tint-rgb').trim() || '139,124,246';
+  const duration = Number(audio.duration) || 0;
+  const rawRatio = seeking
+    ? Number($('#seek')?.value || 0) / 1000
+    : (duration > 0 ? (Number(audio.currentTime) || 0) / duration : 0);
+  const ratio = Math.max(0, Math.min(1, rawRatio));
   const bars = Math.max(28, Math.floor(width / 4));
   const gap = Math.max(1, width / (bars * 3.2));
   const barWidth = Math.max(1, width / bars - gap);
 
+  // The waveform itself is the progress indicator: elapsed bars use the theme
+  // color, while bars ahead of the play position stay softly gray. No extra rail
+  // or playhead marker is drawn underneath or over the waveform.
   for (let index = 0; index < bars; index++) {
     const phase = index * 0.47;
     const envelope = 0.24 + 0.76 * Math.abs(Math.sin(phase) * Math.cos(index * 0.113));
     const barHeight = Math.max(2, envelope * height * 0.94);
     const x = index * (barWidth + gap);
     const y = (height - barHeight) / 2;
-    ctx.fillStyle = `rgb(${tint})`;
+    const barPosition = (x + barWidth / 2) / width;
+    ctx.fillStyle = barPosition <= ratio ? `rgb(${tint})` : 'rgba(150,150,150,.34)';
 
     ctx.beginPath();
     if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, barWidth, barHeight, Math.min(3, barWidth / 2));
@@ -14988,7 +15030,9 @@ function renderSettingsPage() {
       document.documentElement.style.setProperty('--display-density', String(value));
       const output = L.querySelector('#displayDensityValue');
       if (output) output.textContent = Math.round(value * 100) + '%';
+      fill(densityRange);
     };
+    densityRange.value = Math.round(Math.max(.8, Math.min(1.35, Number(localStorage.ng_display_density || 1))) * 100);
     applyDensity();
     densityRange.addEventListener('input', () => {
       localStorage.ng_display_density = String(Number(densityRange.value) / 100);
@@ -15200,8 +15244,10 @@ function renderSettingsPage() {
   // --- سلايدر المزج ---
   const cfSlider = document.getElementById('crossfadeSlider');
   if (cfSlider) {
+    fill(cfSlider);
     cfSlider.oninput = (e) => {
       const val = +e.target.value;
+      fill(e.target);
       localStorage.ng_crossfade = val;
       crossfadeTime = val;
       const cfVal = document.getElementById('cfVal');
@@ -17758,8 +17804,12 @@ setTimeout(startAutoWatch, 3000);
     modal.querySelector('#remixClose').addEventListener('click', () => { modal.hidden = true; });
     const bindRange = (id, out, suffix, transform = v => v) => {
       const input = modal.querySelector('#' + id), output = modal.querySelector('#' + out);
-      const update = () => output.textContent = transform(input.value) + suffix;
-      input.addEventListener('input', update); update();
+      const update = () => {
+        fill(input);
+        output.textContent = transform(input.value) + suffix;
+      };
+      input.addEventListener('input', update);
+      update();
     };
     bindRange('remixBalance','remixBalanceValue','',v => `${v} / ${100-v}`);
     bindRange('remixFade','remixFadeValue',' s');
@@ -20239,5 +20289,155 @@ try{if(localStorage.ng_focus_mode==='1')document.body.classList.add('lx-focus-mo
 })();
 </script>
 
+
+<style id="lahn-progress-indicators-fix">
+/* Settings ranges use a dedicated visual track; the native range remains interactive. */
+.lahn-settings-range {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 20px;
+  min-width: 0;
+  margin: 5px 0 7px;
+  isolation: isolate;
+}
+.lahn-settings-range__track {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 7px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    var(--tint) 0%,
+    var(--tint) var(--lahn-range-fill, 0%),
+    rgba(150,150,150,.34) var(--lahn-range-fill, 0%),
+    rgba(150,150,150,.34) 100%);
+  pointer-events: none;
+}
+.lahn-settings-range__input {
+  position: absolute !important;
+  z-index: 2;
+  inset: 0;
+  display: block !important;
+  width: 100% !important;
+  height: 20px !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  cursor: pointer;
+}
+.lahn-settings-range__input::-webkit-slider-runnable-track {
+  height: 20px;
+  background: transparent !important;
+  border: 0;
+}
+.lahn-settings-range__input::-moz-range-track {
+  height: 20px;
+  background: transparent !important;
+  border: 0;
+}
+.lahn-settings-range__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  border: 0;
+  box-shadow: none;
+}
+.lahn-settings-range__input::-moz-range-thumb {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  border: 0;
+  box-shadow: none;
+}
+.lahn-settings-range:focus-within .lahn-settings-range__track {
+  outline: 2px solid var(--tint);
+  outline-offset: 4px;
+}
+.density-labels output,
+#cfVal {
+  font-variant-numeric: tabular-nums;
+}
+</style>
+
 </body>
 </html>
+
+<script>
+/* Lahn settings range visual-track installer */
+(() => {
+  'use strict';
+  const TARGETS = '#crossfadeSlider, #displayDensityRange';
+
+  function syncRange(input) {
+    if (!input || !input.isConnected) return;
+    const min = Number(input.min || 0);
+    const max = Number(input.max || 100);
+    const value = Number(input.value || 0);
+    const ratio = max > min ? Math.max(0, Math.min(1, (value - min) / (max - min))) : 0;
+    const wrapper = input.parentElement && input.parentElement.classList.contains('lahn-settings-range')
+      ? input.parentElement : null;
+    if (wrapper) wrapper.style.setProperty('--lahn-range-fill', (ratio * 100) + '%');
+  }
+
+  function enhance(input) {
+    if (!input || input.dataset.lahnRangeEnhanced === '1') {
+      syncRange(input);
+      return;
+    }
+    const parent = input.parentNode;
+    if (!parent) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'lahn-settings-range';
+    wrapper.setAttribute('data-lahn-range-for', input.id || 'range');
+    const track = document.createElement('span');
+    track.className = 'lahn-settings-range__track';
+    track.setAttribute('aria-hidden', 'true');
+
+    parent.insertBefore(wrapper, input);
+    wrapper.appendChild(track);
+    wrapper.appendChild(input);
+    input.classList.add('lahn-settings-range__input');
+    input.dataset.lahnRangeEnhanced = '1';
+    syncRange(input);
+  }
+
+  function scan(root) {
+    if (!root) return;
+    if (root.nodeType === 1 && root.matches && root.matches(TARGETS)) enhance(root);
+    if (root.querySelectorAll) root.querySelectorAll(TARGETS).forEach(enhance);
+  }
+
+  // Capture updates before existing settings handlers potentially re-render the page.
+  document.addEventListener('input', event => {
+    const target = event.target;
+    if (target && target.matches && target.matches(TARGETS)) {
+      if (target.dataset.lahnRangeEnhanced !== '1') enhance(target);
+      syncRange(target);
+    }
+  }, true);
+  document.addEventListener('change', event => {
+    const target = event.target;
+    if (target && target.matches && target.matches(TARGETS)) syncRange(target);
+  }, true);
+
+  scan(document);
+  const observer = new MutationObserver(records => {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (node.nodeType === 1) scan(node);
+      }
+    }
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
