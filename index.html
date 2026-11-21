@@ -17,6 +17,181 @@
   rel="apple-touch-icon"
   href="icon-192.png">
 <title>لحن</title>
+<script id="lahn-first-paint-theme-bootstrap">
+(() => {
+  const root = document.documentElement;
+  let mode = 'lahn';
+  let skinId = 'nagham';
+  let tonePreference = 'dark';
+  let resolvedTone = 'dark';
+  let skinData;
+  let displayPalette;
+  const safeGet = (key, fallback = '') => {
+    try { const value = localStorage.getItem(key); return value == null ? fallback : value; }
+    catch (_) { return fallback; }
+  };
+  const setVars = (target, values, priority = '') => {
+    for (const [key, value] of Object.entries(values)) target.style.setProperty(key, value, priority);
+  };
+  const rgbFromHex = (hex) => {
+    const value = String(hex || '').replace('#', '').trim();
+    const full = value.length === 3 ? value.split('').map(ch => ch + ch).join('') : value;
+    if (!/^[0-9a-f]{6}$/i.test(full)) return '139,124,246';
+    return [0, 2, 4].map(i => parseInt(full.slice(i, i + 2), 16)).join(',');
+  };
+  const luminance = (hex) => {
+    const value = String(hex || '').replace('#', '').trim();
+    const full = value.length === 3 ? value.split('').map(ch => ch + ch).join('') : value;
+    if (!/^[0-9a-f]{6}$/i.test(full)) return 0;
+    const channels = [0, 2, 4].map(i => parseInt(full.slice(i, i + 2), 16) / 255)
+      .map(channel => channel <= .04045 ? channel / 12.92 : Math.pow((channel + .055) / 1.055, 2.4));
+    return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2];
+  };
+
+  /* The palette table mirrors every built-in entry in SKINS, including the
+     palettes that were previously registered only near the end of startup. */
+  const skins = {
+    nagham:   ['#12101a','#f2eefc','#9d97b5','139,124,246',null],
+    midnight: ['#000000','#f2eefc','#9d97b5','139,124,246',null],
+    sunset:   ['#1a0e0b','#fff1ea','#c9a79a','255,138,76','255,138,76'],
+    neon:     ['#06060f','#eafcff','#7fa3b3','0,229,255','0,229,255'],
+    forest:   ['#0b1510','#e9f7ee','#8fb09b','74,222,128','74,222,128'],
+    rose:     ['#1a0d16','#ffeef7','#c79ab4','255,107,181','255,107,181'],
+    paper:    ['#f3efe6','#1c1830','#6b6680','109,74,255','109,74,255'],
+    ocean:    ['#06121c','#e8f6ff','#86a9bd','56,189,248','56,189,248'],
+    gold:     ['#120e05','#fff8e1','#c2b27c','250,204,21','250,204,21'],
+    graphite: ['#1a1a1d','#f1f1f3','#9a9aa5','160,160,175','160,160,175'],
+    lavender: ['#efeaff','#241a45','#6f63a0','139,92,246','139,92,246'],
+    mint:     ['#e9f6ef','#12281d','#5d7f6c','22,163,74','22,163,74'],
+    royal:    ['#0a0a1f','#eceeff','#8f93c9','99,102,241','99,102,241'],
+    crimson:  ['#140808','#ffecec','#c99a9a','239,68,68','239,68,68'],
+    aurora:   ['#07121a','#e7fbf3','#86b5a6','52,211,153','52,211,153'],
+    carbon:   ['#0e0e0e','#f4f4f5','#9a9aa0','244,244,245','244,244,245'],
+    candy:    ['#fff0f6','#3b0d26','#9b5b78','236,72,153','236,72,153'],
+    sand:     ['#f6efe0','#2e2412','#8a7752','180,120,40','180,120,40'],
+    arctic:   ['#eef6fb','#0f2a3a','#5a7d92','14,165,233','14,165,233']
+  };
+
+  try {
+    mode = safeGet('ng_display_mode', 'lahn');
+    if (!['lahn', 'spotify', 'apple'].includes(mode)) mode = 'lahn';
+    skinId = safeGet('ng_skin', 'nagham') || 'nagham';
+    tonePreference = safeGet('ng_display_tone_' + mode, mode === 'apple' ? 'light' : 'dark');
+    if (!['light', 'dark', 'auto'].includes(tonePreference)) tonePreference = mode === 'apple' ? 'light' : 'dark';
+    resolvedTone = tonePreference === 'auto'
+      ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark')
+      : tonePreference;
+
+    root.dataset.initialSkin = skinId;
+    root.dataset.displayMode = mode;
+    root.dataset.displayTone = resolvedTone;
+    root.dataset.displayTonePreference = tonePreference;
+    root.style.colorScheme = resolvedTone;
+
+    if (mode === 'lahn') {
+      const custom = skinId === 'custom';
+      const skin = custom
+        ? ['#12101a', '#f2eefc', '#9d97b5', '255,255,255', '#15121f', rgbFromHex(safeGet('ng_acc', '#8b7cf6'))]
+        : (skins[skinId] || skins.nagham);
+      const originalBase = skin[0];
+      const originalIsLight = luminance(originalBase) > .48;
+      const light = resolvedTone === 'light';
+      const base = light ? (originalIsLight ? originalBase : '#f7f7fa') : (originalIsLight ? '#101014' : originalBase);
+      const accent = custom ? skin[5] : (skin[4] || safeGet('ng_tint', '139,124,246'));
+      const text = light ? '#211f27' : (luminance(skin[1]) > .38 ? skin[1] : '#f4f1fa');
+      const mute = light ? '#706d79' : (luminance(skin[2]) > .22 ? skin[2] : '#aaa5b8');
+      const white = light ? '22,20,27' : '255,255,255';
+      const panel = light ? (originalIsLight ? originalBase : '#ffffff') : `color-mix(in srgb, ${base} 91%, rgb(${accent}) 9%)`;
+      const variables = {
+        '--bg': base,
+        '--panel': panel,
+        '--text': text,
+        '--mute': mute,
+        '--line': light ? 'rgba(20,18,25,.12)' : 'rgba(255,255,255,.10)',
+        '--w': white,
+        '--on': light ? '#ffffff' : '#111014',
+        '--tint': `rgb(${accent})`,
+        '--tint-rgb': accent
+      };
+      setVars(root, variables);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = base;
+      skinData = { base, text, mute, accent, panel, variables };
+    } else {
+      const palettes = {
+        spotify: {
+          light: { body:'#f4f4f4', app:'#f4f4f4', side:'#ffffff', main:'#ffffff', bar:'#ffffff', panel:'#f7f7f7', text:'#191919', mute:'#656565', line:'rgba(0,0,0,.11)', w:'0,0,0', on:'#ffffff', tint:'#159447', tintRgb:'21,148,71' },
+          dark:  { body:'#000000', app:'#000000', side:'#121212', main:'#121212', bar:'#181818', panel:'#242424', text:'#ffffff', mute:'#b3b3b3', line:'rgba(255,255,255,.08)', w:'255,255,255', on:'#000000', tint:'#1ed760', tintRgb:'30,215,96' }
+        },
+        apple: {
+          light: { body:'#f5f5f7', app:'#f5f5f7', side:'#ffffff', main:'#ffffff', bar:'#ffffff', panel:'#fafafd', text:'#202024', mute:'#777780', line:'rgba(0,0,0,.10)', w:'0,0,0', on:'#ffffff', tint:'#e3455b', tintRgb:'227,69,91' },
+          dark:  { body:'#101014', app:'#101014', side:'#1b1b20', main:'#1b1b20', bar:'#202026', panel:'#242429', text:'#f5f5f7', mute:'#aaaab3', line:'rgba(255,255,255,.10)', w:'255,255,255', on:'#101014', tint:'#ff6278', tintRgb:'255,98,120' }
+        }
+      };
+      displayPalette = palettes[mode][resolvedTone];
+      const variables = {
+        '--bg': displayPalette.body,
+        '--panel': displayPalette.panel,
+        '--text': displayPalette.text,
+        '--mute': displayPalette.mute,
+        '--line': displayPalette.line,
+        '--w': displayPalette.w,
+        '--on': displayPalette.on,
+        '--tint': displayPalette.tint,
+        '--tint-rgb': displayPalette.tintRgb
+      };
+      setVars(root, variables, 'important');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = mode === 'spotify' ? (resolvedTone === 'light' ? '#f5f5f5' : '#000000') : (resolvedTone === 'light' ? '#f5f5f7' : '#101014');
+    }
+  } catch (_) {
+    root.dataset.displayMode = mode;
+    root.dataset.displayTone = resolvedTone;
+  }
+
+  /* Apply the saved display family to <body> as soon as the parser creates it.
+     For Spotify/Apple, keep watching until all major surfaces exist, then give
+     them their final colors before the first normal paint. */
+  const syncBody = () => {
+    const body = document.body;
+    if (!body) return false;
+    body.classList.remove('display-lahn', 'display-spotify', 'display-apple');
+    body.classList.add('display-' + mode);
+    body.dataset.displayMode = mode;
+    body.dataset.displayTone = resolvedTone;
+    if (mode === 'lahn' || !displayPalette) return true;
+
+    const required = [document.querySelector('.app'), document.querySelector('.side'), document.querySelector('main'), document.querySelector('.bar')];
+    if (required.some(element => !element)) return false;
+    const variables = {
+      '--bg': displayPalette.body, '--panel': displayPalette.panel, '--text': displayPalette.text,
+      '--mute': displayPalette.mute, '--line': displayPalette.line, '--w': displayPalette.w,
+      '--on': displayPalette.on, '--tint': displayPalette.tint, '--tint-rgb': displayPalette.tintRgb
+    };
+    setVars(body, variables, 'important');
+    const surfaces = [[body, displayPalette.body], [required[0], displayPalette.app], [required[1], displayPalette.side], [required[2], displayPalette.main], [required[3], displayPalette.bar]];
+    for (const [element, color] of surfaces) {
+      const surface = mode === 'apple'
+        ? (resolvedTone === 'light' ? 'rgba(255,255,255,.58)' : 'rgba(34,34,42,.64)')
+        : color;
+      element.style.setProperty('background-color', surface, 'important');
+      element.style.setProperty('color', displayPalette.text, 'important');
+      element.style.setProperty('border-color', displayPalette.line, 'important');
+    }
+    return true;
+  };
+  if (!syncBody()) {
+    const observer = new MutationObserver(() => {
+      if (syncBody()) observer.disconnect();
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (syncBody()) observer.disconnect();
+    }, { once: true });
+  }
+})();
+</script>
+
 
 <style>
 :root {
@@ -17259,6 +17434,7 @@ let ac,
  an,
  buf,
  raf = 0,
+ eqHeadroomNode = null,
  panner,
  is8D = false,
  pannerOsc = null,
@@ -17405,6 +17581,7 @@ else audio.addEventListener('play',
  () => {
   try { if (!ac) { ensureGraph();
 } ac.resume();
+if (typeof updateEqHeadroom === 'function') updateEqHeadroom();
 if (!raf) draw();
 } catch (_) {}
 });
@@ -18922,7 +19099,24 @@ const SKINS = {
  '#f3efe6',
  '109,74,255'],
 };
+function lahnEnsureCustomSkin() {
+  const savedHex = String(localStorage.ng_acc || '#8b7cf6').trim();
+  const safeHex = /^#[0-9a-f]{6}$/i.test(savedHex) ? savedHex : '#8b7cf6';
+  const rgb = [1, 3, 5].map((i) => parseInt(safeHex.slice(i, i + 2), 16)).join(',');
+  SKINS.custom = [
+    'لون خاص',
+    '#12101a',
+    '#f2eefc',
+    '#9d97b5',
+    '255,255,255',
+    '#15121f',
+    rgb
+  ];
+  return SKINS.custom;
+}
+
 function applySkin(id) {
+  if (id === 'custom') lahnEnsureCustomSkin();
   const s = SKINS[id] || SKINS.nagham,
  st = document.documentElement.style;
 ['--bg',
@@ -18952,7 +19146,7 @@ st.setProperty('--tint-rgb',
 try { localStorage.ng_skin = id;
  } catch (_) {}
 }
-applySkin(localStorage.ng_skin || 'nagham');
+/* Skin application is intentionally deferred until every built-in palette is registered. */
 Object.assign(SKINS,
  {
   ocean: ['محيط',
@@ -18991,6 +19185,110 @@ Object.assign(SKINS,
  '#e9f6ef',
  '22,163,74'],
 });
+Object.assign(SKINS,
+    
+ {
+  royal: ['Royal',
+    
+ '#0a0a1f',
+    
+ '#eceeff',
+    
+ '#8f93c9',
+    
+ '255,255,255',
+    
+ '#0a0a1f',
+    
+ '99,102,241'],
+    
+  crimson: ['Crimson',
+    
+ '#140808',
+    
+ '#ffecec',
+    
+ '#c99a9a',
+    
+ '255,255,255',
+    
+ '#140808',
+    
+ '239,68,68'],
+    
+  aurora: ['Aurora',
+    
+ '#07121a',
+    
+ '#e7fbf3',
+    
+ '#86b5a6',
+    
+ '255,255,255',
+    
+ '#07121a',
+    
+ '52,211,153'],
+    
+  carbon: ['Carbon',
+    
+ '#0e0e0e',
+    
+ '#f4f4f5',
+    
+ '#9a9aa0',
+    
+ '255,255,255',
+    
+ '#0e0e0e',
+    
+ '244,244,245'],
+    
+  candy: ['Candy (light)',
+    
+ '#fff0f6',
+    
+ '#3b0d26',
+    
+ '#9b5b78',
+    
+ '0,0,0',
+    
+ '#fff0f6',
+    
+ '236,72,153'],
+    
+  sand: ['Sand (light)',
+    
+ '#f6efe0',
+    
+ '#2e2412',
+    
+ '#8a7752',
+    
+ '0,0,0',
+    
+ '#f6efe0',
+    
+ '180,120,40'],
+    
+  arctic: ['Arctic (light)',
+    
+ '#eef6fb',
+    
+ '#0f2a3a',
+    
+ '#5a7d92',
+    
+ '0,0,0',
+    
+ '#eef6fb',
+    
+ '14,165,233'],
+    
+});
+    
+
 applySkin(localStorage.ng_skin || 'nagham');
 function displayToneKey(mode){return 'ng_display_tone_'+(['lahn',
 'spotify',
@@ -19038,6 +19336,7 @@ return /^\d{1,3},\d{1,3},\d{1,3}$/.test(saved) ? saved : '139,124,246';
 }
 function lahnBuildSkinTone(tone) {
   const skinId = localStorage.ng_skin || 'nagham';
+if (skinId === 'custom') lahnEnsureCustomSkin();
 const skin = SKINS[skinId] || SKINS.nagham;
 const originalBase = skin[1] || '#12101a';
 const originalIsLight = lahnColorLuminance(originalBase) > .48;
@@ -19321,11 +19620,13 @@ function applyLahnDisplayMode(mode = localStorage.ng_display_mode || 'lahn') {
   const safeMode = ['lahn',
  'spotify',
  'apple'].includes(mode) ? mode : 'lahn';
+  if (safeMode === 'lahn' && localStorage.ng_skin === 'custom') lahnEnsureCustomSkin();
 document.body.classList.remove('display-lahn',
  'display-spotify',
  'display-apple');
 document.body.classList.add('display-' + safeMode);
 document.documentElement.dataset.displayMode = safeMode;
+document.body.dataset.displayMode = safeMode;
 applyDisplayTone(safeMode,
 currentDisplayTone(safeMode));
 if (safeMode === 'lahn') {
@@ -19347,11 +19648,19 @@ const density = Math.max(.8,
  Number(localStorage.ng_display_density || 1)));
 document.documentElement.style.setProperty('--display-density',
  String(density));
+  // Notify the theme surface synchronizers after all palettes and classes are ready.
+  window.dispatchEvent(new CustomEvent('lahn:display-mode-changed', {
+    detail: { mode: safeMode, tone: activeTone }
+  }));
 }
 applyLahnDisplayMode();
 window.addEventListener('storage',
  (event) => {
   if (event.key === 'ng_display_mode') applyLahnDisplayMode(event.newValue || 'lahn');
+  if (event.key === 'ng_acc' && localStorage.ng_skin === 'custom') {
+    lahnEnsureCustomSkin();
+    if (currentDisplayMode() === 'lahn') applyDisplayTone('lahn', currentDisplayTone('lahn'));
+  }
 });
 if(window.matchMedia){
   const schemeQuery=window.matchMedia('(prefers-color-scheme: light)');
@@ -19530,17 +19839,45 @@ const EQ = Object.assign({ on: false,
  {}));
 let eqNodes = [];
 let compressorNode = null;
+let sourceMediaNode = null;
+let normalizerPathEnabled = null;
+function applyLahnNormalizationMode() {
+  if (!compressorNode || !ac) return null;
+  const enabled = localStorage.getItem('ng_norm') === '1';
+  // Connect the source to the compressor only when normalization is enabled.
+  // The normal path completely bypasses DynamicsCompressorNode for bit-clean playback.
+  if (sourceMediaNode && eqNodes.length && normalizerPathEnabled !== enabled) {
+    try {
+      sourceMediaNode.disconnect();
+      compressorNode.disconnect();
+      if (enabled) {
+        sourceMediaNode.connect(compressorNode);
+        compressorNode.connect(eqNodes[0]);
+      } else {
+        sourceMediaNode.connect(eqNodes[0]);
+      }
+      normalizerPathEnabled = enabled;
+    } catch (error) {
+      console.warn('Lahn normalization routing could not be updated:', error);
+    }
+  }
+  compressorNode.threshold.setTargetAtTime(-16, ac.currentTime, 0.04);
+  compressorNode.knee.setTargetAtTime(20, ac.currentTime, 0.04);
+  compressorNode.ratio.setTargetAtTime(1.65, ac.currentTime, 0.04);
+  compressorNode.attack.setTargetAtTime(0.018, ac.currentTime, 0.04);
+  compressorNode.release.setTargetAtTime(0.30, ac.currentTime, 0.04);
+  return { enabled, reductionDb: Number.isFinite(compressorNode.reduction) ? compressorNode.reduction : 0 };
+}
+window.applyLahnNormalizationMode = applyLahnNormalizationMode;
 function ensureGraph() {
   if (ac) return;
 ac = new (window.AudioContext || window.webkitAudioContext)();
 if (ac.state === 'suspended') ac.resume();
 const s = ac.createMediaElementSource(audio);
+  sourceMediaNode = s;
   compressorNode = ac.createDynamicsCompressor();
-compressorNode.threshold.value = -24;
-compressorNode.knee.value = 30;
-compressorNode.ratio.value = 12;
-compressorNode.attack.value = 0.003;
-compressorNode.release.value = 0.25;
+  // Configure a gentle curve; it is only connected when normalization is enabled.
+  applyLahnNormalizationMode();
   eqNodes = EQB.map((f,
  i) => { const n = ac.createBiquadFilter();
 n.type = i === 0 ? 'lowshelf' : i === EQB.length - 1 ? 'highshelf' : 'peaking';
@@ -19549,6 +19886,8 @@ n.Q.value = 1.1;
 n.gain.value = EQ.on ? EQ.gains[i] : 0;
 return n;
 });
+  eqHeadroomNode = ac.createGain();
+  eqHeadroomNode.gain.value = 1;
 an = ac.createAnalyser();
 an.fftSize = 128;
 an.smoothingTimeConstant = .82;
@@ -19617,13 +19956,18 @@ masterDryGain.gain.value = 1;
 }
   
   let prev = s;
-if (localStorage.ng_norm === '1') { prev.connect(compressorNode);
-prev = compressorNode;
-}
+  normalizerPathEnabled = localStorage.getItem('ng_norm') === '1';
+  if (normalizerPathEnabled) {
+    prev.connect(compressorNode);
+    prev = compressorNode;
+  }
   eqNodes.forEach((n) => { prev.connect(n);
 prev = n;
 });
-  prev.connect(masterDryGain);
+  prev.connect(eqHeadroomNode);
+  eqHeadroomNode.connect(masterDryGain);
+  applyLahnNormalizationMode();
+  updateEqHeadroom();
 if (panner) { masterDryGain.connect(panner);
 panner.connect(an);
 panner.connect(delayNode);
@@ -19637,11 +19981,50 @@ vocalWet.connect(an);
   an.connect(ac.destination);
 // السطر السحري اللي كان ناقص
 }
-const applyEQ = () => { eqNodes.forEach((n,
- i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0;
-});
-try { localStorage.ng_eq = JSON.stringify(EQ);
-} catch (_) {} };
+function updateEqHeadroom() {
+  if (!eqHeadroomNode || !ac) return;
+  const protectionEnabled = localStorage.getItem('ng_audio_headroom') !== '0';
+  let peakBoostDb = 0;
+  if (protectionEnabled && EQ.on && eqNodes.length) {
+    const sampleCount = 128;
+    const frequencies = new Float32Array(sampleCount);
+    const magnitude = new Float32Array(sampleCount);
+    const phase = new Float32Array(sampleCount);
+    for (let i = 0; i < sampleCount; i++) {
+      frequencies[i] = 20 * Math.pow(1000, i / (sampleCount - 1));
+    }
+    const combinedDb = new Float32Array(sampleCount);
+    eqNodes.forEach((node) => {
+      try {
+        node.getFrequencyResponse(frequencies, magnitude, phase);
+        for (let i = 0; i < sampleCount; i++) {
+          combinedDb[i] += 20 * Math.log10(Math.max(0.000001, magnitude[i]));
+        }
+      } catch (_) {}
+    });
+    for (let i = 0; i < sampleCount; i++) peakBoostDb = Math.max(peakBoostDb, combinedDb[i]);
+  }
+  const reserveDb = protectionEnabled && peakBoostDb > 0.1 ? peakBoostDb + 1.25 : 0;
+  const targetGain = Math.pow(10, -reserveDb / 20);
+  try {
+    eqHeadroomNode.gain.setTargetAtTime(targetGain, ac.currentTime, 0.06);
+  } catch (_) {
+    eqHeadroomNode.gain.value = targetGain;
+  }
+  const status = document.getElementById('audioHeadroomState');
+  if (status) {
+    status.textContent = protectionEnabled
+      ? (reserveDb > 0.1 ? `${reserveDb.toFixed(1)} dB` : trs('مستوى آمن'))
+      : trs('متوقف');
+  }
+  return { enabled: protectionEnabled, reserveDb, gain: targetGain };
+}
+
+const applyEQ = () => {
+  eqNodes.forEach((n, i) => { n.gain.value = EQ.on ? EQ.gains[i] : 0; });
+  updateEqHeadroom();
+  try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {}
+};
 const eqEnable = () => { EQ.on = true;
 ensureGraph();
 ac.resume();
@@ -25607,110 +25990,7 @@ fillDurations();
     
 })();
     
-Object.assign(SKINS,
-    
- {
-  royal: ['Royal',
-    
- '#0a0a1f',
-    
- '#eceeff',
-    
- '#8f93c9',
-    
- '255,255,255',
-    
- '#0a0a1f',
-    
- '99,102,241'],
-    
-  crimson: ['Crimson',
-    
- '#140808',
-    
- '#ffecec',
-    
- '#c99a9a',
-    
- '255,255,255',
-    
- '#140808',
-    
- '239,68,68'],
-    
-  aurora: ['Aurora',
-    
- '#07121a',
-    
- '#e7fbf3',
-    
- '#86b5a6',
-    
- '255,255,255',
-    
- '#07121a',
-    
- '52,211,153'],
-    
-  carbon: ['Carbon',
-    
- '#0e0e0e',
-    
- '#f4f4f5',
-    
- '#9a9aa0',
-    
- '255,255,255',
-    
- '#0e0e0e',
-    
- '244,244,245'],
-    
-  candy: ['Candy (light)',
-    
- '#fff0f6',
-    
- '#3b0d26',
-    
- '#9b5b78',
-    
- '0,0,0',
-    
- '#fff0f6',
-    
- '236,72,153'],
-    
-  sand: ['Sand (light)',
-    
- '#f6efe0',
-    
- '#2e2412',
-    
- '#8a7752',
-    
- '0,0,0',
-    
- '#f6efe0',
-    
- '180,120,40'],
-    
-  arctic: ['Arctic (light)',
-    
- '#eef6fb',
-    
- '#0f2a3a',
-    
- '#5a7d92',
-    
- '0,0,0',
-    
- '#eef6fb',
-    
- '14,165,233'],
-    
-});
-    
-applySkin(localStorage.ng_skin || 'nagham');
+
     
 document.body.insertAdjacentHTML('beforeend',
     
@@ -25952,7 +26232,32 @@ p[0].includes('{n}') ? PT.push([rx(p[0]),
     
 });
     
-addRows(['الرئيسية|Home',
+addRows([
+  'حماية ذروة الصوت|Audio peak protection|Protection contre l’écrêtage audio|Protección de picos de audio|Ses tepe koruması|Schutz vor Audio-Spitzen|Perlindungan puncak audio|آڈیو پیک پروٹیکشن',
+  'حماية ذروة الصوت مفعلة|Peak protection is on|Protection des pics activée|Protección de picos activada|Tepe koruması açık|Spitzenschutz ist aktiv|Perlindungan puncak aktif|پیک پروٹیکشن فعال ہے',
+  'حماية ذروة الصوت متوقفة|Peak protection is off|Protection des pics désactivée|Protección de picos desactivada|Tepe koruması kapalı|Spitzenschutz ist aus|Perlindungan puncak nonaktif|پیک پروٹیکشن بند ہے',
+  'استعادة الصوت النقي|Restore clean sound|Rétablir le son neutre|Restaurar sonido limpio|Temiz sesi geri yükle|Klaren Klang wiederherstellen|Pulihkan suara bersih|صاف آواز بحال کریں',
+  'تشخيص جودة الصوت|Audio diagnostics|Diagnostic audio|Diagnóstico de audio|Ses tanılaması|Audio-Diagnose|Diagnostik audio|آڈیو تشخیص',
+  'حماية الذروة تخفض الكسب تلقائياً عند رفع ترددات المعادل لتقليل التشويش الرقمي.|Peak protection automatically lowers gain when EQ bands are boosted to reduce digital clipping.|La protection réduit automatiquement le gain lorsque l’égaliseur est amplifié afin de limiter l’écrêtage numérique.|La protección reduce automáticamente la ganancia al aumentar el ecualizador para evitar el recorte digital.|Tepe koruması, EQ yükseltildiğinde dijital kırpılmayı azaltmak için kazancı otomatik düşürür.|Der Spitzenschutz senkt bei EQ-Anhebungen automatisch die Verstärkung, um digitales Clipping zu reduzieren.|Perlindungan puncak otomatis menurunkan gain saat EQ dinaikkan untuk mengurangi clipping digital.|ای کیو بڑھانے پر ڈیجیٹل کلپنگ کم کرنے کے لیے پیک پروٹیکشن خودکار طور پر گین کم کرتی ہے۔',
+  'استعادة الإعدادات تعطل المعادل والتطبيع والمؤثرات الصوتية، ولا تمسح الأغاني أو المكتبة.|Restore defaults turns off EQ, normalization and sound effects without deleting songs or the library.|La réinitialisation désactive l’égaliseur, la normalisation et les effets sans supprimer les morceaux ni la bibliothèque.|Restaurar los valores desactiva el ecualizador, la normalización y los efectos sin borrar canciones ni biblioteca.|Varsayılanları geri yüklemek EQ, normalizasyon ve efektleri kapatır; şarkıları veya kitaplığı silmez.|Das Zurücksetzen deaktiviert EQ, Normalisierung und Effekte, ohne Titel oder Bibliothek zu löschen.|Pulihkan setelan untuk menonaktifkan EQ, normalisasi, dan efek tanpa menghapus lagu atau pustaka.|ڈیفالٹ بحال کرنے سے ای کیو، نارملائزیشن اور ایفیکٹس بند ہوں گے؛ گانے یا لائبریری حذف نہیں ہوں گے۔',
+  'مستوى آمن|Safe level|Niveau sûr|Nivel seguro|Güvenli seviye|Sicherer Pegel|Level aman|محفوظ سطح',
+  'مسار الصوت لم يبدأ بعد|Audio path has not started yet|Le chemin audio n’a pas encore démarré|La ruta de audio aún no ha comenzado|Ses yolu henüz başlamadı|Audiopfad wurde noch nicht gestartet|Jalur audio belum dimulai|آڈیو پاتھ ابھی شروع نہیں ہوا',
+  'حالة مسار الصوت|Audio path status|État du chemin audio|Estado de la ruta de audio|Ses yolu durumu|Audiopfad-Status|Status jalur audio|آڈیو پاتھ کی حالت',
+  'معدل العينة|Sample rate|Fréquence d’échantillonnage|Frecuencia de muestreo|Örnekleme hızı|Abtastrate|Sample rate|سیمپل ریٹ',
+  'المصدر|Source|Source|Fuente|Kaynak|Quelle|Sumber|ماخذ',
+  'محلي|Local|Local|Local|Yerel|Lokal|Lokal|مقامی',
+  'عن بُعد|Remote|Distant|Remoto|Uzak|Remote|Jarak jauh|ریموٹ',
+  'جاهز|Ready|Prêt|Listo|Hazır|Bereit|Siap|تیار',
+  'السياق الصوتي|Audio context|Contexte audio|Contexto de audio|Ses bağlamı|Audio-Kontext|Konteks audio|آڈیو کانٹیکسٹ',
+  'مفعّل|Enabled|Activé|Activado|Açık|Aktiviert|Aktif|فعال',
+  'متوقف|Off|Désactivé|Desactivado|Kapalı|Aus|Nonaktif|بند',
+  'المعادل|Equalizer|Égaliseur|Ecualizador|Ekolayzer|Equalizer|Equalizer|ای کیو',
+  'تطبيع الصوت|Audio normalization|Normalisation audio|Normalización de audio|Ses normalizasyonu|Audio-Normalisierung|Normalisasi audio|آڈیو نارملائزیشن',
+  'لم يبدأ|Not started|Pas encore démarré|Aún no iniciado|Başlatılmadı|Nicht gestartet|Belum dimulai|ابھی شروع نہیں ہوا',
+  'تمت استعادة إعدادات الصوت النقية.|Clean audio settings restored.|Les réglages audio neutres ont été rétablis.|Se restablecieron los ajustes de audio limpios.|Temiz ses ayarları geri yüklendi.|Klare Audioeinstellungen wiederhergestellt.|Pengaturan audio bersih dipulihkan.|صاف آڈیو ترتیبات بحال ہوگئیں۔'
+]);
+
+    addRows(['الرئيسية|Home',
     
  'الفنانون|Artists',
     
@@ -27694,6 +27999,7 @@ return `<button class="chip ${cur ? 'pri' : ''}" data-lang="${code}">${info[0]}<
               <option value="custom">مخصص</option>
             </select>
             <button id="eqonInline" class="chip"></button>
+            <button type="button" id="eqFlatInline" class="chip" title="إرجاع كل نطاق إلى 0 dB">تصفير المعادل</button>
             <input type="text" id="eqCustomName" placeholder="اسم الإعداد..." style="width:100px; padding:6px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:12px;">
             <button class="chip" id="eqSaveCustom" style="padding:6px 10px; background:var(--tint); color:#fff;">حفظ</button>
           </div>
@@ -27701,12 +28007,26 @@ return `<button class="chip ${cur ? 'pri' : ''}" data-lang="${code}">${info[0]}<
             ${EQB.map((f,
      i) => `
               <div class="eqb">
-                <div><input type="range" min="-12" max="12" step="1" data-eqi="${i}" class="eq-input-inline"></div>
+                <div><input type="range" min="-12" max="12" step="1" value="${EQ.gains[i] ?? 0}" aria-label="${f} Hz" data-eqi="${i}" class="eq-input-inline"></div>
+                <output class="eq-band-value" data-eq-value="${i}">${Number(EQ.gains[i] ?? 0) > 0 ? '+' : ''}${Number(EQ.gains[i] ?? 0)} dB</output>
                 <span>${f >= 1000 ? f / 1000 + 'k' : f}</span>
               </div>
             `).join('')}
           </div>
           <small>${MOBILE ? 'على الموبايل ممكن المعادل يوقف الصوت لما تقفل الشاشة. لو حصل كده أوقفه.' : 'اسحب الأشرطة لضبط الصوت، أو اختار إعداد جاهز.'}</small>
+          <div class="lahn-audio-quality-panel" id="lahnAudioQualityPanel">
+            <div class="lahn-audio-quality-heading">
+              <b>🛡️ ${trs('حماية ذروة الصوت')}</b>
+              <span id="audioHeadroomState">${localStorage.getItem('ng_audio_headroom') === '0' ? trs('متوقف') : trs('مستوى آمن')}</span>
+            </div>
+            <p>${trs('حماية الذروة تخفض الكسب تلقائياً عند رفع ترددات المعادل لتقليل التشويش الرقمي.')}</p>
+            <div class="lahn-audio-quality-actions">
+              <button class="chip ${localStorage.getItem('ng_audio_headroom') === '0' ? '' : 'pri'}" id="audioHeadroomToggle">${localStorage.getItem('ng_audio_headroom') === '0' ? trs('حماية ذروة الصوت متوقفة') : trs('حماية ذروة الصوت مفعلة')}</button>
+              <button class="chip" id="audioQualityDiagnostics">${trs('تشخيص جودة الصوت')}</button>
+              <button class="chip" id="audioCleanReset">${trs('استعادة الصوت النقي')}</button>
+            </div>
+            <output id="audioQualityStatus" aria-live="polite">${trs('مسار الصوت لم يبدأ بعد')}</output>
+          </div>
         </div>
       </section>
 
@@ -28051,10 +28371,24 @@ const inputs = L.querySelectorAll('.eq-input-inline');
       onBtn.textContent = EQ.on ? 'مفعّل ✓' : 'متوقف';
 onBtn.classList.toggle('on', EQ.on);
 preSel.value = EQ.preset;
-inputs.forEach(inp => { inp.value = EQ.gains[+inp.dataset.eqi];
+inputs.forEach(inp => {
+  const index = +inp.dataset.eqi;
+  const gain = Number(EQ.gains[index] ?? 0);
+  inp.value = gain;
+  const readout = L.querySelector(`[data-eq-value="${index}"]`);
+  if (readout) readout.textContent = `${gain > 0 ? '+' : ''}${gain} dB`;
  });
 };
 updateEqInline();
+    const flatBtn = L.querySelector('#eqFlatInline');
+    if (flatBtn) flatBtn.onclick = () => {
+      EQ.gains = EQB.map(() => 0);
+      EQ.preset = 'flat';
+      EQ.on = true;
+      applyEQ();
+      updateEqInline();
+      toast('تم تصفير جميع نطاقات المعادل');
+    };
     onBtn.onclick = () => {
       if (EQ.on) EQ.on = false;
  else eqEnable();
@@ -28072,7 +28406,10 @@ eqEnable();
 };
 inputs.forEach(inp => {
       inp.addEventListener('input', (e) => {
-        EQ.gains[+e.target.dataset.eqi] = +e.target.value;
+        const bandIndex = +e.target.dataset.eqi;
+        EQ.gains[bandIndex] = +e.target.value;
+        const bandReadout = L.querySelector(`[data-eq-value="${bandIndex}"]`);
+        if (bandReadout) bandReadout.textContent = `${+e.target.value > 0 ? '+' : ''}${e.target.value} dB`;
 EQ.preset = 'custom';
  preSel.value = 'custom';
 if (!EQ.on) { eqEnable();
@@ -28083,6 +28420,81 @@ if (!EQ.on) { eqEnable();
 });
 }
   
+  const headroomBtn = L.querySelector('#audioHeadroomToggle');
+  const headroomState = L.querySelector('#audioHeadroomState');
+  const audioStatus = L.querySelector('#audioQualityStatus');
+  const syncAudioQualityPanel = () => {
+    const enabled = localStorage.getItem('ng_audio_headroom') !== '0';
+    if (headroomBtn) {
+      headroomBtn.textContent = trs(enabled ? 'حماية ذروة الصوت مفعلة' : 'حماية ذروة الصوت متوقفة');
+      headroomBtn.classList.toggle('pri', enabled);
+      headroomBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    }
+    if (headroomState) {
+      const result = typeof updateEqHeadroom === 'function' ? updateEqHeadroom() : null;
+      headroomState.textContent = result && enabled && result.reserveDb > 0.1
+        ? `${result.reserveDb.toFixed(1)} dB`
+        : trs(enabled ? 'مستوى آمن' : 'متوقف');
+    }
+    if (audioStatus) {
+      const rate = ac && ac.sampleRate ? `${Math.round(ac.sampleRate / 1000 * 10) / 10} kHz` : '—';
+      const contextState = ac ? ac.state : trs('لم يبدأ');
+      audioStatus.textContent = `${trs('السياق الصوتي')}: ${contextState} · ${trs('معدل العينة')}: ${rate}`;
+    }
+  };
+  if (headroomBtn) {
+    headroomBtn.onclick = () => {
+      const enabled = localStorage.getItem('ng_audio_headroom') !== '0';
+      localStorage.setItem('ng_audio_headroom', enabled ? '0' : '1');
+      if (typeof updateEqHeadroom === 'function') updateEqHeadroom();
+      syncAudioQualityPanel();
+      toast(trs(enabled ? 'حماية ذروة الصوت متوقفة' : 'حماية ذروة الصوت مفعلة'));
+    };
+  }
+  const diagnosticsBtn = L.querySelector('#audioQualityDiagnostics');
+  if (diagnosticsBtn) {
+    diagnosticsBtn.onclick = () => {
+      const activeElement = activeIsRemote ? remoteAudio : audio;
+      const rate = ac && ac.sampleRate ? `${ac.sampleRate} Hz` : trs('لم يبدأ');
+      const state = ac ? ac.state : trs('لم يبدأ');
+      const details = [
+        `${trs('حالة مسار الصوت')}: ${state}`,
+        `${trs('معدل العينة')}: ${rate}`,
+        `${trs('المصدر')}: ${trs(activeIsRemote ? 'عن بُعد' : 'محلي')}`,
+        `${trs('المعادل')}: ${EQ.on ? trs('مفعّل') : trs('متوقف')}`,
+        `${trs('تطبيع الصوت')}: ${localStorage.ng_norm === '1' ? trs('مفعّل') : trs('متوقف')}`,
+        `${trs('تخفيض الضاغط')}: ${compressorNode && Number.isFinite(compressorNode.reduction) ? compressorNode.reduction.toFixed(1) + ' dB' : '0 dB'}`,
+        `${trs('حماية ذروة الصوت')}: ${localStorage.getItem('ng_audio_headroom') === '0' ? trs('متوقف') : trs('مفعّل')}`,
+        `Ready state: ${activeElement ? activeElement.readyState : '—'}`
+      ];
+      alert(details.join('\n'));
+      syncAudioQualityPanel();
+    };
+  }
+  const cleanResetBtn = L.querySelector('#audioCleanReset');
+  if (cleanResetBtn) {
+    cleanResetBtn.onclick = () => {
+      if (!confirm(trs('استعادة الإعدادات تعطل المعادل والتطبيع والمؤثرات الصوتية، ولا تمسح الأغاني أو المكتبة.'))) return;
+      EQ.on = false;
+      EQ.preset = 'flat';
+      EQ.gains = [...EQP.flat[1]];
+      try { localStorage.ng_eq = JSON.stringify(EQ); } catch (_) {}
+      localStorage.removeItem('ng_norm');
+      localStorage.setItem('ng_audio_headroom', '1');
+      try {
+        if (wetGain) wetGain.gain.value = 0;
+        if (vocalWet) vocalWet.gain.value = 0;
+        if (panner) panner.pan.value = 0;
+        if (pannerGain) pannerGain.gain.value = 0;
+        if (masterDryGain) masterDryGain.gain.value = 1;
+        eqNodes.forEach((node) => { node.gain.value = 0; });
+      } catch (_) {}
+      toast(trs('تمت استعادة إعدادات الصوت النقية.'));
+      setTimeout(() => location.reload(), 250);
+    };
+  }
+  syncAudioQualityPanel();
+
   const dupScanBtn = L.querySelector('#dupScanBtn');
 if (dupScanBtn) dupScanBtn.onclick = () => openDuplicateScanner();
   const backupBtn = document.getElementById('backupBtnSet');
@@ -37262,6 +37674,7 @@ else if(act==='duplicates')deepDuplicates();
 else if(act==='mini'){document.body.classList.toggle('studio-mini-player');
 toastSafe(document.body.classList.contains('studio-mini-player')?'تم تفعيل المشغل المصغر':'تم إيقاف المشغل المصغر');
 }else if(act==='normalize'){localStorage.ng_norm=localStorage.ng_norm==='1'?'0':'1';
+if(typeof window.applyLahnNormalizationMode==='function')window.applyLahnNormalizationMode();
 b.textContent=localStorage.ng_norm==='1'?'إيقاف تطبيع الصوت':'تفعيل تطبيع الصوت';
 toastSafe('تم تحديث إعداد تطبيع الصوت');
 }else if(act==='backup')exportStats();
@@ -61718,6 +62131,218 @@ body.display-apple .settings-page .settings-section > div[style*="margin-top"] {
   }
 }
 </style>
+
+
+<style id="lahn-audio-quality-guard-v1">
+.lahn-audio-quality-panel {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+.lahn-audio-quality-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  color: var(--text);
+  font-size: 12px;
+}
+.lahn-audio-quality-heading span {
+  flex: 0 0 auto;
+  color: var(--tint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.lahn-audio-quality-panel p {
+  margin: 0;
+  color: var(--mute);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.lahn-audio-quality-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+.lahn-audio-quality-actions .chip {
+  flex: 1 1 145px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 7px 9px;
+  font-size: 11px;
+  white-space: normal;
+}
+#lahnAudioQualityPanel output {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--mute);
+  font-size: 10px;
+  line-height: 1.5;
+  direction: auto;
+}
+body.display-spotify .lahn-audio-quality-panel {
+  background: #202020;
+  border-color: rgba(255,255,255,.09);
+  border-radius: 9px;
+  box-shadow: none;
+}
+body.display-apple .lahn-audio-quality-panel {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.2);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+}
+body.display-apple[data-display-tone="light"] .lahn-audio-quality-panel {
+  background: rgba(255,255,255,.58);
+  border-color: rgba(255,255,255,.7);
+  box-shadow: 0 8px 24px rgba(35,35,50,.07), inset 0 1px 0 rgba(255,255,255,.7);
+}
+@media (max-width: 560px) {
+  .lahn-audio-quality-actions .chip {
+    flex-basis: 100%;
+  }
+}
+
+/* Lahn EQ: real vertical controls, full travel and readable live gain values. */
+.eq-inline .eqs {
+  align-items: end !important;
+  gap: clamp(5px, 1.2vw, 13px) !important;
+  min-height: 178px;
+  padding: 12px 8px 8px;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;
+}
+.eq-inline .eqb {
+  flex: 0 0 30px;
+  min-width: 30px;
+  gap: 5px !important;
+}
+.eq-inline .eqb > div {
+  width: 30px !important;
+  height: 130px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  overflow: visible !important;
+}
+.eq-inline .eqb input.eq-input-inline {
+  appearance: slider-vertical !important;
+  -webkit-appearance: slider-vertical !important;
+  writing-mode: vertical-lr !important;
+  direction: rtl !important;
+  transform: none !important;
+  width: 26px !important;
+  min-width: 26px !important;
+  height: 126px !important;
+  min-height: 126px !important;
+  max-width: 26px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: ns-resize;
+  touch-action: pan-x;
+  accent-color: var(--tint);
+  background: transparent !important;
+  opacity: 1 !important;
+}
+.eq-inline .eqb input.eq-input-inline::-webkit-slider-runnable-track {
+  width: 5px;
+  border-radius: 8px;
+  background: rgba(var(--w), .22);
+}
+.eq-inline .eqb input.eq-input-inline::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--tint);
+  box-shadow: 0 0 0 2px rgba(var(--tint-rgb), .18), 0 2px 8px rgba(0,0,0,.28);
+}
+.eq-inline .eqb input.eq-input-inline::-moz-range-track {
+  width: 5px; border: 0; border-radius: 8px; background: rgba(var(--w), .22);
+}
+.eq-inline .eqb input.eq-input-inline::-moz-range-thumb {
+  width: 11px; height: 11px; border: 2px solid var(--bg); border-radius: 50%; background: var(--tint);
+}
+.eq-inline .eqb .eq-band-value {
+  min-height: 14px; font-size: 10px; line-height: 14px; font-variant-numeric: tabular-nums;
+  color: var(--text); white-space: nowrap; opacity: .9;
+}
+.eq-inline .eqb > span { font-size: 10px; white-space: nowrap; }
+@media (max-width: 560px) {
+  .eq-inline .eqs { gap: 7px !important; }
+  .eq-inline .eqb { flex-basis: 28px; min-width: 28px; }
+}
+</style>
+
+
+<script id="lahn-theme-persistence-guard-v1">
+(() => {
+  'use strict';
+  const validModes = new Set(['lahn', 'spotify', 'apple']);
+  const restore = () => {
+    const savedMode = localStorage.getItem('ng_display_mode') || 'lahn';
+    const mode = validModes.has(savedMode) ? savedMode : 'lahn';
+    if (document.documentElement.dataset.displayMode !== mode ||
+        !document.body.classList.contains(`display-${mode}`)) {
+      if (typeof applyLahnDisplayMode === 'function') applyLahnDisplayMode(mode);
+    } else if (mode === 'lahn' && typeof applyDisplayTone === 'function') {
+      // Restore saved custom tint/skin after other scripts finish booting.
+      applyDisplayTone('lahn', currentDisplayTone('lahn'));
+    }
+  };
+  window.addEventListener('pageshow', restore, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) restore();
+  }, { passive: true });
+  window.addEventListener('lahn:display-mode-changed', () => {
+    const mode = document.documentElement.dataset.displayMode || 'lahn';
+    document.body.classList.remove('display-lahn', 'display-spotify', 'display-apple');
+    document.body.classList.add(`display-${mode}`);
+    document.body.dataset.displayMode = mode;
+  }, { passive: true });
+})();
+</script>
+
+
+<script id="lahn-audio-runtime-inspector-v1">
+(() => {
+  'use strict';
+  window.lahnBuildRevision = '2026.11.21-theme-first-paint-eq-vertical';
+  window.getLahnAudioRuntimeInfo = function getLahnAudioRuntimeInfo() {
+    const currentAudio = typeof activeIsRemote !== 'undefined' && activeIsRemote
+      ? document.getElementById('remoteAudio')
+      : document.getElementById('audio');
+    const context = typeof ac !== 'undefined' ? ac : null;
+    const eqState = typeof EQ !== 'undefined' ? EQ : null;
+    return Object.freeze({
+      audioContextState: context ? context.state : 'not-created',
+      sampleRate: context ? context.sampleRate : null,
+      baseLatency: context && Number.isFinite(context.baseLatency) ? context.baseLatency : null,
+      outputLatency: context && Number.isFinite(context.outputLatency) ? context.outputLatency : null,
+      equalizerEnabled: Boolean(eqState && eqState.on),
+      normalizationEnabled: localStorage.getItem('ng_norm') === '1',
+      compressorReductionDb: compressorNode && Number.isFinite(compressorNode.reduction) ? Math.round(compressorNode.reduction * 10) / 10 : 0,
+      peakProtectionEnabled: localStorage.getItem('ng_audio_headroom') !== '0',
+      currentSource: typeof activeIsRemote !== 'undefined' && activeIsRemote ? 'remote' : 'local',
+      readyState: currentAudio ? currentAudio.readyState : 0,
+      networkState: currentAudio ? currentAudio.networkState : 0,
+      volume: currentAudio ? currentAudio.volume : null,
+      playbackRate: currentAudio ? currentAudio.playbackRate : null
+    });
+  };
+})();
+</script>
 
 </body>
 </html>
