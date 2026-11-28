@@ -81,8 +81,8 @@
     mode = safeGet('ng_display_mode', 'lahn');
     if (!['lahn', 'spotify', 'apple'].includes(mode)) mode = 'lahn';
     skinId = safeGet('ng_skin', 'nagham') || 'nagham';
-    tonePreference = safeGet('ng_display_tone_' + mode, mode === 'apple' ? 'light' : 'dark');
-    if (!['light', 'dark', 'auto'].includes(tonePreference)) tonePreference = mode === 'apple' ? 'light' : 'dark';
+    tonePreference = safeGet('ng_display_tone_' + mode, 'dark');
+    if (!['light', 'dark', 'auto'].includes(tonePreference)) tonePreference = 'dark';
     resolvedTone = tonePreference === 'auto'
       ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark')
       : tonePreference;
@@ -14690,6 +14690,280 @@ html[data-device="mobile"] body.device-mobile.display-spotify .npd-artist-avatar
 
 /* End of Lahn Display Design V4 */
 </style>
+<style id="lahn-1-3-0-visual-upgrade">
+/* ================================================================
+   LAHN 1.3.5 — stable edge queue, Apple controls, smart sessions
+   All overrides are scoped to their display mode; playback logic is kept.
+   ================================================================ */
+
+/* Queue becomes a true side panel like the supplied Spotify reference.
+   Arabic: physical left. English: physical right. */
+body.display-spotify #qd,
+body.display-apple #qd {
+  position: fixed !important;
+  top: 96px !important;
+  bottom: 104px !important;
+  width: min(282px, calc(100vw - 28px)) !important;
+  max-width: min(282px, calc(100vw - 28px)) !important;
+  height: auto !important;
+  max-height: none !important;
+  z-index: 80 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+  box-shadow: 0 18px 54px rgba(0,0,0,.30) !important;
+  backdrop-filter: blur(24px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.25) !important;
+  direction: inherit !important;
+}
+html[dir="rtl"] body.display-spotify #qd,
+html[dir="rtl"] body.display-apple #qd {
+  left: 10px !important;
+  right: auto !important;
+}
+html[dir="ltr"] body.display-spotify #qd,
+html[dir="ltr"] body.display-apple #qd {
+  right: 10px !important;
+  left: auto !important;
+}
+body.display-spotify #qd { background: rgba(24,24,24,.94) !important; border: 1px solid rgba(255,255,255,.075) !important; color: #f5f5f5 !important; }
+body.display-apple #qd { background: color-mix(in srgb, var(--panel) 86%, transparent) !important; border: 1px solid var(--line) !important; color: var(--text) !important; }
+body.display-spotify #qd .qh2,
+body.display-apple #qd .qh2 {
+  min-height: 54px;
+  padding: 13px 15px !important;
+  border-bottom: 1px solid var(--line);
+  gap: 8px;
+}
+body.display-spotify #qd .qh2 b,
+body.display-apple #qd .qh2 b { font-size: 15px; font-weight: 750; }
+body.display-spotify #qd #qs,
+body.display-apple #qd #qs {
+  flex: none;
+  width: calc(100% - 24px) !important;
+  margin: 10px 12px 8px !important;
+  border-radius: 10px !important;
+  min-height: 38px;
+}
+body.display-spotify #qd #ql,
+body.display-apple #qd #ql { min-height: 0 !important; max-height: none !important; flex: 1 1 auto !important; padding: 7px 9px 12px !important; }
+body.display-spotify #qd .qr,
+body.display-apple #qd .qr { min-height: 54px; padding: 8px 9px !important; border-radius: 9px !important; }
+body.display-spotify #qd .qr.cur { background: rgba(30,215,96,.13) !important; border-inline-start-color: #1ed760 !important; }
+body.display-apple #qd .qr.cur { background: rgba(250,91,131,.12) !important; border-inline-start-color: var(--tint) !important; }
+body.display-spotify #qd .qr .mini,
+body.display-apple #qd .qr .mini { opacity: .72; }
+body.display-spotify #qd .qr:hover .mini,
+body.display-apple #qd .qr:hover .mini { opacity: 1; }
+
+/* Apple Music inspired floating, translucent bottom transport. */
+body.display-apple .app {
+  grid-template-rows: minmax(0,1fr) 0 !important;
+  padding-bottom: 104px !important;
+}
+body.display-apple .bar {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) !important;
+  width: min(760px, calc(100vw - 34px)) !important;
+  max-width: 760px !important;
+  min-height: 68px !important;
+  height: auto !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  grid-template-columns: minmax(110px,1fr) minmax(180px,1.25fr) minmax(90px,1fr) !important;
+  gap: 12px !important;
+  padding: 9px 14px !important;
+  border: 1px solid rgba(255,255,255,.17) !important;
+  border-radius: 19px !important;
+  background: rgba(35,35,40,.72) !important;
+  color: #fff !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.12) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(1.55) !important;
+  backdrop-filter: blur(30px) saturate(1.55) !important;
+  z-index: 70 !important;
+  overflow: visible !important;
+}
+body.display-apple[data-display-tone="light"] .bar {
+  background: rgba(255,255,255,.76) !important;
+  color: #222126 !important;
+  border-color: rgba(255,255,255,.72) !important;
+  box-shadow: 0 16px 48px rgba(65,45,55,.16), inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+body.display-apple[data-display-tone="dark"] .bar {
+  background: rgba(32,32,36,.76) !important;
+  color: #f7f7fa !important;
+  border-color: rgba(255,255,255,.14) !important;
+}
+body.display-apple .bar .np,
+body.display-apple .bar .mid,
+body.display-apple .bar .rt { min-width: 0 !important; position: relative; z-index: 1; }
+body.display-apple .bar .thumb { width: 46px !important; height: 46px !important; border-radius: 9px !important; box-shadow: 0 4px 16px rgba(0,0,0,.18) !important; }
+body.display-apple .bar #title { font-size: 12px !important; }
+body.display-apple .bar #artist { font-size: 10px !important; }
+body.display-apple .bar .mid { gap: 4px !important; }
+body.display-apple .bar .rt { justify-content: flex-end; }
+body.display-apple .bar button { color: inherit; }
+body.display-apple .bar canvas { opacity: .045 !important; }
+
+/* Apple surface palette follows the selected day/night tone instead of
+   forcing a permanently pink-white interface. */
+body.display-apple[data-display-tone="light"] {
+  --bg: #f4f4f7 !important;
+  --panel: rgba(255,255,255,.88) !important;
+  --text: #242329 !important;
+  --mute: #77747f !important;
+  --line: rgba(45,38,52,.11) !important;
+  --tint: #e34e70 !important;
+  --tint-rgb: 227,78,112 !important;
+  color-scheme: light;
+}
+body.display-apple[data-display-tone="dark"] {
+  --bg: #111114 !important;
+  --panel: #1b1b20 !important;
+  --text: #f5f5f7 !important;
+  --mute: #a5a3ad !important;
+  --line: rgba(255,255,255,.10) !important;
+  --tint: #ff6688 !important;
+  --tint-rgb: 255,102,136 !important;
+  color-scheme: dark;
+}
+body.display-apple[data-display-tone="dark"] .side,
+body.display-apple[data-display-tone="dark"] main,
+body.display-apple[data-display-tone="dark"] .panel { background-color: #18181d !important; }
+body.display-apple[data-display-tone="light"] .side,
+body.display-apple[data-display-tone="light"] main,
+body.display-apple[data-display-tone="light"] .panel { background-color: rgba(255,255,255,.82) !important; }
+body.display-apple .card,
+body.display-apple .settings-section,
+body.display-apple .modal-box { backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+
+/* Lahn day/night surfaces: calmer contrast and softer gradients while
+   preserving the selected accent color and skin identity. */
+body.display-lahn[data-display-tone="light"] .side,
+body.display-lahn[data-display-tone="light"] .bar,
+body.display-lahn[data-display-tone="light"] .panel {
+  border-color: color-mix(in srgb, var(--tint) 13%, var(--line)) !important;
+  box-shadow: 0 8px 28px rgba(45,35,70,.055) !important;
+}
+body.display-lahn[data-display-tone="light"] main {
+  background: linear-gradient(155deg, color-mix(in srgb, var(--tint) 5%, var(--bg)), var(--bg) 48%) !important;
+}
+body.display-lahn[data-display-tone="dark"] .side,
+body.display-lahn[data-display-tone="dark"] .bar,
+body.display-lahn[data-display-tone="dark"] .panel {
+  border-color: color-mix(in srgb, var(--tint) 18%, var(--line)) !important;
+  box-shadow: 0 12px 38px rgba(0,0,0,.16) !important;
+}
+body.display-lahn[data-display-tone="dark"] main {
+  background: radial-gradient(900px 500px at 80% -15%, color-mix(in srgb, var(--tint) 10%, transparent), transparent 72%), var(--bg) !important;
+}
+body.display-lahn #list .row,
+body.display-lahn #list .grid > *,
+body.display-lahn .settings-section { transition: background-color .18s ease, border-color .18s ease, transform .18s ease; }
+body.display-lahn #list .row:hover { background: color-mix(in srgb, var(--tint) 8%, var(--panel)) !important; }
+body.display-lahn .bar { -webkit-backdrop-filter: blur(22px) saturate(1.2); backdrop-filter: blur(22px) saturate(1.2); }
+
+/* Better spacing and safe-area handling on compact windows. */
+@media (max-width: 900px) {
+  body.display-apple .bar { grid-template-columns: minmax(0,1fr) minmax(150px,1.1fr) auto !important; width: calc(100vw - 22px) !important; gap: 7px !important; padding: 8px 10px !important; }
+  body.display-apple .bar .thumb { width: 38px !important; height: 38px !important; }
+  body.display-spotify #qd, body.display-apple #qd { top: 82px !important; bottom: 100px !important; }
+}
+@media (max-width: 600px) {
+  body.display-apple .app { padding-bottom: 116px !important; }
+  body.display-apple .bar { bottom: max(8px, env(safe-area-inset-bottom)) !important; min-height: 62px !important; grid-template-columns: minmax(0,1fr) auto !important; }
+  body.display-apple .bar .mid { grid-column: 1 / -1; grid-row: 2; }
+  body.display-apple .bar .rt { grid-column: 2; grid-row: 1; }
+  body.display-apple .bar .np { grid-column: 1; grid-row: 1; }
+  body.display-spotify #qd, body.display-apple #qd { top: 72px !important; bottom: 118px !important; width: min(290px, calc(100vw - 20px)) !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  body.display-apple .bar, body.display-spotify #qd, body.display-apple #qd { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+}
+</style>
+
+<style id="lahn-1-3-6-settings-order-language-layout">
+/* Keep the settings sections in their original order. New smart-mix controls live in their own additive section. */
+#lahnSmartToolsSettings { order: initial; }
+
+/* Queue panel: Arabic is physically left; LTR languages are physically right.
+   Clear logical insets before applying physical edges to prevent direction conflicts. */
+html[dir="rtl"] body.display-lahn #qd,
+html[dir="rtl"] body.display-spotify #qd,
+html[dir="rtl"] body.display-apple #qd {
+  left:10px !important; right:auto !important;
+  inset-inline-start:auto !important; inset-inline-end:auto !important;
+}
+html[dir="ltr"] body.display-lahn #qd,
+html[dir="ltr"] body.display-spotify #qd,
+html[dir="ltr"] body.display-apple #qd {
+  left:auto !important; right:10px !important;
+  inset-inline-start:auto !important; inset-inline-end:auto !important;
+}
+
+/* Grid areas mirror all three player regions, not only the title's text direction. */
+body.display-spotify .bar, body.display-apple .bar {
+  direction:ltr !important;
+  grid-template-areas:"np mid rt" !important;
+}
+body.display-spotify .bar > .np, body.display-apple .bar > .np { grid-area:np !important; min-width:0 !important; }
+body.display-spotify .bar > .mid, body.display-apple .bar > .mid { grid-area:mid !important; min-width:0 !important; }
+body.display-spotify .bar > .rt, body.display-apple .bar > .rt { grid-area:rt !important; min-width:0 !important; }
+html[dir="rtl"] body.display-spotify .bar,
+html[dir="rtl"] body.display-apple .bar { grid-template-areas:"rt mid np" !important; }
+
+/* Mirror artwork, title, utility controls, transport buttons and time labels. */
+html[dir="rtl"] body.display-spotify .bar .np,
+html[dir="rtl"] body.display-apple .bar .np,
+html[dir="rtl"] body.display-spotify .bar .rt,
+html[dir="rtl"] body.display-apple .bar .rt,
+html[dir="rtl"] body.display-spotify .bar .ctl,
+html[dir="rtl"] body.display-apple .bar .ctl,
+html[dir="rtl"] body.display-spotify .bar .seekrow,
+html[dir="rtl"] body.display-apple .bar .seekrow { direction:rtl !important; }
+html[dir="ltr"] body.display-spotify .bar .np,
+html[dir="ltr"] body.display-apple .bar .np,
+html[dir="ltr"] body.display-spotify .bar .rt,
+html[dir="ltr"] body.display-apple .bar .rt,
+html[dir="ltr"] body.display-spotify .bar .ctl,
+html[dir="ltr"] body.display-apple .bar .ctl,
+html[dir="ltr"] body.display-spotify .bar .seekrow,
+html[dir="ltr"] body.display-apple .bar .seekrow { direction:ltr !important; }
+html[dir="rtl"] body.display-spotify .bar .ctl,
+html[dir="rtl"] body.display-apple .bar .ctl,
+html[dir="rtl"] body.display-spotify .bar .rt,
+html[dir="rtl"] body.display-apple .bar .rt,
+html[dir="ltr"] body.display-spotify .bar .ctl,
+html[dir="ltr"] body.display-apple .bar .ctl,
+html[dir="ltr"] body.display-spotify .bar .rt,
+html[dir="ltr"] body.display-apple .bar .rt { flex-direction:row !important; }
+html[dir="rtl"] body.display-spotify .bar .seekrow #tc,
+html[dir="rtl"] body.display-apple .bar .seekrow #tc { grid-column:3 !important; text-align:right !important; }
+html[dir="rtl"] body.display-spotify .bar .seekrow #td,
+html[dir="rtl"] body.display-apple .bar .seekrow #td { grid-column:1 !important; text-align:left !important; }
+html[dir="rtl"] body.display-spotify .bar .seekrow #seek,
+html[dir="rtl"] body.display-apple .bar .seekrow #seek { direction:rtl !important; }
+
+@media (max-width:600px) {
+  body.display-spotify .bar, body.display-apple .bar {
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-rows:auto auto !important;
+    grid-template-areas:"np rt" "mid mid" !important;
+  }
+  html[dir="rtl"] body.display-spotify .bar,
+  html[dir="rtl"] body.display-apple .bar { grid-template-areas:"rt np" "mid mid" !important; }
+  body.display-spotify .bar > .np, body.display-apple .bar > .np,
+  body.display-spotify .bar > .mid, body.display-apple .bar > .mid,
+  body.display-spotify .bar > .rt, body.display-apple .bar > .rt {
+    grid-column:auto !important; grid-row:auto !important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -15321,7 +15595,7 @@ html[data-device="mobile"] body.device-mobile.display-spotify .npd-artist-avatar
   aria-label="تشغيل"><svg
   viewBox="0 0 24 24"
   fill="currentColor"><path
-  id="pp" d="M8 5v14l11-7z"/></svg></button>
+  id="pp" d="M9 6.25L18 12L9 17.75Z"/></svg></button>
       <button
   class="ib"
   id="next"
@@ -16949,7 +17223,9 @@ ctx.clearRect(0,
  0,
  width,
  height);
-const tint = getComputedStyle(document.body || document.documentElement).getPropertyValue('--tint-rgb').trim() || getComputedStyle(document.documentElement).getPropertyValue('--tint-rgb').trim() || '139,124,246';
+const appleDisplay = !!(document.body && document.body.classList.contains('display-apple'));
+const appleTone = document.body && document.body.dataset.displayTone === 'light' ? 'light' : 'dark';
+const tint = appleDisplay ? (appleTone === 'light' ? '48,52,60' : '244,245,247') : (getComputedStyle(document.body || document.documentElement).getPropertyValue('--tint-rgb').trim() || getComputedStyle(document.documentElement).getPropertyValue('--tint-rgb').trim() || '139,124,246');
 const duration = Number(audio.duration) || 0;
 const rawRatio = seeking
     ? Number($('#seek')?.value || 0) / 1000
@@ -16976,7 +17252,9 @@ const barHeight = Math.max(2,
 const x = index * (barWidth + gap);
 const y = (height - barHeight) / 2;
 const barPosition = (x + barWidth / 2) / width;
-ctx.fillStyle = barPosition <= ratio ? `rgb(${tint})` : 'rgba(150,150,150,.34)';
+const waveformRtl = document.documentElement.dir === 'rtl';
+const barElapsed = waveformRtl ? (1 - barPosition) <= ratio : barPosition <= ratio;
+    ctx.fillStyle = barElapsed ? `rgb(${tint})` : 'rgba(150,150,150,.34)';
     ctx.beginPath();
 if (typeof ctx.roundRect === 'function') ctx.roundRect(x,
  y,
@@ -17016,6 +17294,12 @@ if (seekWaveCanvas) {
  { passive: true });
 }
   requestAnimationFrame(resizeSeekWaveform);
+  window.addEventListener('lahn:display-mode-changed', () => requestAnimationFrame(resizeSeekWaveform));
+  window.addEventListener('lahn:display-tone-changed', () => requestAnimationFrame(resizeSeekWaveform));
+  // Redraw the elapsed waveform edge immediately after the language direction flips.
+  window.addEventListener('lahn-language-change', () => requestAnimationFrame(drawSeekWaveform), { passive: true });
+  const seekDirectionObserver = new MutationObserver(() => requestAnimationFrame(drawSeekWaveform));
+  seekDirectionObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
 }
 
 async function setTrack(i,
@@ -17205,7 +17489,7 @@ $('#play').setAttribute('aria-label',
 });
 audio.addEventListener('pause',
  () => { $('#pp').setAttribute('d',
- 'M8 5v14l11-7z');
+ 'M9 6.25L18 12L9 17.75Z');
 $('#play').setAttribute('aria-label',
  'تشغيل');
 });
@@ -28171,6 +28455,17 @@ return `<button class="chip ${cur ? 'pri' : ''}" data-lang="${code}">${info[0]}<
   </small>
 </section>
 
+
+<section class="settings-section" id="lahnSmartToolsSettings">
+  <h3>✦ ${trs('أدوات المزيج الإضافية')}</h3>
+  <p class="settings-hint">${trs('أدوات موسيقية إضافية متصلة بمكتبتك وسجل الاستماع.')}</p>
+  <div class="smart-mix-actions">
+    <button class="smart-mix-button lahn-flow-open" type="button" id="lahnFlowBuilderOpen">✦ ${trs('منشئ جلسة لحن الذكية')}</button>
+    <button class="smart-mix-button" type="button" id="lahnSmartRadioOpen">◉ ${trs('راديو لحن الذكي')}</button>
+    <button class="smart-mix-button" type="button" id="lahnReplayOpen">▤ ${trs('ملخص استماع لحن')}</button>
+  </div>
+</section>
+
       <section class="settings-section">
         <h3>${svgIcons.globe} المزامنة السحابية</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -28212,7 +28507,7 @@ return `<button class="chip ${cur ? 'pri' : ''}" data-lang="${code}">${info[0]}<
       <section class="settings-section">
         <h3>${svgIcons.info} حول التطبيق</h3>
         <div class="about-info">
-          <div class="about-row"><span>الإصدار</span><b>1.2.12</b></div>
+          <div class="about-row"><span>الإصدار</span><b>1.3.12</b></div>
           <div class="about-row"><span>عدد الأغاني</span><b>${trackCount}</b></div>
           <div class="about-row"><span>عدد القوائم</span><b>${playlistCount}</b></div>
           <div class="about-row"><span>عدد المفضلة</span><b>${favCount}</b></div>
@@ -28225,11 +28520,12 @@ return `<button class="chip ${cur ? 'pri' : ''}" data-lang="${code}">${info[0]}<
         </div>
       </section>
       
-      <div style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
+      <div class="settings-page-footer" style="text-align:center; color:var(--mute); font-size:12px; margin-top:20px; opacity:0.6; padding-bottom:10px; direction:ltr;">
         © ${new Date().getFullYear()} Lahn App. All rights reserved.
       </div>
     </div>
   `;
+  // Keep the original settings section order; new music tools are an additive section above Cloud Sync.
   if (typeof trTree === 'function') trTree(L);
   L.querySelectorAll('.skin-item[data-skin]').forEach(el => {
     el.onclick = () => { 
@@ -28933,19 +29229,54 @@ documentId = '';
 
       cloudUploadBtn.textContent = '⏳ جاري تجهيز بياناتك...';
 const dbClone = JSON.parse(JSON.stringify(DB));
-dbClone.covers = {};
-dbClone.artistCovers = {};
-dbClone.albumCovers = {};
-dbClone.listCovers = {};
-const dataToSync = {
+      // Keep artwork in the cloud copy, but cap its raw size so a large local
+      // cover cache cannot consume the service's complete document allowance.
+      const artworkBudget = 320000;
+      let artworkUsed = 0;
+      for (const collectionName of ['covers','artistCovers','albumCovers','listCovers']) {
+        const source = dbClone[collectionName] && typeof dbClone[collectionName] === 'object' ? dbClone[collectionName] : {};
+        const kept = {};
+        for (const [key,value] of Object.entries(source)) {
+          const size = typeof value === 'string' ? new TextEncoder().encode(value).byteLength : 0;
+          if (size > 0 && artworkUsed + size <= artworkBudget) { kept[key] = value; artworkUsed += size; }
+        }
+        dbClone[collectionName] = kept;
+      }
+      // Sync user-facing preferences, never cloud credentials, machine folder
+      // handles, device paths, or the database itself (already stored as db).
+      const syncedPreferences = {};
+      const excludedPreference = /^(ng2|ng_sync_|ng_synced_|ng_lahn_workspace_|ng_folder|ng_watch|ng_device|ng_path|ng_dir|ng_token|ng_auth|ng_cache|ng_blob|ng_temp|lahn_sync|lahn_token|lahn_auth)/i;
+      let syncedPreferenceBytes = 0;
+      const preferenceBudget = 140000;
+      for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index);
+        if (!key || excludedPreference.test(key)) continue;
+        // Sync every user-facing Lahn preference and feature state, not just the original ng_ keys.
+        if (!/^(ng_|lahn_|vol$|q$|i$|playback_|equalizer_|visualizer_)/i.test(key)) continue;
+        const value = localStorage.getItem(key);
+        if (typeof value !== 'string' || value.length > 24000) continue;
+        const bytes = new TextEncoder().encode(key + value).byteLength;
+        if (syncedPreferenceBytes + bytes > preferenceBudget) continue;
+        syncedPreferences[key] = value;
+        syncedPreferenceBytes += bytes;
+      }
+      const queueSnapshot = Array.isArray(tracks) ? tracks.slice(0,250).map(track => {
+        const meta = DB.lib[track.path] || track || {};
+        return { title:String(meta.title || track.title || ''), artist:String(meta.artist || track.artist || ''), album:String(meta.album || track.album || ''), genre:String(meta.genre || track.genre || ''), duration:Number(meta.duration || track.duration || 0) };
+      }) : [];
+      const playbackSnapshot = { index:Number.isInteger(cur) ? cur : -1, position:Number.isFinite(Number(audio?.currentTime)) ? Math.max(0,Number(audio.currentTime)) : 0, capturedAt:Date.now() };
+      const dataToSync = {
         app: 'Lahn Music Player',
-        schemaVersion: 2,
+        schemaVersion: 4,
         db: dbClone,
         stats: ST,
         hist: HIST,
+        preferences: syncedPreferences,
+        queueSnapshot,
+        playbackSnapshot,
         updatedAt: new Date().toISOString()
       };
-const requestBody = await lahnCloudPreparePayload(dataToSync);
+      const requestBody = await lahnCloudPreparePayload(dataToSync);
 cloudUploadBtn.textContent = '⏳ جاري الرفع...';
       let result;
 if (canUpdateExisting && documentId && ownerToken) {
@@ -29040,12 +29371,42 @@ restoredDB.albumCovers = { ...(DB.albumCovers || {}),
  ...(restoredDB.albumCovers || {}) };
 restoredDB.listCovers = { ...(DB.listCovers || {}),
  ...(restoredDB.listCovers || {}) };
+      // Rebuild a playable local queue playlist by metadata instead of transferring machine-specific paths.
+      if (Array.isArray(data.queueSnapshot) && data.queueSnapshot.length) {
+        const normSyncTrack = value => String(value || '').normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g,' ');
+        const localPlayable = Object.entries(restoredDB.lib || {}).filter(([key,meta]) => (typeof files !== 'undefined' && files?.has?.(key)) || !!meta?.url);
+        const syncedQueueKeys = [];
+        for (const remoteTrack of data.queueSnapshot.slice(0,250)) {
+          const remoteTitle = normSyncTrack(remoteTrack?.title);
+          const remoteArtist = normSyncTrack(remoteTrack?.artist);
+          const remoteAlbum = normSyncTrack(remoteTrack?.album);
+          if (!remoteTitle) continue;
+          const match = localPlayable.find(([key,meta]) => normSyncTrack(meta?.title || key.split('|')[0]) === remoteTitle && (!remoteArtist || normSyncTrack(meta?.artist) === remoteArtist) && (!remoteAlbum || !meta?.album || normSyncTrack(meta.album) === remoteAlbum));
+          if (match && !syncedQueueKeys.includes(match[0])) syncedQueueKeys.push(match[0]);
+        }
+        if (syncedQueueKeys.length) {
+          restoredDB.lists = restoredDB.lists && typeof restoredDB.lists === 'object' ? restoredDB.lists : {};
+          restoredDB.lists['Lahn Sync Queue'] = syncedQueueKeys;
+        }
+      }
 localStorage.setItem('ng2',
  JSON.stringify(restoredDB));
 if (data.stats && typeof data.stats === 'object') localStorage.setItem('ng_stats',
  JSON.stringify(data.stats));
 if (Array.isArray(data.hist)) localStorage.setItem('ng_hist',
  JSON.stringify(data.hist));
+      if (data.preferences && typeof data.preferences === 'object') {
+        const excludedPreference = /^(ng2|ng_sync_|ng_synced_|ng_lahn_workspace_|ng_folder|ng_watch|ng_device|ng_path|ng_dir|ng_token|ng_auth|ng_cache|ng_blob|ng_temp|lahn_sync|lahn_token|lahn_auth)/i;
+        for (const [key,value] of Object.entries(data.preferences)) {
+          if (!excludedPreference.test(key) && /^(ng_|lahn_|vol$|q$|i$|playback_|equalizer_|visualizer_)/i.test(key) && typeof value === 'string' && value.length <= 24000) localStorage.setItem(key,value);
+        }
+      }
+      if (Array.isArray(data.queueSnapshot)) localStorage.setItem('ng_synced_queue_snapshot', JSON.stringify(data.queueSnapshot.slice(0,250)));
+      if (data.playbackSnapshot && typeof data.playbackSnapshot === 'object') {
+        const remoteQueueIndex = Number(data.playbackSnapshot.index);
+        localStorage.setItem('ng_synced_queue_index', String(Number.isInteger(remoteQueueIndex) ? Math.max(-1,Math.min(249,remoteQueueIndex)) : 0));
+        localStorage.setItem('ng_synced_playback_position', String(Math.max(0,Number(data.playbackSnapshot.position)||0)));
+      }
       localStorage.setItem('ng_sync_key',
  lahnCloudShareCode(share.namespace,
  share.id));
@@ -40884,18 +41245,54 @@ $('lalDeckBSelect').addEventListener('change',
 updateDeckB);
 $('lalDeckAPlay').onclick=()=>{const b=$('play');
 if(b)b.click()};
-$('lalDeckBPreview').onclick=()=>{const x=allTracks().find(z=>z.key===$('lalDeckBSelect').value),
-src=x&&getTrackURL(x.key,
-x.meta);
-if(!src){say('lalDJStatus',
-t('filePreviewUnavailable'));
-return}const w=window.open('',
-'_blank',
-'width=420,height=160');
-if(w){w.document.write('<title>Lahn Deck B</title><audio controls autoplay style="width:95%" src="'+src.replace(/"/g,
-'&quot;')+'"></audio>');
-w.document.close()}else say('lalDJStatus',
-t('popupBlocked'))};
+function openDeckBPreview(src, title) {
+  let overlay = document.getElementById('lahnDeckPreviewOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'lahnDeckPreviewOverlay';
+    overlay.className = 'lahn-deck-preview-overlay';
+    overlay.hidden = true;
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'lahnDeckPreviewTitle');
+    overlay.innerHTML = '<section class="lahn-deck-preview-card"><header><div><small>LAHN DJ DECK B</small><h3 id="lahnDeckPreviewTitle"></h3></div><button type="button" class="lahn-deck-preview-close" aria-label="Close preview">×</button></header><audio controls preload="none"></audio><p class="lahn-deck-preview-note">Preview audio plays inside Lahn.</p></section>';
+    document.body.appendChild(overlay);
+    const closePreview = () => {
+      const player = overlay.querySelector('audio');
+      if (player) {
+        try { player.pause(); } catch (_) {}
+        const oldSrc = player.currentSrc || player.src;
+        player.removeAttribute('src');
+        player.load();
+        if (oldSrc && oldSrc.startsWith('blob:')) URL.revokeObjectURL(oldSrc);
+      }
+      overlay.hidden = true;
+    };
+    overlay.querySelector('.lahn-deck-preview-close').addEventListener('click', closePreview);
+    overlay.addEventListener('pointerdown', event => { if (event.target === overlay) closePreview(); });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !overlay.hidden) { event.preventDefault(); closePreview(); }
+    });
+  }
+  const player = overlay.querySelector('audio');
+  const previousSrc = player.currentSrc || player.src;
+  if (previousSrc && previousSrc.startsWith('blob:')) URL.revokeObjectURL(previousSrc);
+  player.pause();
+  player.src = src;
+  document.getElementById('lahnDeckPreviewTitle').textContent = title || 'Deck B Preview';
+  overlay.hidden = false;
+  const attempt = player.play();
+  if (attempt && typeof attempt.catch === 'function') attempt.catch(() => {
+    const note = overlay.querySelector('.lahn-deck-preview-note');
+    if (note) note.textContent = 'Press Play to start the preview.';
+  });
+}
+$('lalDeckBPreview').onclick=()=>{
+  const x=allTracks().find(z=>z.key===$('lalDeckBSelect').value),
+  src=x&&getTrackURL(x.key,x.meta);
+  if(!src){say('lalDJStatus',t('filePreviewUnavailable'));return;}
+  openDeckBPreview(src,x.name||x.meta.title||'Deck B Preview');
+};
 $('lalBeatCalc').onclick=()=>{const a=currentMeta(),
 b=allTracks().find(x=>x.key===$('lalDeckBSelect').value)?.meta,
 ba=Number(a&&(a.bpm||a.tempo)),
@@ -45623,54 +46020,16 @@ body.display-spotify .studio-intro .studio-zero-track-count,
     
   }
 
-  // The queue popover is positioned relative to the player controls, not as a full-page modal.
+  // Queue location is CSS-owned and remains pinned to the viewport edge.
+  // Do not calculate offsets from the queue trigger: that moves the panel toward the center.
   const queue = document.getElementById('qd');
-    
-  const queueButton = document.getElementById('qb');
-    
-  const positionQueue = () => {
-    if (!queue || queue.hidden) return;
-    const viewportWidth = Math.max(320, document.documentElement.clientWidth || window.innerWidth || 900);
-    const viewportHeight = Math.max(420, document.documentElement.clientHeight || window.innerHeight || 700);
-    const edge = 12;
-    const panelWidth = Math.max(280, Math.min(430, viewportWidth - edge * 2));
-    const anchorRect = queueButton && queueButton.getBoundingClientRect ? queueButton.getBoundingClientRect() : null;
-    // Always use physical right/left coordinates. inset-inline-end is direction-dependent
-    // and was the source of the off-screen queue bug in RTL desktop windows.
-    let right = anchorRect && anchorRect.width > 0 ? viewportWidth - anchorRect.right : edge;
-    right = Math.max(edge, Math.min(viewportWidth - panelWidth - edge, right));
-    const bottomGap = viewportWidth <= 600 ? 88 : 102;
-    const maxHeight = Math.max(220, Math.min(760, Math.round(viewportHeight * 0.76), viewportHeight - bottomGap - edge * 2));
-    queue.style.setProperty('position', 'fixed', 'important');
-    queue.style.setProperty('top', 'auto', 'important');
-    queue.style.setProperty('left', 'auto', 'important');
-    queue.style.setProperty('right', right + 'px', 'important');
-    queue.style.setProperty('bottom', bottomGap + 'px', 'important');
-    queue.style.setProperty('inset-inline-start', 'auto', 'important');
-    queue.style.setProperty('inset-inline-end', 'auto', 'important');
-    queue.style.setProperty('width', panelWidth + 'px', 'important');
-    queue.style.setProperty('max-width', 'calc(100vw - 24px)', 'important');
-    queue.style.setProperty('max-height', maxHeight + 'px', 'important');
-    queue.style.setProperty('box-sizing', 'border-box', 'important');
-    queue.style.setProperty('z-index', '10040', 'important');
-  };
-    
-  if (queueButton && queue) {
-    queueButton.addEventListener('click',
-    ()=>requestAnimationFrame(positionQueue));
-    
-    window.addEventListener('resize',
-    () => requestAnimationFrame(positionQueue),
-    {passive:true});
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', () => requestAnimationFrame(positionQueue), {passive:true});
-    }
-    window.addEventListener('lahn-display-mode-change', () => requestAnimationFrame(positionQueue));
-    document.addEventListener('keydown',
-    event=>{if(event.key==='Escape')queue.hidden=true;
-    
-});
-    
+  if (queue) {
+    queue.style.removeProperty('top');
+    queue.style.removeProperty('left');
+    queue.style.removeProperty('right');
+    queue.style.removeProperty('bottom');
+    queue.style.removeProperty('inset-inline-start');
+    queue.style.removeProperty('inset-inline-end');
   }
 
   // Studio's own cards already use the eight-language lx() dictionary. Remove only
@@ -62761,11 +63120,36 @@ body.display-spotify[data-display-tone="light"] .lx-spt-mix-dialog>footer button
     if (total >= 3600) return `${formatNumber(Math.floor(total / 3600))} ${T('hours')} ${formatNumber(Math.floor((total % 3600) / 60))} ${T('minutes')}`;
     return `${formatNumber(Math.floor(total / 60))} ${T('minutes')}`;
   };
+  const LATE_NIGHT_GREETINGS = {
+    ar:'لسه صاحي؟ خلّي الموسيقى تكمّل ليلتك',
+    en:'Up late? Let the music keep you company',
+    fr:'Encore éveillé ? Laissez la musique vous accompagner',
+    es:'¿Sigues despierto? Deja que la música te acompañe',
+    tr:'Hâlâ uyanık mısın? Müzik sana eşlik etsin',
+    de:'Noch wach? Lass dich von Musik begleiten',
+    id:'Masih terjaga? Biarkan musik menemanimu',
+    ur:'ابھی جاگ رہے ہیں؟ موسیقی کو اپنا ساتھی بنائیں'
+  };
+  const HOME_LOCALES = { ar:'ar-EG', en:'en-US', fr:'fr-FR', es:'es-ES', tr:'tr-TR', de:'de-DE', id:'id-ID', ur:'ur-PK' };
   const currentGreeting = () => {
     const hour = new Date().getHours();
+    const language = activeLanguage();
+    if (hour < 5 || hour >= 23) return LATE_NIGHT_GREETINGS[language] || LATE_NIGHT_GREETINGS.en;
     if (hour < 12) return T('morning');
-    if (hour < 18) return T('afternoon');
+    if (hour < 17) return T('afternoon');
     return T('evening');
+  };
+  const currentLocalTimeText = () => {
+    const language = activeLanguage();
+    const locale = HOME_LOCALES[language] || 'en-US';
+    const now = new Date();
+    try {
+      const date = new Intl.DateTimeFormat(locale, { weekday:'long', day:'numeric', month:'long' }).format(now);
+      const time = new Intl.DateTimeFormat(locale, { hour:'numeric', minute:'2-digit' }).format(now);
+      return `${date} • ${time}`;
+    } catch (_) {
+      return now.toLocaleString();
+    }
   };
   const recentKeys = () => {
     const seen = new Set();
@@ -62923,7 +63307,8 @@ body.display-spotify[data-display-tone="light"] .lx-spt-mix-dialog>footer button
         <section class="lx-spt-hero">
           <div class="lx-spt-hero-content">
             <span class="lx-spt-eyebrow">${T('eyebrow')}</span>
-            <h1>${currentGreeting()}</h1>
+            <h1 class="lx-spt-time-greeting">${currentGreeting()}</h1>
+            <small class="lx-spt-local-clock" id="lx-spt-local-clock">${currentLocalTimeText()}</small>
             <p>${T('heroDesc')}</p>
             <div class="lx-spt-hero-actions">
               <button type="button" data-lxs-action="play-all" ${keys.length ? '' : 'disabled'}>▶ ${T('playLibrary')}</button>
@@ -63176,6 +63561,18 @@ body.display-spotify[data-display-tone="light"] .lx-spt-mix-dialog>footer button
   window.addEventListener('lahn-language-change', () => {
     if (isSpotifyTheme() && isHomeView()) refreshSpotifyHome();
   }, { passive: true });
+  // Keep the time-of-day greeting and local clock fresh without rebuilding the home page.
+  const updateHomeClock = () => {
+    if (!isSpotifyTheme() || !isHomeView()) return;
+    const greeting = root.querySelector('.lx-spt-time-greeting');
+    const clock = root.querySelector('#lx-spt-local-clock');
+    if (greeting) greeting.textContent = currentGreeting();
+    if (clock) clock.textContent = currentLocalTimeText();
+  };
+  window.setInterval(updateHomeClock, 30 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateHomeClock(); }, { passive:true });
+  window.addEventListener('lahn-language-change', updateHomeClock, { passive:true });
+
   // Refresh once per 48 hours, not when a track ends or on a short interval.
   syncHomeForTheme(true);
   scheduleMixRefresh();
@@ -63379,7 +63776,7 @@ window.LahnChannelTest = (() => {
 </style>
 <div id="lahnDiagnosticsModal" aria-hidden="true">
  <section class="ld-card" role="dialog" aria-modal="true" aria-labelledby="lahnDiagnosticsTitle">
-  <div class="ld-head"><strong id="lahnDiagnosticsTitle">تشخيص لحن · الإصدار 1.2.12</strong><button type="button" data-ld-close aria-label="إغلاق">×</button></div>
+  <div class="ld-head"><strong id="lahnDiagnosticsTitle">تشخيص لحن · الإصدار 1.3.5</strong><button type="button" data-ld-close aria-label="إغلاق">×</button></div>
   <div class="ld-grid" id="lahnDiagnosticsStats"></div>
   <pre class="ld-report" id="lahnDiagnosticsReport"></pre>
   <div class="ld-actions"><button class="primary" type="button" data-ld-export>تصدير تقرير JSON</button><button type="button" data-ld-copy>نسخ ملخص الفحص</button><button type="button" data-ld-close>إغلاق</button></div>
@@ -63388,7 +63785,7 @@ window.LahnChannelTest = (() => {
 <script id="lahn-126-diagnostics">
 (function(){
  'use strict';
- const VERSION='1.2.12';
+ const VERSION='1.3.5';
  const modal=()=>document.getElementById('lahnDiagnosticsModal');
  const safe=(fn,fallback)=>{try{return fn()}catch(_){return fallback}};
  const getTracks=()=>safe(()=>typeof DB!=='undefined'&&DB.lib?Object.entries(DB.lib).map(([path,meta])=>({path,...meta})):[],[]);
@@ -63421,7 +63818,7 @@ window.LahnChannelTest = (() => {
  document.addEventListener('click',async e=>{
   if(e.target.closest('#lahnDiagnosticsOpen')){open();return}
   if(e.target.closest('[data-ld-close]')){close();return}
-  if(e.target.closest('[data-ld-export]')){const blob=new Blob([JSON.stringify(build(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Lahn-Diagnostics-1.2.12.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return}
+  if(e.target.closest('[data-ld-export]')){const blob=new Blob([JSON.stringify(build(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Lahn-Diagnostics-1.3.5.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return}
   if(e.target.closest('[data-ld-copy]')){const d=build(),summary='Lahn '+VERSION+' | Songs: '+d.library.tracks+' | Playlists: '+d.library.playlists+' | Favorites: '+d.library.favorites+' | Storage: '+d.storage.localStorageApprox;try{await navigator.clipboard.writeText(summary)}catch(_){const a=document.createElement('textarea');a.value=summary;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}return}
   if(e.target===modal())close();
  });
@@ -70609,11 +71006,437 @@ window.LahnChannelTest = (() => {
 <!-- Manual QA 0520: Export diagnostics and inspect the generated JSON file. -->
 <!-- Manual QA 0520: Close diagnostics using Escape and reopen it. -->
 <!-- Manual QA 0520: Switch theme and ensure the existing button outlines remain theme-owned. -->
-</body>
-</html>
+<script id="lahn-1-3-0-queue-shortcuts">
+/* Lahn quick queue controls: Alt+Q toggles the queue; Escape closes it. */
+(() => {
+  if (window.__lahnQueueShortcuts130) return;
+  window.__lahnQueueShortcuts130 = true;
+  document.addEventListener('keydown', (event) => {
+    if (!document.body?.classList.contains('display-lahn')) return;
+    const target = event.target;
+    const typing = target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    if (typing || event.repeat) return;
+    if (event.altKey && !event.ctrlKey && !event.metaKey && String(event.key).toLowerCase() === 'q') {
+      const toggle = document.getElementById('qb');
+      if (toggle) { event.preventDefault(); toggle.click(); }
+      return;
+    }
+    if (event.key === 'Escape') {
+      const queue = document.getElementById('qd');
+      const close = document.getElementById('qx');
+      if (queue && !queue.hidden && close) { event.preventDefault(); close.click(); }
+    }
+  });
+})();
+</script>
+<script id="lahn-1-3-3-queue-edge-refresh">
+(() => {
+  'use strict';
+  if (window.__lahnQueueEdgeRefresh133) return;
+  window.__lahnQueueEdgeRefresh133 = true;
+  const panel = document.getElementById('qd');
+  if (!panel) return;
+  const header = panel.querySelector('.qh2');
+  const search = panel.querySelector('#qs');
+  const list = panel.querySelector('#ql');
+  let now = panel.querySelector('.q-now-playing');
+  if (!now) {
+    now = document.createElement('div');
+    now.className = 'q-now-playing';
+    now.innerHTML = '<img alt="" hidden><div class="qnp-copy"><small></small><strong></strong><span></span></div>';
+    panel.insertBefore(now, header?.nextSibling || search || list || null);
+  }
+  let nextLabel = panel.querySelector('.q-next-label');
+  if (!nextLabel) {
+    nextLabel = document.createElement('div');
+    nextLabel.className = 'q-next-label';
+    panel.insertBefore(nextLabel, list || null);
+  }
+  const refresh = () => {
+    const rtl = getComputedStyle(document.documentElement).direction === 'rtl';
+    const image = now.querySelector('img');
+    const source = document.getElementById('art');
+    const title = document.getElementById('title');
+    const artist = document.getElementById('artist');
+    now.querySelector('small').textContent = typeof trs === 'function' ? trs('يتم التشغيل الآن') : (rtl ? 'يتم التشغيل الآن' : 'Now playing');
+    now.querySelector('strong').textContent = title?.textContent?.trim() || (typeof trs === 'function' ? trs('لا توجد أغنية شغالة') : (rtl ? 'مفيش أغنية شغالة' : 'Nothing is playing'));
+    now.querySelector('span').textContent = artist?.textContent?.trim() || '';
+    if (image && source?.src && source.style.display !== 'none') { image.src = source.src; image.hidden = false; }
+    else if (image) { image.removeAttribute('src'); image.hidden = true; }
+    nextLabel.textContent = typeof trs === 'function' ? trs('التالي') : (rtl ? 'التالي' : 'Up next');
+    panel.setAttribute('aria-label', rtl ? 'قائمة التشغيل' : 'Play queue');
+  };
+  refresh();
+  const observer = new MutationObserver(refresh);
+  for (const id of ['title','artist','art']) {
+    const element = document.getElementById(id);
+    if (element) observer.observe(element, {subtree:id !== 'art', childList:true, characterData:true, attributes:id === 'art'});
+  }
+  document.addEventListener('lahn-language-change', refresh);
+  window.addEventListener('lahn-language-change', refresh);
+  document.addEventListener('lahn:display-mode-changed', refresh);
+  document.querySelector('audio')?.addEventListener('loadedmetadata', refresh, {passive:true});
+})();
+</script>
+
+
+<script id="lahn-flow-builder-133">
+(() => {
+  'use strict';
+  if (window.__lahnFlowBuilder133) return;
+  window.__lahnFlowBuilder133 = true;
+  const languageRows = [
+    ['منشئ جلسة لحن الذكية','Lahn Smart Session Builder','Créateur de session intelligente Lahn','Creador de sesiones inteligentes de Lahn','Lahn Akıllı Oturum Oluşturucu','Lahn Smart-Session-Generator','Pembuat Sesi Cerdas Lahn','Lahn اسمارٹ سیشن بلڈر'],
+    ['أنشئ جلسة استماع من مكتبتك وقوائمك وسجل استماعك.','Build a listening session from your library, playlists and listening history.','Créez une session à partir de votre bibliothèque, de vos listes et de votre historique.','Crea una sesión a partir de tu biblioteca, listas e historial.','Kitaplığından, listelerinden ve dinleme geçmişinden bir oturum oluştur.','Erstelle eine Hörsession aus deiner Bibliothek, Playlists und deinem Verlauf.','Buat sesi dari pustaka, playlist, dan riwayat dengarmu.','اپنی لائبریری، پلے لسٹس اور سننے کی ہسٹری سے سیشن بنائیں۔'],
+    ['تشغيل ذكي من لحن','Smart playback by Lahn','Lecture intelligente par Lahn','Reproducción inteligente de Lahn','Lahn akıllı çalma','Intelligente Wiedergabe von Lahn','Pemutaran cerdas Lahn','لحن کی اسمارٹ پلے بیک'],
+    ['يتم التشغيل الآن','Now playing','En cours de lecture','Reproduciendo ahora','Şimdi çalıyor','Wird gerade abgespielt','Sedang diputar','اب چل رہا ہے'],
+    ['التالي','Up next','À suivre','A continuación','Sıradaki','Als Nächstes','Berikutnya','اگلا'],
+    ['لا توجد أغنية شغالة','Nothing is playing','Aucune lecture en cours','No hay nada reproduciéndose','Şu anda çalan parça yok','Nichts wird wiedergegeben','Tidak ada yang diputar','کچھ نہیں چل رہا'],
+    ['الكل','All','Tout','Todo','Tümü','Alle','Semua','سب'],
+    ['استكمال من نفس الفنان','Continue with the same artist','Continuer avec le même artiste','Continuar con el mismo artista','Aynı sanatçıyla devam et','Mit demselben Künstler fortfahren','Lanjutkan dengan artis yang sama','اسی فنکار کے ساتھ جاری رکھیں'],
+    ['استكمال من نفس النوع','Continue with the same genre','Continuer avec le même genre','Continuar con el mismo género','Aynı türle devam et','Mit demselben Genre fortfahren','Lanjutkan dengan genre yang sama','اسی صنف کے ساتھ جاری رکھیں'],
+    ['لا توجد أغاني أخرى من نفس الفنان.','No other tracks by the same artist are available.','Aucun autre titre de cet artiste n’est disponible.','No hay más canciones de este artista.','Aynı sanatçıdan başka parça yok.','Keine weiteren Titel dieses Künstlers verfügbar.','Tidak ada lagu lain dari artis yang sama.','اسی فنکار کے مزید گانے دستیاب نہیں۔'],
+    ['لا توجد أغاني أخرى من نفس النوع.','No other tracks in the same genre are available.','Aucun autre titre de ce genre n’est disponible.','No hay más canciones de este género.','Aynı türde başka parça yok.','Keine weiteren Titel dieses Genres verfügbar.','Tidak ada lagu lain dalam genre yang sama.','اسی صنف کے مزید گانے دستیاب نہیں۔'],
+    ['استبعاد آخر 20 تشغيل','Exclude the last 20 plays','Exclure les 20 dernières écoutes','Excluir las últimas 20 reproducciones','Son 20 çalmayı hariç tut','Die letzten 20 Wiedergaben ausschließen','Kecualikan 20 pemutaran terakhir','آخری 20 پلے خارج کریں'],
+    ['نوع الجلسة','Session type','Type de session','Tipo de sesión','Oturum türü','Sitzungstyp','Jenis sesi','سیشن کی قسم'],
+    ['متوازنة','Balanced','Équilibrée','Equilibrada','Dengeli','Ausgewogen','Seimbang','متوازن'],
+    ['اكتشاف الأقل استماعًا','Discover less-played','Découvrir les moins écoutés','Descubrir las menos escuchadas','Az dinlenenleri keşfet','Wenig gehörte Titel entdecken','Temukan yang jarang diputar','کم سنے گئے گانے دریافت کریں'],
+    ['المفضلة فقط','Favorites only','Favoris uniquement','Solo favoritos','Yalnızca favoriler','Nur Favoriten','Hanya favorit','صرف پسندیدہ'],
+    ['الأحدث في مكتبتك','Recently added','Ajouts récents','Añadidas recientemente','Son eklenenler','Zuletzt hinzugefügt','Baru ditambahkan','حال ہی میں شامل کردہ'],
+    ['تنوع الفنانين','Artist variety','Diversité des artistes','Variedad de artistas','Sanatçı çeşitliliği','Künstler-Vielfalt','Variasi artis','فنکاروں میں تنوع'],
+    ['عدد الأغاني','Number of tracks','Nombre de titres','Número de canciones','Parça sayısı','Anzahl der Titel','Jumlah lagu','گانوں کی تعداد'],
+    ['اسم القائمة','Playlist name','Nom de la liste','Nombre de la lista','Çalma listesi adı','Playlistname','Nama playlist','پلے لسٹ کا نام'],
+    ['جلسة لحن جديدة','New Lahn session','Nouvelle session Lahn','Nueva sesión Lahn','Yeni Lahn oturumu','Neue Lahn-Session','Sesi Lahn baru','نیا لحن سیشن'],
+    ['معاينة الاختيار','Selection preview','Aperçu de la sélection','Vista previa','Seçim önizlemesi','Auswahlvorschau','Pratinjau pilihan','انتخاب کا پیش منظر'],
+    ['حفظ كقائمة','Save as playlist','Enregistrer comme liste','Guardar como lista','Liste olarak kaydet','Als Playlist speichern','Simpan sebagai playlist','پلے لسٹ کے طور پر محفوظ کریں'],
+    ['حفظ وتشغيل','Save and play','Enregistrer et lire','Guardar y reproducir','Kaydet ve çal','Speichern und abspielen','Simpan dan putar','محفوظ کریں اور چلائیں'],
+    ['إغلاق','Close','Fermer','Cerrar','Kapat','Schließen','Tutup','بند کریں'],
+    ['أغنية','tracks','titres','canciones','parça','Titel','lagu','گانے'],
+    ['لا توجد أغاني متاحة في المكتبة بعد.','No playable tracks are available in the library yet.','Aucun titre lisible n’est encore disponible dans la bibliothèque.','Todavía no hay canciones disponibles para reproducir.','Kitaplıkta henüz çalınabilir parça yok.','Noch keine abspielbaren Titel in der Bibliothek.','Belum ada lagu yang dapat diputar di pustaka.','لائبریری میں ابھی چلانے کے قابل گانے نہیں ہیں۔'],
+    ['لا توجد أغاني مفضلة متاحة.','No playable favorites are available.','Aucun favori disponible à lire.','No hay favoritos disponibles para reproducir.','Çalınabilir favori bulunamadı.','Keine abspielbaren Favoriten vorhanden.','Tidak ada favorit yang dapat diputar.','چلانے کے قابل پسندیدہ گانے موجود نہیں۔'],
+    ['تم إنشاء القائمة وتشغيلها.','Playlist created and playback started.','Liste créée et lecture démarrée.','Lista creada y reproducción iniciada.','Liste oluşturuldu ve çalma başladı.','Playlist erstellt und Wiedergabe gestartet.','Playlist dibuat dan pemutaran dimulai.','پلے لسٹ بن گئی اور پلے بیک شروع ہو گیا۔'],
+    ['تم حفظ القائمة في مكتبتك.','Playlist saved to your library.','Liste enregistrée dans votre bibliothèque.','Lista guardada en tu biblioteca.','Liste kitaplığına kaydedildi.','Playlist in deiner Bibliothek gespeichert.','Playlist disimpan ke pustakamu.','پلے لسٹ آپ کی لائبریری میں محفوظ ہو گئی۔'],
+    ['اسم القائمة موجود بالفعل.','A playlist with that name already exists.','Une liste portant ce nom existe déjà.','Ya existe una lista con ese nombre.','Bu adda bir liste zaten var.','Eine Playlist mit diesem Namen existiert bereits.','Playlist dengan nama tersebut sudah ada.','اس نام کی پلے لسٹ پہلے سے موجود ہے۔'],
+    ['اختر اسمًا للقائمة.','Enter a playlist name.','Saisissez un nom de liste.','Escribe un nombre para la lista.','Bir liste adı gir.','Gib einen Playlistnamen ein.','Masukkan nama playlist.','پلے لسٹ کا نام درج کریں۔']
+  ];
+  try { if (typeof addRows === 'function') languageRows.forEach(row => addRows([row.join('|')])); document.dispatchEvent(new Event('lahn-language-change')); } catch (error) { console.warn('[Lahn Flow] Translation rows unavailable',error); }
+  const t = value => typeof trs === 'function' ? trs(value) : value;
+  const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const availableKeys = () => {
+    try {
+      if (typeof DB === 'undefined' || !DB?.lib) return [];
+      return Object.keys(DB.lib).filter(key => { const meta=DB.lib[key]||{}; return (typeof files !== 'undefined' && files?.has?.(key)) || !!meta.url; });
+    } catch (_) { return []; }
+  };
+  const normalizedArtist = value => String(value||'').trim().toLocaleLowerCase().replace(/[\u064B-\u065F\u0670ـ]/g,'').replace(/[أإآ]/g,'ا');
+  const shuffle = array => { const items=array.slice(); for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];} return items; };
+  const getPlayCount = key => { try { return Number(ST?.t?.[key]?.p || 0); } catch (_) { return 0; } };
+  const createMix = (mode, amount, excludeRecent) => {
+    let pool=availableKeys();
+    const currentKey = typeof curKey === 'function' ? curKey() : '';
+    const currentMeta = currentKey ? (DB.lib[currentKey] || {}) : {};
+    if(mode==='favorites') pool=pool.filter(key => Array.isArray(DB.favs)&&DB.favs.includes(key));
+    if(mode==='artist') { const artist=normalizedArtist(currentMeta.artist); pool=artist?pool.filter(key=>key!==currentKey&&normalizedArtist(DB.lib[key]?.artist)===artist):[]; }
+    if(mode==='genre') { const genre=String(currentMeta.genre||'').trim().toLocaleLowerCase(); pool=genre?pool.filter(key=>key!==currentKey&&String(DB.lib[key]?.genre||'').trim().toLocaleLowerCase()===genre):[]; }
+    if(excludeRecent) {
+      const recentKeys = new Set((Array.isArray(HIST)?HIST:[]).slice(0,20).map(item=>typeof item==='string'?item:(item?.path||item?.key||'')));
+      pool = pool.filter(key=>!recentKeys.has(key));
+    }
+    if(!pool.length) return [];
+    if(mode==='discovery') pool.sort((a,b)=>getPlayCount(a)-getPlayCount(b) || Number(DB.lib[b]?.added||0)-Number(DB.lib[a]?.added||0));
+    else if(mode==='recent') pool.sort((a,b)=>Number(DB.lib[b]?.added||0)-Number(DB.lib[a]?.added||0));
+    else pool=shuffle(pool);
+    const cap=Math.max(1,Math.min(pool.length,Number(amount)||20));
+    if(mode!=='variety') return pool.slice(0,cap);
+    const remaining=pool.slice(); const ordered=[]; let previousArtist=''; let previousAlbum='';
+    while(remaining.length && ordered.length<cap){
+      let chosenIndex=remaining.findIndex(key=>{const m=DB.lib[key]||{};const artist=normalizedArtist(m.artist);return artist && artist!==previousArtist;});
+      if(chosenIndex<0) chosenIndex=remaining.findIndex(key=>String(DB.lib[key]?.album||'')!==previousAlbum);
+      if(chosenIndex<0) chosenIndex=0;
+      const key=remaining.splice(chosenIndex,1)[0]; const meta=DB.lib[key]||{};
+      ordered.push(key); previousArtist=normalizedArtist(meta.artist); previousAlbum=String(meta.album||'');
+    }
+    return ordered;
+  };
+  let overlay=null;
+  const buildOverlay = () => {
+    if(overlay) return overlay;
+    overlay=document.createElement('div'); overlay.id='lahnFlowOverlay'; overlay.className='lahn-flow-overlay'; overlay.hidden=true;
+    overlay.innerHTML=`<section class="lahn-flow-card" role="dialog" aria-modal="true" aria-labelledby="lahnFlowTitle"><header class="lahn-flow-head"><div><small>${t('تشغيل ذكي من لحن')}</small><h2 id="lahnFlowTitle">${t('منشئ جلسة لحن الذكية')}</h2><p>${t('أنشئ جلسة استماع من مكتبتك وقوائمك وسجل استماعك.')}</p></div><button type="button" class="lahn-flow-close" data-flow-close aria-label="${t('إغلاق')}">×</button></header><div class="lahn-flow-controls"><label>${t('نوع الجلسة')}<select id="lahnFlowMode"><option value="balanced">${t('متوازنة')}</option><option value="discovery">${t('اكتشاف الأقل استماعًا')}</option><option value="favorites">${t('المفضلة فقط')}</option><option value="recent">${t('الأحدث في مكتبتك')}</option><option value="variety">${t('تنوع الفنانين')}</option><option value="artist">${t('استكمال من نفس الفنان')}</option><option value="genre">${t('استكمال من نفس النوع')}</option></select></label><label>${t('عدد الأغاني')}<select id="lahnFlowAmount"><option value="10">10</option><option value="20" selected>20</option><option value="35">35</option><option value="60">60</option><option value="9999">${t('الكل')}</option></select></label><label class="lahn-flow-name">${t('اسم القائمة')}<input id="lahnFlowName" maxlength="64" value="${t('جلسة لحن جديدة')}"></label><label class="lahn-flow-exclude"><input id="lahnFlowExcludeRecent" type="checkbox" checked><span>${t('استبعاد آخر 20 تشغيل')}</span></label></div><div class="lahn-flow-preview-head"><b>${t('معاينة الاختيار')}</b><span id="lahnFlowCount"></span></div><div id="lahnFlowPreview" class="lahn-flow-preview"></div><footer class="lahn-flow-actions"><button type="button" class="lahn-flow-btn" data-flow-close>${t('إغلاق')}</button><button type="button" class="lahn-flow-btn" id="lahnFlowSave">${t('حفظ كقائمة')}</button><button type="button" class="lahn-flow-btn primary" id="lahnFlowPlay">${t('حفظ وتشغيل')}</button></footer></section>`;
+    document.body.appendChild(overlay);
+    const update=()=>{
+      const keys=createMix(overlay.querySelector('#lahnFlowMode').value,overlay.querySelector('#lahnFlowAmount').value,overlay.querySelector('#lahnFlowExcludeRecent').checked);
+      overlay.dataset.keys=JSON.stringify(keys);
+      const count=overlay.querySelector('#lahnFlowCount'); count.textContent=`${keys.length} ${t('أغنية')}`;
+      const preview=overlay.querySelector('#lahnFlowPreview');
+      const mode=overlay.querySelector('#lahnFlowMode').value;
+      const emptyText=mode==='favorites'?'لا توجد أغاني مفضلة متاحة.':mode==='artist'?'لا توجد أغاني أخرى من نفس الفنان.':mode==='genre'?'لا توجد أغاني أخرى من نفس النوع.':'لا توجد أغاني متاحة في المكتبة بعد.';
+      preview.innerHTML=keys.length?keys.slice(0,9).map((key,index)=>{const m=DB.lib[key]||{};return `<div class="lahn-flow-track"><span>${index+1}</span><div><b>${escapeHTML(m.title||key.split('|')[0])}</b><small>${escapeHTML(m.artist||'')}</small></div><em>${escapeHTML(m.album||'')}</em></div>`;}).join(''):`<div class="lahn-flow-empty">${t(emptyText)}</div>`;
+    };
+    overlay.querySelector('#lahnFlowMode').addEventListener('change',update);
+    overlay.querySelector('#lahnFlowAmount').addEventListener('change',update);
+    overlay.querySelector('#lahnFlowExcludeRecent').addEventListener('change',update);
+    overlay.querySelectorAll('[data-flow-close]').forEach(button=>button.addEventListener('click',close));
+    overlay.addEventListener('click',event=>{if(event.target===overlay)close();});
+    overlay.querySelector('#lahnFlowSave').addEventListener('click',()=>save(false));
+    overlay.querySelector('#lahnFlowPlay').addEventListener('click',()=>save(true));
+    update(); return overlay;
+  };
+  const open=()=>{const node=buildOverlay();node.hidden=false;node.querySelector('#lahnFlowMode').dispatchEvent(new Event('change'));document.body.style.overflow='hidden';node.querySelector('#lahnFlowName').focus();};
+  const close=()=>{if(!overlay)return;overlay.hidden=true;document.body.style.overflow='';};
+  const save=async play=>{
+    if(!overlay)return; const keys=JSON.parse(overlay.dataset.keys||'[]');
+    if(!keys.length){if(typeof toast==='function')toast(t(overlay.querySelector('#lahnFlowMode').value==='favorites'?'لا توجد أغاني مفضلة متاحة.':'لا توجد أغاني متاحة في المكتبة بعد.'));return;}
+    let name=String(overlay.querySelector('#lahnFlowName').value||'').trim();
+    if(!name){if(typeof toast==='function')toast(t('اختر اسمًا للقائمة.'));return;}
+    if(DB.lists[name]){if(typeof toast==='function')toast(t('اسم القائمة موجود بالفعل.'));return;}
+    DB.lists[name]=keys.slice();
+    if(typeof persist==='function')persist();
+    if(typeof render==='function'){view='pl:'+name;render();}
+    close();
+    if(play && typeof startQueue==='function') await startQueue(keys,keys[0]);
+    if(typeof toast==='function')toast(t(play?'تم إنشاء القائمة وتشغيلها.':'تم حفظ القائمة في مكتبتك.'));
+  };
+  document.addEventListener('click',event=>{
+    const trigger=event.target.closest('#lahnFlowBuilderOpen');
+    if(trigger){event.preventDefault();open();}
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&overlay&&!overlay.hidden)close();});
+  window.addEventListener('lahn-language-change',()=>{if(overlay){close();overlay.remove();overlay=null;}});
+})();
+</script>
+
+<style id="lahn-1-3-3-queue-apple-flow-fixes">
+/* Queue remains at the viewport edge in every design. No button anchoring or centering animation. */
+#qd {
+  position:fixed !important; top:12px !important; bottom:112px !important;
+  inset-inline-end:10px !important; inset-inline-start:auto !important;
+  left:auto !important; right:10px !important; width:min(390px,94vw) !important;
+  height:auto !important; min-height:260px !important; max-height:calc(100vh - 124px) !important;
+  transform:none !important; translate:none !important; animation:none !important;
+  transition:none !important; margin:0 !important;
+}
+html[dir="rtl"] #qd { left:10px !important; right:auto !important; inset-inline-end:auto !important; inset-inline-start:10px !important; }
+html[dir="ltr"] #qd { left:auto !important; right:10px !important; inset-inline-end:10px !important; inset-inline-start:auto !important; }
+#qd[hidden] { display:none !important; }
+@media(max-width:760px) { #qd { top:8px !important; bottom:104px !important; width:min(360px,calc(100vw - 16px)) !important; max-height:calc(100vh - 112px) !important; } html[dir="rtl"] #qd { left:8px !important; } html[dir="ltr"] #qd { right:8px !important; } }
+
+/* Apple transport: force a visible play glyph on its circular surface. */
+body.display-apple .bar .ctl > #play,
+body.display-apple .bar .ctl > #play:hover,
+body.display-apple .bar .ctl > #play:focus-visible {
+  display:inline-grid !important; place-items:center !important;
+  background:#f5f6f8 !important; color:#202126 !important;
+  border:0 !important; border-radius:50% !important; opacity:1 !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.16) !important;
+}
+body.display-apple[data-display-tone="light"] .bar .ctl > #play,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play:hover,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play:focus-visible { background:#30333a !important; color:#fff !important; }
+body.display-apple .bar .ctl > #play svg { display:block !important; width:19px !important; height:19px !important; color:inherit !important; fill:currentColor !important; opacity:1 !important; }
+body.display-apple .bar .ctl > #play svg #pp { fill:currentColor !important; stroke:none !important; opacity:1 !important; }
+body.display-apple .bar .seekrow #seek {
+  display:block !important; visibility:visible !important; opacity:1 !important;
+  appearance:none !important; -webkit-appearance:none !important;
+  width:100% !important; min-width:40px !important; height:16px !important;
+  margin:0 !important; padding:0 !important; border:0 !important;
+  background:transparent !important; cursor:pointer !important;
+  accent-color:#f5f6f8 !important;
+}
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek { accent-color:#30333a !important; }
+body.display-apple .bar .seekrow #seek::-webkit-slider-runnable-track {
+  height:4px !important; border-radius:99px !important;
+  background:linear-gradient(to right,#f4f5f7 0%,#f4f5f7 var(--p,0%),rgba(255,255,255,.27) var(--p,0%),rgba(255,255,255,.27) 100%) !important;
+}
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-webkit-slider-runnable-track {
+  background:linear-gradient(to right,#30333a 0%,#30333a var(--p,0%),rgba(35,38,45,.20) var(--p,0%),rgba(35,38,45,.20) 100%) !important;
+}
+body.display-apple .bar .seekrow #seek::-webkit-slider-thumb {
+  -webkit-appearance:none !important; width:10px !important; height:10px !important;
+  margin-top:-3px !important; border:2px solid rgba(255,255,255,.85) !important;
+  border-radius:50% !important; background:#f4f5f7 !important; box-shadow:0 1px 4px rgba(0,0,0,.24) !important;
+}
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-webkit-slider-thumb { background:#30333a !important; border-color:#fff !important; }
+body.display-apple .bar .seekrow #seek::-moz-range-track { height:4px !important; border:0 !important; border-radius:99px !important; background:rgba(255,255,255,.27) !important; }
+body.display-apple .bar .seekrow #seek::-moz-range-progress { height:4px !important; border-radius:99px !important; background:#f4f5f7 !important; }
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-moz-range-track { background:rgba(35,38,45,.20) !important; }
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-moz-range-progress { background:#30333a !important; }
+body.display-apple .bar .seekrow #tc, body.display-apple .bar .seekrow #td { display:block !important; visibility:visible !important; color:var(--mute) !important; opacity:1 !important; }
+
+/* Lahn Flow: player-native smart playlist builder, not a detached office workspace. */
+.lahn-flow-overlay { position:fixed; inset:0; z-index:16080; display:grid; place-items:center; padding:18px; background:rgba(5,7,12,.62); -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); }
+.lahn-flow-overlay[hidden] { display:none !important; }
+.lahn-flow-card { width:min(690px,100%); max-height:min(780px,calc(100vh - 36px)); display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--line); border-radius:20px; background:var(--panel); color:var(--text); box-shadow:0 24px 80px rgba(0,0,0,.4); }
+.lahn-flow-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:19px 20px 15px; border-bottom:1px solid var(--line); }
+.lahn-flow-head small { color:var(--mute); font-size:9px; font-weight:800; letter-spacing:.13em; }
+.lahn-flow-head h2 { margin:5px 0 3px; font-size:20px; }
+.lahn-flow-head p { color:var(--mute); font-size:12px; line-height:1.6; }
+.lahn-flow-close { flex:none; width:34px; height:34px; border:1px solid var(--line); border-radius:50%; background:transparent; color:var(--text); font-size:22px; cursor:pointer; }
+.lahn-flow-controls { display:grid; grid-template-columns:1fr 120px 1.2fr; gap:10px; padding:15px 20px; }
+.lahn-flow-controls label { min-width:0; display:flex; flex-direction:column; gap:7px; color:var(--mute); font-size:11px; font-weight:700; }
+.lahn-flow-controls input,.lahn-flow-controls select { width:100%; min-width:0; height:39px; padding:0 10px; border:1px solid var(--line); border-radius:9px; background:color-mix(in srgb,var(--panel) 82%,var(--bg)); color:var(--text); font:inherit; font-size:12px; }
+.lahn-flow-preview-head { display:flex; justify-content:space-between; gap:12px; padding:0 20px 8px; color:var(--text); font-size:12px; }
+.lahn-flow-preview-head span { color:var(--mute); font-variant-numeric:tabular-nums; }
+.lahn-flow-preview { min-height:120px; max-height:330px; overflow:auto; padding:0 20px 12px; }
+.lahn-flow-track { display:grid; grid-template-columns:24px minmax(0,1fr) minmax(0,.7fr); align-items:center; gap:9px; min-height:42px; border-bottom:1px solid var(--line); }
+.lahn-flow-track>span { color:var(--mute); font-size:10px; text-align:center; }
+.lahn-flow-track div { min-width:0; display:flex; flex-direction:column; gap:2px; }
+.lahn-flow-track b,.lahn-flow-track small,.lahn-flow-track em { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.lahn-flow-track b { color:var(--text); font-size:12px; }
+.lahn-flow-track small,.lahn-flow-track em { color:var(--mute); font-size:10px; font-style:normal; }
+.lahn-flow-empty { padding:26px 10px; color:var(--mute); text-align:center; font-size:12px; }
+.lahn-flow-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:8px; padding:13px 20px; border-top:1px solid var(--line); }
+.lahn-flow-btn { min-height:37px; padding:8px 14px; border:1px solid var(--line); border-radius:10px; background:color-mix(in srgb,var(--panel) 90%,var(--bg)); color:var(--text); font:inherit; font-size:12px; cursor:pointer; }
+.lahn-flow-btn.primary { background:var(--tint); border-color:transparent; color:var(--on,#fff); font-weight:750; }
+body.display-spotify .lahn-flow-card { background:#181818; color:#f5f5f5; border-color:rgba(255,255,255,.1); }
+body.display-spotify .lahn-flow-btn.primary { background:#1ed760; color:#071b0d; }
+body.display-apple .lahn-flow-card { background:color-mix(in srgb,var(--panel) 93%,transparent); -webkit-backdrop-filter:blur(22px); backdrop-filter:blur(22px); }
+@media(max-width:560px) { .lahn-flow-controls { grid-template-columns:1fr 1fr; padding:12px; } .lahn-flow-name { grid-column:1/-1; } .lahn-flow-head { padding:14px; } .lahn-flow-preview { padding-inline:12px; } .lahn-flow-preview-head { padding-inline:12px; } .lahn-flow-actions { padding:11px; } }
+
+
+</style>
+<script id="lahn-music-tools-135">
+(() => {
+  'use strict';
+  if (window.__lahnMusicTools135) return;
+  window.__lahnMusicTools135 = true;
+  const rows = [
+    ['راديو لحن الذكي','Lahn Smart Radio','Radio intelligent Lahn','Radio inteligente de Lahn','Lahn Akıllı Radyo','Lahn Smart Radio','Radio Cerdas Lahn','لحن اسمارٹ ریڈیو'],
+    ['أنشئ بثًا شخصيًا من مكتبتك وسجل استماعك.','Create a personal radio from your library and listening history.','Créez une radio personnelle à partir de votre bibliothèque et de votre historique.','Crea una radio personal a partir de tu biblioteca e historial.','Kitaplığından ve dinleme geçmişinden kişisel bir radyo oluştur.','Erstelle ein persönliches Radio aus deiner Bibliothek und deinem Hörverlauf.','Buat radio pribadi dari pustaka dan riwayat dengarmu.','اپنی لائبریری اور سننے کی ہسٹری سے ذاتی ریڈیو بنائیں۔'],
+    ['المحطة','Station','Station','Estación','İstasyon','Sender','Stasiun','اسٹیشن'],
+    ['مزيج شخصي','Personal mix','Mix personnel','Mezcla personal','Kişisel karışım','Persönlicher Mix','Campuran pribadi','ذاتی مکس'],
+    ['فنان الأغنية الحالية','Current artist','Artiste actuel','Artista actual','Mevcut sanatçı','Aktueller Künstler','Artis saat ini','موجودہ فنکار'],
+    ['نوع الأغنية الحالية','Current genre','Genre actuel','Género actual','Mevcut tür','Aktuelles Genre','Genre saat ini','موجودہ صنف'],
+    ['عدد الأغاني','Number of tracks','Nombre de titres','Número de canciones','Parça sayısı','Anzahl der Titel','Jumlah lagu','گانوں کی تعداد'],
+    ['استبعاد آخر 20 تشغيل','Exclude the last 20 plays','Exclure les 20 dernières écoutes','Excluir las últimas 20 reproducciones','Son 20 çalmayı hariç tut','Die letzten 20 Wiedergaben ausschließen','Kecualikan 20 pemutaran terakhir','آخری 20 پلے خارج کریں'],
+    ['ابدأ الراديو','Start radio','Lancer la radio','Iniciar radio','Radyoyu başlat','Radio starten','Mulai radio','ریڈیو شروع کریں'],
+    ['تم تجهيز الراديو وبدأ التشغيل.','Radio is ready and playback has started.','La radio est prête et la lecture a commencé.','La radio está lista y la reproducción ha comenzado.','Radyo hazır ve çalma başladı.','Radio ist bereit und die Wiedergabe hat begonnen.','Radio siap dan pemutaran dimulai.','ریڈیو تیار ہے اور پلے بیک شروع ہو گیا ہے۔'],
+    ['لا توجد أغانٍ مناسبة لهذه المحطة.','No suitable tracks were found for this station.','Aucun titre adapté à cette station.','No se encontraron canciones adecuadas para esta estación.','Bu istasyon için uygun parça bulunamadı.','Keine passenden Titel für diesen Sender gefunden.','Tidak ada lagu yang cocok untuk stasiun ini.','اس اسٹیشن کے لیے موزوں گانے نہیں ملے۔'],
+    ['ملخص استماع لحن','Lahn Listening Replay','Récapitulatif d’écoute Lahn','Resumen de escucha de Lahn','Lahn Dinleme Özeti','Lahn Hör-Rückblick','Rekap Mendengarkan Lahn','لحن سننے کا خلاصہ'],
+    ['إحصاءات مكتبتك واستماعك محفوظة على هذا الجهاز.','Your library and listening statistics are stored on this device.','Les statistiques de votre bibliothèque et de votre écoute sont stockées sur cet appareil.','Las estadísticas de tu biblioteca y escucha se guardan en este dispositivo.','Kitaplık ve dinleme istatistiklerin bu cihazda saklanır.','Deine Bibliotheks- und Hörstatistiken werden auf diesem Gerät gespeichert.','Statistik pustaka dan mendengarkanmu tersimpan di perangkat ini.','آپ کی لائبریری اور سننے کے اعدادوشمار اس آلے پر محفوظ ہیں۔'],
+    ['دقائق الاستماع','Listening minutes','Minutes d’écoute','Minutos escuchados','Dinleme dakikası','Gehörte Minuten','Menit mendengarkan','سننے کے منٹ'],
+    ['مرات التشغيل','Plays','Lectures','Reproducciones','Çalma sayısı','Wiedergaben','Pemutaran','پلے کی تعداد'],
+    ['الأغاني التي استمعت إليها','Tracks played','Titres écoutés','Canciones escuchadas','Dinlenen parçalar','Gehörte Titel','Lagu diputar','سنے گئے گانے'],
+    ['الأكثر استماعًا','Most played','Les plus écoutés','Más escuchadas','En çok çalınan','Meistgespielt','Paling sering diputar','سب سے زیادہ سنے گئے'],
+    ['أكثر الفنانين استماعًا','Top artists','Artistes les plus écoutés','Artistas principales','En çok dinlenen sanatçılar','Top-Künstler','Artis teratas','سب سے زیادہ سنے گئے فنکار'],
+    ['تصدير CSV','Export CSV','Exporter CSV','Exportar CSV','CSV dışa aktar','CSV exportieren','Ekspor CSV','CSV برآمد کریں'],
+    ['لا توجد بيانات استماع كافية بعد.','There is not enough listening data yet.','Pas encore assez de données d’écoute.','Aún no hay suficientes datos de escucha.','Henüz yeterli dinleme verisi yok.','Noch nicht genügend Hördaten vorhanden.','Belum cukup data mendengarkan.','ابھی سننے کا کافی ڈیٹا موجود نہیں۔'],
+    ['إغلاق','Close','Fermer','Cerrar','Kapat','Schließen','Tutup','بند کریں'],
+    ['نوع','Type','Type','Tipo','Tür','Typ','Jenis','قسم'],
+    ['الاسم','Name','Nom','Nombre','Ad','Name','Nama','نام'],
+    ['مرات التشغيل','Plays','Lectures','Reproducciones','Çalma sayısı','Wiedergaben','Pemutaran','پلے کی تعداد'],
+    ['الثواني','Seconds','Secondes','Segundos','Saniye','Sekunden','Detik','سیکنڈ']
+  ];
+  languageRows.push(
+    ['أدوات المزيج الإضافية','Additional smart-mix tools','Outils supplémentaires de mix intelligent','Herramientas adicionales de mezcla inteligente','Ek akıllı miks araçları','Zusätzliche Smart-Mix-Werkzeuge','Alat mix pintar tambahan','اضافی اسمارٹ مکس ٹولز'],
+    ['أدوات موسيقية إضافية متصلة بمكتبتك وسجل الاستماع.','Extra music tools connected to your library and listening history.','Des outils musicaux supplémentaires liés à votre bibliothèque et à votre historique.','Herramientas musicales adicionales conectadas a tu biblioteca e historial.','Kitaplığına ve dinleme geçmişine bağlı ek müzik araçları.','Zusätzliche Musikwerkzeuge, verbunden mit deiner Bibliothek und Hörhistorie.','Alat musik tambahan yang terhubung ke pustaka dan riwayat dengarmu.','اضافی میوزک ٹولز جو آپ کی لائبریری اور سننے کی ہسٹری سے منسلک ہیں۔']
+  );
+  const t = value => typeof trs === 'function' ? trs(value) : value;
+  try { if (typeof addRows === 'function') languageRows.forEach(row => addRows([row.join('|')])); document.dispatchEvent(new Event('lahn-language-change')); } catch (_) {}
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const norm = value => String(value || '').normalize('NFKC').trim().toLocaleLowerCase().replace(/[\u064B-\u065F\u0670ـ]/g,'').replace(/[أإآ]/g,'ا').replace(/\s+/g,' ');
+  const playableKeys = () => Object.keys(DB?.lib || {}).filter(key => (typeof files !== 'undefined' && files?.has?.(key)) || !!DB.lib[key]?.url);
+  const historySet = () => new Set((Array.isArray(HIST) ? HIST : []).slice(0,20).map(item => typeof item === 'string' ? item : (item?.path || item?.key || '')));
+  const playCount = key => Number(ST?.t?.[key]?.p || 0);
+  const shuffled = arr => { const out=arr.slice(); for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]];} return out; };
+  let radioOverlay = null, replayOverlay = null;
+  const closeOverlay = node => { if(node) node.hidden=true; document.body.style.overflow=''; };
+  const radioOpen = () => {
+    if (!radioOverlay) {
+      radioOverlay=document.createElement('div'); radioOverlay.id='lahnRadioOverlay'; radioOverlay.className='lahn-tool-overlay'; radioOverlay.hidden=true;
+      radioOverlay.innerHTML=`<section class="lahn-tool-card" role="dialog" aria-modal="true" aria-labelledby="lahnRadioTitle"><header><div><small>LAHN / RADIO</small><h2 id="lahnRadioTitle">${t('راديو لحن الذكي')}</h2><p>${t('أنشئ بثًا شخصيًا من مكتبتك وسجل استماعك.')}</p></div><button type="button" data-tool-close aria-label="${t('إغلاق')}">×</button></header><div class="lahn-tool-body"><label>${t('المحطة')}<select id="lahnRadioMode"><option value="personal">${t('مزيج شخصي')}</option><option value="artist">${t('فنان الأغنية الحالية')}</option><option value="genre">${t('نوع الأغنية الحالية')}</option></select></label><label>${t('عدد الأغاني')}<select id="lahnRadioAmount"><option>15</option><option selected>25</option><option>40</option><option>60</option></select></label><label class="lahn-tool-check"><input id="lahnRadioExclude" type="checkbox" checked><span>${t('استبعاد آخر 20 تشغيل')}</span></label><div id="lahnRadioPreview" class="lahn-tool-preview"></div><footer><button type="button" data-tool-close>${t('إغلاق')}</button><button type="button" class="primary" id="lahnRadioStart">${t('ابدأ الراديو')}</button></footer></div></section>`;
+      document.body.appendChild(radioOverlay);
+      const update=()=>{
+        const mode=radioOverlay.querySelector('#lahnRadioMode').value; const amount=Number(radioOverlay.querySelector('#lahnRadioAmount').value)||25;
+        const current=typeof curKey==='function'?curKey():''; const meta=DB.lib?.[current]||{}; let pool=playableKeys();
+        if(radioOverlay.querySelector('#lahnRadioExclude').checked){const recent=historySet();pool=pool.filter(key=>!recent.has(key));}
+        if(mode==='artist'){const artist=norm(meta.artist);pool=artist?pool.filter(key=>key!==current&&norm(DB.lib[key]?.artist)===artist):[];}
+        if(mode==='genre'){const genre=norm(meta.genre);pool=genre?pool.filter(key=>key!==current&&norm(DB.lib[key]?.genre)===genre):[];}
+        if(mode==='personal'){
+          const artistWeights={}; for(const [key,stat] of Object.entries(ST?.t||{})){const artist=norm(DB.lib?.[key]?.artist);if(artist)artistWeights[artist]=(artistWeights[artist]||0)+Number(stat?.p||0);}
+          pool.sort((a,b)=>{const ma=DB.lib[a]||{},mb=DB.lib[b]||{};const scoreA=(artistWeights[norm(ma.artist)]||0)*.55-playCount(a)*.35+Math.random()*3;const scoreB=(artistWeights[norm(mb.artist)]||0)*.55-playCount(b)*.35+Math.random()*3;return scoreB-scoreA;});
+        } else pool=shuffled(pool);
+        const keys=pool.slice(0,amount); radioOverlay.dataset.keys=JSON.stringify(keys);
+        radioOverlay.querySelector('#lahnRadioPreview').innerHTML=keys.length?keys.slice(0,7).map((key,i)=>`<div><b>${i+1}. ${esc(DB.lib[key]?.title||key.split('|')[0])}</b><small>${esc(DB.lib[key]?.artist||'')}</small></div>`).join(''):`<p class="lahn-tool-empty">${t('لا توجد أغانٍ مناسبة لهذه المحطة.')}</p>`;
+      };
+      radioOverlay.querySelectorAll('[data-tool-close]').forEach(button=>button.addEventListener('click',()=>closeOverlay(radioOverlay)));
+      radioOverlay.addEventListener('click',event=>{if(event.target===radioOverlay)closeOverlay(radioOverlay);});
+      ['#lahnRadioMode','#lahnRadioAmount','#lahnRadioExclude'].forEach(selector=>radioOverlay.querySelector(selector).addEventListener('change',update));
+      radioOverlay.querySelector('#lahnRadioStart').addEventListener('click',async()=>{const keys=JSON.parse(radioOverlay.dataset.keys||'[]');if(!keys.length){if(typeof toast==='function')toast(t('لا توجد أغانٍ مناسبة لهذه المحطة.'));return;}closeOverlay(radioOverlay);if(typeof startQueue==='function')await startQueue(keys,keys[0]);if(typeof toast==='function')toast(t('تم تجهيز الراديو وبدأ التشغيل.'));});
+      radioOverlay._update=update;
+    }
+    radioOverlay.hidden=false; document.body.style.overflow='hidden'; radioOverlay._update();
+  };
+  const replayData = () => {
+    const stats=Object.entries(ST?.t||{}).map(([key,value])=>({key,meta:DB.lib?.[key]||{},plays:Number(value?.p||0),seconds:Number(value?.s||0)})).filter(item=>item.plays>0||item.seconds>0);
+    const artistMap=new Map(); for(const item of stats){const artist=String(item.meta.artist||'').trim()||'—';const entry=artistMap.get(artist)||{artist,plays:0,seconds:0};entry.plays+=item.plays;entry.seconds+=item.seconds;artistMap.set(artist,entry);}
+    return {stats,artists:[...artistMap.values()].sort((a,b)=>b.plays-a.plays).slice(0,5),totalPlays:stats.reduce((sum,item)=>sum+item.plays,0),totalSeconds:stats.reduce((sum,item)=>sum+item.seconds,0)};
+  };
+  const replayOpen = () => {
+    if (!replayOverlay) {
+      replayOverlay=document.createElement('div'); replayOverlay.id='lahnReplayOverlay'; replayOverlay.className='lahn-tool-overlay'; replayOverlay.hidden=true;
+      replayOverlay.innerHTML=`<section class="lahn-tool-card replay" role="dialog" aria-modal="true" aria-labelledby="lahnReplayTitle"><header><div><small>LAHN / REPLAY</small><h2 id="lahnReplayTitle">${t('ملخص استماع لحن')}</h2><p>${t('إحصاءات مكتبتك واستماعك محفوظة على هذا الجهاز.')}</p></div><button type="button" data-replay-close aria-label="${t('إغلاق')}">×</button></header><div class="lahn-tool-body" id="lahnReplayBody"></div><footer class="lahn-tool-footer"><button type="button" data-replay-close>${t('إغلاق')}</button><button type="button" id="lahnReplayExport">${t('تصدير CSV')}</button></footer></section>`;
+      document.body.appendChild(replayOverlay);
+      replayOverlay.querySelectorAll('[data-replay-close]').forEach(button=>button.addEventListener('click',()=>closeOverlay(replayOverlay)));
+      replayOverlay.addEventListener('click',event=>{if(event.target===replayOverlay)closeOverlay(replayOverlay);});
+      replayOverlay.querySelector('#lahnReplayExport').addEventListener('click',()=>{
+        const data=replayData(); const lines=[[t('نوع'),t('الاسم'),t('مرات التشغيل'),t('الثواني')],...data.stats.sort((a,b)=>b.plays-a.plays).map(item=>['Track',item.meta.title||item.key,item.plays,Math.round(item.seconds)]),...data.artists.map(item=>['Artist',item.artist,item.plays,Math.round(item.seconds)])];
+        const csv='\uFEFF'+lines.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='Lahn-Replay.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+      });
+    }
+    const data=replayData(), body=replayOverlay.querySelector('#lahnReplayBody');
+    if(!data.stats.length){body.innerHTML=`<p class="lahn-tool-empty">${t('لا توجد بيانات استماع كافية بعد.')}</p>`;}
+    else {
+      const top=data.stats.slice().sort((a,b)=>b.plays-a.plays).slice(0,7);
+      body.innerHTML=`<div class="lahn-replay-metrics"><div><b>${Math.round(data.totalSeconds/60).toLocaleString()}</b><span>${t('دقائق الاستماع')}</span></div><div><b>${data.totalPlays.toLocaleString()}</b><span>${t('مرات التشغيل')}</span></div><div><b>${data.stats.length.toLocaleString()}</b><span>${t('الأغاني التي استمعت إليها')}</span></div></div><h3>${t('الأكثر استماعًا')}</h3><div class="lahn-tool-preview">${top.map((item,index)=>`<button type="button" data-replay-track="${esc(item.key)}"><b>${index+1}. ${esc(item.meta.title||item.key.split('|')[0])}</b><small>${esc(item.meta.artist||'')} · ${item.plays} ${t('مرات التشغيل')}</small><span>▶</span></button>`).join('')}</div><h3>${t('أكثر الفنانين استماعًا')}</h3><div class="lahn-tool-preview">${data.artists.map((item,index)=>`<div><b>${index+1}. ${esc(item.artist)}</b><small>${item.plays} ${t('مرات التشغيل')}</small></div>`).join('')||`<p>${t('لا توجد بيانات استماع كافية بعد.')}</p>`}</div>`;
+      body.querySelectorAll('[data-replay-track]').forEach(button=>button.addEventListener('click',async()=>{const key=button.dataset.replayTrack;closeOverlay(replayOverlay);if(typeof startQueue==='function')await startQueue([key],key);}));
+    }
+    replayOverlay.hidden=false; document.body.style.overflow='hidden';
+  };
+  document.addEventListener('click',event=>{
+    if(event.target.closest('#lahnSmartRadioOpen')){event.preventDefault();radioOpen();}
+    if(event.target.closest('#lahnReplayOpen')){event.preventDefault();replayOpen();}
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){if(radioOverlay&&!radioOverlay.hidden)closeOverlay(radioOverlay);if(replayOverlay&&!replayOverlay.hidden)closeOverlay(replayOverlay);}});
+  window.addEventListener('lahn-language-change',()=>{if(radioOverlay){closeOverlay(radioOverlay);radioOverlay.remove();radioOverlay=null;}if(replayOverlay){closeOverlay(replayOverlay);replayOverlay.remove();replayOverlay=null;}});
+})();
+</script>
+<style id="lahn-music-tools-135-style">
+.lahn-tool-overlay{position:fixed;inset:0;z-index:16090;display:grid;place-items:center;padding:18px;background:rgba(4,7,13,.66);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.lahn-tool-overlay[hidden]{display:none!important}
+.lahn-tool-card{width:min(620px,100%);max-height:min(760px,calc(100vh - 36px));display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--text);box-shadow:0 24px 80px rgba(0,0,0,.42)}
+.lahn-tool-card>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:19px 20px 14px;border-bottom:1px solid var(--line)}
+.lahn-tool-card>header small{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--mute)}
+.lahn-tool-card>header h2{margin:5px 0;font-size:21px}
+.lahn-tool-card>header p{margin:0;color:var(--mute);font-size:12px;line-height:1.6}
+.lahn-tool-card>header button{flex:none;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--text);font-size:22px;cursor:pointer}
+.lahn-tool-body{padding:17px 20px;overflow:auto;display:grid;gap:13px}
+.lahn-tool-body>label{display:flex;flex-direction:column;gap:7px;color:var(--mute);font-size:12px;font-weight:700}
+.lahn-tool-body select{width:100%;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 11px;background:var(--bg);color:var(--text)}
+.lahn-tool-check{display:flex!important;flex-direction:row!important;align-items:center;gap:9px!important}
+.lahn-tool-check input{width:16px;height:16px;accent-color:var(--tint)}
+.lahn-tool-preview{display:grid;gap:7px;max-height:280px;overflow:auto}
+.lahn-tool-preview>div,.lahn-tool-preview>button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--text) 4%,transparent);color:var(--text);text-align:start}
+.lahn-tool-preview b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.lahn-tool-preview small{grid-column:1;color:var(--mute);font-size:10px}
+.lahn-tool-preview button{cursor:pointer}
+.lahn-tool-preview button span{grid-column:2;grid-row:1/3;align-self:center;color:var(--tint)}
+.lahn-tool-empty{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--mute);text-align:center;font-size:12px}
+.lahn-tool-card>footer{display:flex;justify-content:flex-end;gap:9px;padding:13px 20px;border-top:1px solid var(--line)}
+.lahn-tool-card>footer button{min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--text);cursor:pointer}
+.lahn-tool-card>footer button.primary{background:var(--tint);border-color:var(--tint);color:#fff}
+.lahn-replay-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.lahn-replay-metrics>div{display:flex;flex-direction:column;gap:5px;padding:14px 10px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--text) 5%,transparent);min-width:0}
+.lahn-replay-metrics b{font-size:22px;font-variant-numeric:tabular-nums}
+.lahn-replay-metrics span{font-size:10px;color:var(--mute)}
+.lahn-tool-card.replay h3{margin:4px 0 0;font-size:13px}
+@media(max-width:560px){.lahn-tool-overlay{padding:9px}.lahn-tool-body{padding:13px}.lahn-tool-card>header,.lahn-tool-card>footer{padding-inline:13px}.lahn-replay-metrics{gap:5px}.lahn-replay-metrics>div{padding:10px 7px}.lahn-replay-metrics b{font-size:17px}.lahn-replay-metrics span{font-size:9px}}
+</style>
+
+
 
 <style id="lahn-library-workbench-styles">
-/* LAHN DESKTOP 1.2.12 — Library Workbench styles */
+/* LAHN DESKTOP 1.3.5 — Library Workbench styles */
 .lahn-workbench {
   position: relative;
   overflow: hidden;
@@ -70762,7 +71585,7 @@ body.display-apple .wb-button.wb-primary { background: #e3455b; color: #fff; }
 (() => {
   'use strict';
 
-  const LAHN_WORKBENCH_VERSION = '1.2.12';
+  const LAHN_WORKBENCH_VERSION = '1.3.5';
   const $wb = (selector, root = document) => root.querySelector(selector);
   const safeWB = (fn, fallback) => {
     try { return fn(); } catch (error) {
@@ -70888,8 +71711,8 @@ body.display-apple .wb-button.wb-primary { background: #e3455b; color: #fff; }
     const cloudAnchor = $wb('#syncKeyInput', host)?.closest('.settings-section');
     const existing = $wb('#lahnLibraryWorkbench', host);
     if (existing) {
-      if (cloudAnchor && existing.previousElementSibling !== cloudAnchor) {
-        cloudAnchor.insertAdjacentElement('afterend', existing);
+      if (cloudAnchor && existing.nextElementSibling !== cloudAnchor) {
+        cloudAnchor.insertAdjacentElement('beforebegin', existing);
       }
       return;
     }
@@ -70897,7 +71720,7 @@ body.display-apple .wb-button.wb-primary { background: #e3455b; color: #fff; }
     section.className = 'settings-section lahn-workbench';
     section.id = 'lahnLibraryWorkbench';
     section.innerHTML = `
-      <div class="wb-heading"><div><h3>🧰 ${wbText('title')}</h3><p class="settings-hint">${wbText('subtitle')}</p></div><span class="wb-version">1.2.12</span></div>
+      <div class="wb-heading"><div><h3>🧰 ${wbText('title')}</h3><p class="settings-hint">${wbText('subtitle')}</p></div><span class="wb-version">1.3.5</span></div>
       <div class="wb-stats" id="wbStats">
         <div class="wb-stat"><span>${wbText('tracks')}</span><b data-wb-stat="tracks">—</b></div>
         <div class="wb-stat"><span>${wbText('lists')}</span><b data-wb-stat="playlists">—</b></div>
@@ -70922,10 +71745,9 @@ body.display-apple .wb-button.wb-primary { background: #e3455b; color: #fff; }
       <div class="wb-footnote">${wbText('backupScope')}<br>${wbText('storageNote')}</div>
       <input type="file" id="wbRestoreFile" accept=".lahnbackup,.json,application/json" hidden>
     `;
-    // Keep Library Workbench immediately below Cloud Sync instead of at the end
-    // of the long settings page. Fall back safely if the sync controls are absent.
+    // Keep Library Workbench above Cloud Sync. No utility controls are appended below sync.
     if (cloudAnchor && cloudAnchor.parentElement === host) {
-      cloudAnchor.insertAdjacentElement('afterend', section);
+      cloudAnchor.insertAdjacentElement('beforebegin', section);
     } else {
       host.appendChild(section);
     }
@@ -71236,402 +72058,1325 @@ body.display-apple .wb-button.wb-primary { background: #e3455b; color: #fff; }
 
 </script>
 
+<style id="lahn-1-3-1-visual-performance-fixes">
+/* Lahn Desktop 1.3.3: queue coordinates, Apple transport layout and Creator Desk. */
+:root { --lahn-queue-width: 304px; }
 
-<style id="lahn-1-2-8-light-mobile-final">
-/* LAHN 1.2.12 — Lahn Day palette repair and mobile layout safety.
-   This final cascade overrides legacy fixed-dark settings declarations while
-   keeping the active skin accent, existing controls and player behavior. */
-
-/* Lahn day mode: convert the full application to a calm, readable light surface. */
-body.display-lahn[data-display-tone="light"] {
+/* Queue popover geometry is set from #qb by the small positioning controller below. */
+#qd {
+  position: fixed !important; inset: auto !important; top: 12px !important; left: 12px !important;
+  right: auto !important; bottom: auto !important;
+  width: min(var(--lahn-queue-width), calc(100vw - 24px)) !important;
+  height: min(76vh, 720px) !important; min-height: 280px !important;
+  max-height: calc(100vh - 24px) !important; z-index: 12050 !important;
+  display: flex !important; flex-direction: column !important; gap: 0 !important;
+  padding: 0 !important; overflow: hidden !important; border-radius: 16px !important;
+  border: 1px solid color-mix(in srgb, var(--text) 13%, transparent) !important;
+  background: color-mix(in srgb, var(--panel) 94%, transparent) !important;
   color: var(--text) !important;
-  color-scheme: light !important;
-  background:
-    radial-gradient(900px 600px at 70% -10%, rgba(var(--tint-rgb), .12), transparent 62%),
-    var(--bg) !important;
+  box-shadow: 0 18px 54px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.07) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.15) !important;
+  backdrop-filter: blur(16px) saturate(1.15) !important;
+  transform: translateZ(0);
 }
-body.display-lahn[data-display-tone="light"] .app,
-body.display-lahn[data-display-tone="light"] .side,
-body.display-lahn[data-display-tone="light"] main,
-body.display-lahn[data-display-tone="light"] .bar,
-body.display-lahn[data-display-tone="light"] .panel {
-  color: var(--text) !important;
-  border-color: var(--line) !important;
-}
-body.display-lahn[data-display-tone="light"] .side,
-body.display-lahn[data-display-tone="light"] .bar,
-body.display-lahn[data-display-tone="light"] .panel {
-  background: color-mix(in srgb, var(--panel) 93%, white 7%) !important;
-}
-body.display-lahn[data-display-tone="light"] main {
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--tint) 7%, var(--panel)),
-    var(--panel) 300px) !important;
-}
-body.display-lahn[data-display-tone="light"] .brand,
-body.display-lahn[data-display-tone="light"] .brand span,
-body.display-lahn[data-display-tone="light"] .nv,
-body.display-lahn[data-display-tone="light"] #vt,
-body.display-lahn[data-display-tone="light"] .row b,
-body.display-lahn[data-display-tone="light"] .info,
-body.display-lahn[data-display-tone="light"] #title {
-  color: var(--text) !important;
-}
-body.display-lahn[data-display-tone="light"] .nv:not(.on),
-body.display-lahn[data-display-tone="light"] .row span,
-body.display-lahn[data-display-tone="light"] .row i,
-body.display-lahn[data-display-tone="light"] .sub,
-body.display-lahn[data-display-tone="light"] #artist,
-body.display-lahn[data-display-tone="light"] .rt,
-body.display-lahn[data-display-tone="light"] .ib {
-  color: var(--mute) !important;
-}
-body.display-lahn[data-display-tone="light"] .nv.on,
-body.display-lahn[data-display-tone="light"] .row.cur {
-  color: var(--text) !important;
-  background: color-mix(in srgb, var(--tint) 13%, white) !important;
-}
-body.display-lahn[data-display-tone="light"] .row:hover,
-body.display-lahn[data-display-tone="light"] .card:hover,
-body.display-lahn[data-display-tone="light"] .nv:hover {
-  background: color-mix(in srgb, var(--tint) 9%, white) !important;
-}
-body.display-lahn[data-display-tone="light"] .bar .play {
-  color: #fff !important;
-  background: var(--tint) !important;
-}
-body.display-lahn[data-display-tone="light"] .bar .ib:not(.play):hover,
-body.display-lahn[data-display-tone="light"] .bar .mini:hover {
-  color: var(--text) !important;
-  background: color-mix(in srgb, var(--tint) 10%, white) !important;
-}
+#qd[hidden] { display: none !important; }
+#qd .qh2 { display:flex !important; align-items:center !important; gap:8px !important; min-height:52px !important; padding:10px 13px !important; border-bottom:1px solid var(--line) !important; flex:0 0 auto !important; }
+#qd .qh2 b { font-size:15px !important; font-weight:760 !important; }
+#qd .qh2 .sub { flex:1 1 auto !important; text-align:end; font-size:11px !important; }
+#qd #qc, #qd #qx { min-width:30px !important; min-height:30px !important; padding:5px 9px !important; border:1px solid var(--line) !important; border-radius:999px !important; color:var(--text) !important; background:color-mix(in srgb,var(--panel) 80%,transparent) !important; }
+#qd #qs { flex:0 0 auto !important; width:calc(100% - 22px) !important; min-height:38px !important; margin:9px 11px 7px !important; padding:0 12px !important; border:1px solid var(--line) !important; border-radius:10px !important; color:var(--text) !important; background:color-mix(in srgb,var(--panel) 86%,transparent) !important; }
+#qd #qr { flex:0 1 auto !important; min-height:0 !important; max-height:145px !important; overflow:auto !important; padding:4px 9px 8px !important; border-bottom:1px solid var(--line) !important; }
+#qd #ql { flex:1 1 auto !important; min-height:0 !important; max-height:none !important; overflow:auto !important; padding:8px 9px 12px !important; overscroll-behavior:contain; }
+#qd .qr { display:flex !important; align-items:center !important; gap:7px !important; min-height:55px !important; padding:7px 8px !important; border-radius:9px !important; border-inline-start:3px solid transparent !important; background:transparent !important; contain:layout paint; }
+#qd .qr:hover { background:color-mix(in srgb,var(--text) 7%,transparent) !important; }
+#qd .qr.cur { background:color-mix(in srgb,var(--tint) 13%,var(--panel)) !important; border-inline-start-color:var(--tint) !important; }
+#qd .qr .t { min-width:0 !important; flex:1 1 auto !important; }
+#qd .qr .t b { color:var(--text) !important; font-size:12px !important; }
+#qd .qr .t span { color:var(--mute) !important; font-size:10px !important; }
+#qd .qr .mini { opacity:.76; }
+#qd .qr:hover .mini { opacity:1; }
+#qd .q-now-playing { display:grid; grid-template-columns:48px minmax(0,1fr); align-items:center; gap:10px; padding:11px 12px; margin:9px 10px 3px; border-radius:10px; background:color-mix(in srgb,var(--text) 5%,transparent); flex:0 0 auto; }
+#qd .q-now-playing img { width:48px; height:48px; object-fit:cover; border-radius:7px; background:color-mix(in srgb,var(--text) 9%,transparent); }
+#qd .q-now-playing img[hidden] { display:block !important; visibility:hidden; }
+#qd .qnp-copy { min-width:0; display:flex; flex-direction:column; gap:3px; }
+#qd .q-now-playing small { color:var(--mute); font-size:10px; }
+#qd .q-now-playing strong, #qd .q-now-playing span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#qd .q-now-playing strong { color:var(--text); font-size:12px; }
+#qd .q-now-playing span { color:var(--mute); font-size:11px; }
+#qd .q-next-label { padding:7px 13px 3px; color:var(--mute); font-size:11px; font-weight:700; flex:0 0 auto; }
 
-/* Settings cards, labels, fields and buttons: undo the old hard-coded dark glass. */
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page > .settings-section,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .settings-section,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .settings-card,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .settings-group,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .setting-card,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .subsection,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .settings-panel,
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page .setting-panel {
-  color: #252331 !important;
-  background: linear-gradient(145deg,
-    rgba(255,255,255,.97),
-    color-mix(in srgb, #fff 90%, var(--tint) 10%)) !important;
-  border-color: color-mix(in srgb, var(--tint) 19%, #dcd8e6) !important;
-  box-shadow: 0 8px 24px rgba(38, 28, 58, .065),
-    inset 0 1px 0 rgba(255,255,255,.95) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(125%) !important;
-  backdrop-filter: blur(16px) saturate(125%) !important;
+/* Apple Music: the reference is graphite/black, white controls and glass; no pink accent. */
+body.display-apple {
+  --tint:#f2f2f4 !important; --tint-rgb:242,242,244 !important;
+  --bg:#202022 !important; --panel:#2a2a2d !important; --text:#f5f5f7 !important;
+  --mute:#a5a5ad !important; --line:rgba(255,255,255,.11) !important;
+  background:#202022 !important; color:#f5f5f7 !important; color-scheme:dark;
 }
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(
-  h1,h2,h3,h4,h5,label,legend,strong,b,p,span,li,summary,output,.about-row
-) {
-  color: #252331 !important;
+body.display-apple[data-display-tone="dark"] {
+  --tint:#f2f2f4 !important; --tint-rgb:242,242,244 !important;
+  --bg:#202022 !important; --panel:#2a2a2d !important; --text:#f5f5f7 !important;
+  --mute:#a5a5ad !important; --line:rgba(255,255,255,.11) !important;
+  color-scheme:dark;
 }
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(
-  .settings-hint,small,.hint,.description,.sub-title,.muted,.secondary-text
-) {
-  color: #716d7d !important;
+body.display-apple[data-display-tone="light"] {
+  --tint:#555861 !important; --tint-rgb:85,88,97 !important;
+  --bg:#f0f0f3 !important; --panel:rgba(255,255,255,.86) !important; --text:#25252a !important;
+  --mute:#777982 !important; --line:rgba(40,40,48,.12) !important;
+  background:#f0f0f3 !important; color:#25252a !important; color-scheme:light;
 }
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(
-  .skin-item,.display-mode-card,.display-tone-button,.settings-action,
-  .smart-mix-button,.chip,.settings-section button
-) {
-  color: #282536 !important;
-  background: color-mix(in srgb, #fff 91%, var(--tint) 9%) !important;
-  border-color: #ded9e9 !important;
-  box-shadow: 0 2px 7px rgba(34, 25, 50, .045) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(
-  .skin-item:hover,.display-mode-card:hover,.display-tone-button:hover,
-  .settings-action:hover,.smart-mix-button:hover,.chip:hover,.settings-section button:hover
-) {
-  color: #211d2d !important;
-  background: color-mix(in srgb, #fff 78%, var(--tint) 22%) !important;
-  border-color: color-mix(in srgb, var(--tint) 55%, #dcd8e6) !important;
-}
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(
-  .skin-item.on,.display-mode-card.selected,.display-tone-button.selected,
-  .chip.pri,.selected,[aria-pressed="true"]
-) {
-  color: #211d2d !important;
-  background: color-mix(in srgb, #fff 82%, var(--tint) 18%) !important;
-  border-color: var(--tint) !important;
-}
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(
-  input:not([type=checkbox]):not([type=radio]),select,textarea,.form-control,.input-wrap,.select-wrap
-) {
-  color: #252331 !important;
-  -webkit-text-fill-color: #252331 !important;
-  background: #fff !important;
-  border-color: #d9d5e2 !important;
-  color-scheme: light !important;
-  box-shadow: inset 0 1px 2px rgba(30,20,50,.035) !important;
-}
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(input,textarea)::placeholder {
-  color: #888394 !important;
-  -webkit-text-fill-color: #888394 !important;
-}
-body.display-lahn[data-display-tone="light"] .app main #list .settings-page :is(.notice,.info-box,.help-box,.empty-state,.about-row,.eq-inline) {
-  color: #302b3b !important;
-  background: rgba(255,255,255,.76) !important;
-  border-color: #e2deea !important;
-}
-body.display-lahn[data-display-tone="light"] .lahn-workbench,
-body.display-lahn[data-display-tone="light"] #lahnLibraryWorkbench {
-  color: #252331 !important;
-  background: linear-gradient(145deg, #fff, color-mix(in srgb, #fff 90%, var(--tint) 10%)) !important;
-  border-color: color-mix(in srgb, var(--tint) 24%, #ddd8e8) !important;
-}
-body.display-lahn[data-display-tone="light"] #lahnLibraryWorkbench :is(.wb-stat,.wb-report,.wb-finding) {
-  color: #252331 !important;
-  background: rgba(255,255,255,.82) !important;
-  border-color: #e4dfeb !important;
-}
-body.display-lahn[data-display-tone="light"] #lahnLibraryWorkbench .wb-button {
-  color: #282536 !important;
-  background: #fff !important;
-  border-color: #ded9e9 !important;
-}
-body.display-lahn[data-display-tone="light"] #lahnLibraryWorkbench .wb-button.wb-primary {
-  color: #fff !important;
-  background: var(--tint) !important;
-  border-color: transparent !important;
-}
+body.display-apple .app { background:transparent !important; grid-template-rows:minmax(0,1fr) 0 !important; padding:8px 8px 100px !important; gap:0 !important; }
+body.display-apple .side { background:#1b1b1e !important; border:0 !important; border-right:1px solid rgba(255,255,255,.07) !important; border-radius:0 !important; box-shadow:none !important; padding:18px 12px 12px !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+body.display-apple main { background:#202022 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+body.display-apple[data-display-tone="light"] .side { background:#e9e9ed !important; border-color:rgba(0,0,0,.08) !important; }
+body.display-apple[data-display-tone="light"] main { background:#f3f3f6 !important; }
+body.display-apple .brand, body.display-apple .nv, body.display-apple .sh { color:var(--text) !important; }
+body.display-apple .nv { border-radius:8px !important; }
+body.display-apple .nv:hover, body.display-apple .nv.on { background:rgba(255,255,255,.10) !important; color:var(--text) !important; }
+body.display-apple[data-display-tone="light"] .nv:hover, body.display-apple[data-display-tone="light"] .nv.on { background:rgba(0,0,0,.065) !important; }
+body.display-apple .top { background:transparent !important; border:0 !important; box-shadow:none !important; }
+body.display-apple .search-wrap { background:rgba(255,255,255,.075) !important; border:1px solid rgba(255,255,255,.10) !important; border-radius:999px !important; }
+body.display-apple[data-display-tone="light"] .search-wrap { background:rgba(255,255,255,.74) !important; border-color:rgba(0,0,0,.09) !important; }
+body.display-apple .search-wrap input { color:var(--text) !important; }
+body.display-apple .chip, body.display-apple .settings-action { border-radius:10px !important; }
+body.display-apple .bar { position:fixed !important; left:50% !important; right:auto !important; bottom:max(14px,env(safe-area-inset-bottom)) !important; transform:translateX(-50%) !important; width:min(680px,calc(100vw - 34px)) !important; max-width:680px !important; min-height:64px !important; height:auto !important; grid-column:auto !important; grid-row:auto !important; grid-template-columns:minmax(130px,1fr) minmax(210px,1.35fr) minmax(80px,.65fr) !important; gap:10px !important; padding:8px 13px !important; border:1px solid rgba(255,255,255,.18) !important; border-radius:19px !important; background:rgba(42,42,46,.78) !important; color:#f5f5f7 !important; box-shadow:0 16px 48px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.12) !important; -webkit-backdrop-filter:blur(20px) saturate(1.35) !important; backdrop-filter:blur(20px) saturate(1.35) !important; z-index:12040 !important; overflow:visible !important; }
+body.display-apple[data-display-tone="light"] .bar { background:rgba(248,248,251,.80) !important; color:#25252a !important; border-color:rgba(255,255,255,.82) !important; box-shadow:0 15px 42px rgba(30,30,40,.16),inset 0 1px 0 rgba(255,255,255,.9) !important; }
+body.display-apple .bar .np, body.display-apple .bar .mid, body.display-apple .bar .rt { min-width:0 !important; position:relative; z-index:1; }
+body.display-apple .bar .thumb { width:38px !important; height:38px !important; border-radius:7px !important; box-shadow:0 3px 12px rgba(0,0,0,.18) !important; }
+body.display-apple .bar #title { color:var(--text) !important; font-size:11px !important; }
+body.display-apple .bar #artist { color:var(--mute) !important; font-size:10px !important; }
+body.display-apple .bar .ctl { gap:8px !important; }
+body.display-apple .bar .ib { color:var(--text) !important; background:transparent !important; }
+body.display-apple .bar .ib:hover, body.display-apple .bar .ib.on { color:var(--text) !important; background:rgba(255,255,255,.10) !important; }
+body.display-apple .bar .ib.play { width:34px !important; height:34px !important; color:#1c1c1e !important; background:#f5f5f7 !important; border-radius:50% !important; box-shadow:none !important; }
+body.display-apple[data-display-tone="light"] .bar .ib.play { color:#fff !important; background:#303239 !important; }
+body.display-apple .bar .seekrow { color:var(--mute) !important; }
+body.display-apple .bar .seekrow input { accent-color:var(--text) !important; }
+body.display-apple .bar #waveformCanvas { opacity:.035 !important; }
+body.display-apple .card, body.display-apple .settings-section, body.display-apple .modal-box, body.display-apple .npd-artist-card, body.display-apple #npdLyrics { -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+body.display-apple .card, body.display-apple .settings-section { background:color-mix(in srgb,var(--panel) 88%,transparent) !important; border-color:var(--line) !important; }
+body.display-apple .modal-card, body.display-apple .modal-box, body.display-apple .remix-panel, body.display-apple .lx-modal, body.display-apple #menu { color:var(--text) !important; background:rgba(42,42,46,.96) !important; border:1px solid rgba(255,255,255,.13) !important; box-shadow:0 18px 60px rgba(0,0,0,.35) !important; }
+body.display-apple[data-display-tone="light"] :is(.modal-card,.modal-box,.remix-panel,.lx-modal,#menu) { background:rgba(250,250,252,.97) !important; color:#25252a !important; border-color:rgba(0,0,0,.10) !important; }
+body.display-apple .ib:hover, body.display-apple .chip:hover, body.display-apple .settings-action:hover { filter:none !important; }
+body.display-apple .smart-mix-primary, body.display-apple .wb-button.wb-primary { background:#eeeeef !important; color:#202024 !important; border-color:rgba(255,255,255,.18) !important; }
+body.display-apple[data-display-tone="light"] .smart-mix-primary, body.display-apple[data-display-tone="light"] .wb-button.wb-primary { background:#34363d !important; color:#fff !important; }
+body.display-apple #qd { background:rgba(36,36,40,.96) !important; border-color:rgba(255,255,255,.15) !important; color:#f5f5f7 !important; }
+body.display-apple[data-display-tone="light"] #qd { background:rgba(249,249,252,.96) !important; border-color:rgba(0,0,0,.10) !important; color:#25252a !important; }
+body.display-apple #qd .qr.cur { background:rgba(255,255,255,.10) !important; border-inline-start-color:rgba(255,255,255,.82) !important; }
+body.display-apple[data-display-tone="light"] #qd .qr.cur { background:rgba(0,0,0,.07) !important; border-inline-start-color:#555861 !important; }
+body.display-apple #qd .q-now-playing { background:rgba(255,255,255,.07) !important; }
+body.display-apple[data-display-tone="light"] #qd .q-now-playing { background:rgba(0,0,0,.045) !important; }
+body.display-apple .lahn-workbench { background:rgba(40,40,44,.86) !important; border-color:rgba(255,255,255,.10) !important; }
+body.display-apple .wb-button.wb-primary { background:#eee !important; color:#202024 !important; }
+body.display-apple #toast { background:rgba(42,42,46,.96) !important; color:#f5f5f7 !important; border-color:rgba(255,255,255,.14) !important; }
+body.display-apple[data-display-tone="light"] #toast { background:rgba(250,250,252,.97) !important; color:#25252a !important; border-color:rgba(0,0,0,.10) !important; }
+body.display-apple .npd-lyric-line.active, body.display-apple .l-line.active { color:#fff !important; text-shadow:0 0 16px rgba(255,255,255,.28) !important; }
+body.display-apple[data-display-tone="light"] .npd-lyric-line.active, body.display-apple[data-display-tone="light"] .l-line.active { color:#25252a !important; text-shadow:0 0 14px rgba(20,20,24,.18) !important; }
 
-/* Light-mode floating surfaces and dialogs. */
-body.display-lahn[data-display-tone="light"] :is(#menu,#qd,.eqc,.modal-card,.search-history,.context-menu,.dropdown-menu) {
-  color: #252331 !important;
-  background: rgba(255,255,255,.97) !important;
-  border-color: #ddd8e6 !important;
-  box-shadow: 0 18px 48px rgba(24,18,38,.16) !important;
+/* Reduce expensive full-surface filters: keep glass on the player and queue only. */
+body.display-apple .side, body.display-apple main, body.display-apple .card,
+body.display-apple .settings-section, body.display-apple .modal-box,
+body.display-apple #nowPlayingDetails, body.display-apple .npd-artist-card,
+body.display-apple #npdLyrics { -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+body.display-lahn .bar { -webkit-backdrop-filter:blur(12px) !important; backdrop-filter:blur(12px) !important; }
+body.display-lahn .side, body.display-lahn main { contain:layout style; }
+#qd #ql .qr, #qd #qr .qr { contain:layout paint; }
+@media (max-width: 860px) {
+  body.display-apple .app { padding-bottom:112px !important; }
+  body.display-apple .bar { width:calc(100vw - 22px) !important; grid-template-columns:minmax(0,1fr) minmax(160px,1.2fr) auto !important; gap:6px !important; padding:7px 9px !important; }
+  body.display-apple .bar .thumb { width:34px !important; height:34px !important; }
 }
-body.display-lahn[data-display-tone="light"] :is(#menu,#qd,.eqc,.modal-card,.search-history,.context-menu,.dropdown-menu) :is(h1,h2,h3,h4,b,strong,p,span,label,small,button) {
-  color: inherit;
+@media (max-width: 600px) {
+  #qd { width:min(330px,calc(100vw - 20px)) !important; height:min(72vh,640px) !important; }
+  body.display-apple .bar { grid-template-columns:minmax(0,1fr) auto !important; min-height:60px !important; }
+  body.display-apple .bar .mid { grid-column:1 / -1 !important; grid-row:2 !important; }
+  body.display-apple .bar .np { grid-column:1 !important; grid-row:1 !important; }
+  body.display-apple .bar .rt { grid-column:2 !important; grid-row:1 !important; }
 }
-body.display-lahn[data-display-tone="light"] #menu button:hover,
-body.display-lahn[data-display-tone="light"] .search-history div:hover {
-  background: color-mix(in srgb, var(--tint) 11%, white) !important;
-}
-body.display-lahn[data-display-tone="light"] #npv,
-body.display-lahn[data-display-tone="light"] #lyricDisplayPanel {
-  color: var(--text) !important;
-  background: radial-gradient(700px 500px at 50% 30%, rgba(var(--tint-rgb), .14), transparent 70%), var(--bg) !important;
-}
-
-/* Touch layout: preserve access to navigation, player controls and modal actions. */
-@media (max-width: 760px) {
-  html, body { width: 100%; min-width: 0; height: 100%; height: 100dvh; }
-  body { overflow: hidden !important; }
-  .app {
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 100% !important;
-    height: 100dvh !important;
-    padding: max(5px, env(safe-area-inset-top)) max(5px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom)) max(5px, env(safe-area-inset-left)) !important;
-    gap: 6px !important;
-    grid-template-columns: minmax(0,1fr) !important;
-    grid-template-rows: auto minmax(0,1fr) auto !important;
-  }
-  .side {
-    grid-row: 1 !important;
-    display: flex !important;
-    flex: 0 0 auto !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 48px !important;
-    max-height: 58px !important;
-    padding: 5px 7px !important;
-    gap: 6px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .side::-webkit-scrollbar, #pls::-webkit-scrollbar { display: none !important; }
-  .brand { display: flex !important; flex: 0 0 auto !important; padding: 3px 6px !important; font-size: 14px !important; }
-  .brand img { width: 25px !important; height: 25px !important; }
-  .sh { display: flex !important; flex: 0 0 auto !important; align-items: center !important; gap: 6px !important; padding: 4px 7px !important; white-space: nowrap !important; }
-  #pls {
-    display: flex !important;
-    flex: 0 0 auto !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 4px !important;
-    width: max-content !important;
-    max-width: none !important;
-    margin: 0 !important;
-    overflow: visible !important;
-  }
-  #pls .nv { flex: 0 0 auto !important; width: auto !important; min-height: 36px; padding: 7px 9px !important; font-size: 12px !important; white-space: nowrap !important; }
-  main { grid-row: 2 !important; min-width: 0 !important; min-height: 0 !important; width: 100% !important; }
-  .top { padding: 9px 10px 0 !important; gap: 7px !important; }
-  .top > * { min-width: 0; }
-  .search-wrap { flex: 1 1 100% !important; min-width: 0 !important; width: 100% !important; }
-  .search-wrap input, #q { width: 100% !important; min-width: 0 !important; font-size: 14px !important; }
-  .adv-panel { padding: 7px 10px 0 !important; }
-  .hero { padding: 12px 13px 5px !important; }
-  #vt { max-width: 100%; font-size: clamp(20px, 6vw, 25px) !important; }
-  #list { min-width: 0 !important; width: 100% !important; overflow-x: hidden !important; overflow-y: auto !important; padding: 4px 8px max(14px, env(safe-area-inset-bottom)) !important; -webkit-overflow-scrolling: touch; }
-  .bar {
-    grid-row: 3 !important;
-    display: grid !important;
-    grid-template-columns: minmax(0,1fr) !important;
-    grid-template-rows: auto auto auto !important;
-    align-items: center !important;
-    gap: 5px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    padding: 7px 9px !important;
-    border-radius: 14px !important;
-    overflow: visible !important;
-  }
-  .bar .np, .bar .mid, .bar .rt { grid-column: 1 !important; width: 100% !important; min-width: 0 !important; }
-  .bar .np { grid-row: 1 !important; gap: 8px !important; }
-  .bar .thumb { width: 43px !important; height: 43px !important; border-radius: 8px !important; }
-  .bar .info { min-width: 0 !important; }
-  #title, #artist { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bar .mid { grid-row: 2 !important; display: flex !important; gap: 3px !important; }
-  .bar .ctl { width: 100% !important; justify-content: center !important; gap: clamp(4px, 2vw, 10px) !important; flex-wrap: nowrap !important; }
-  .bar .ctl .ib { width: 34px !important; min-width: 34px !important; height: 34px !important; }
-  .bar .ctl .play { width: 41px !important; min-width: 41px !important; height: 41px !important; }
-  .bar .seekrow { min-width: 0 !important; width: 100% !important; }
-  .bar .rt {
-    grid-row: 3 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-wrap: wrap !important;
-    gap: 4px !important;
-  }
-  .bar .rt > .ib { display: grid !important; flex: 0 0 34px !important; width: 34px !important; height: 34px !important; }
-  .bar .vol { display: flex !important; flex: 1 1 125px !important; width: min(190px, 48vw) !important; min-width: 105px !important; gap: 6px !important; }
-  .bar .vol input { min-width: 70px !important; width: 100% !important; }
-  #qd { top: max(6px, env(safe-area-inset-top)) !important; inset-inline: 6px !important; width: auto !important; max-width: calc(100vw - 12px) !important; bottom: 180px !important; max-height: calc(100dvh - 205px) !important; }
-  #menu { max-width: calc(100vw - 16px) !important; max-height: calc(100dvh - 24px) !important; overflow: auto !important; }
-  .modal-overlay, #eqp, #slw { padding: 10px !important; overflow: auto !important; place-items: center !important; }
-  .modal-card, .eqc { width: min(100%, 620px) !important; max-width: calc(100vw - 20px) !important; max-height: calc(100dvh - 20px) !important; overflow: auto !important; padding: 14px !important; }
-  #quranModal .modal-card { max-width: calc(100vw - 16px) !important; max-height: calc(100dvh - 16px) !important; }
-  #npv, #lyricDisplayPanel { inset: 0 0 180px 0 !important; padding: 16px 12px !important; overflow-y: auto !important; }
-  #npv img { width: min( min(68vw, 270px), 34dvh) !important; }
-  .lyrics-container { width: 100% !important; min-width: 0 !important; padding: 24px 8px !important; }
-  .lyrics-container .l-line { overflow-wrap: anywhere; }
-  #toast { bottom: 190px !important; max-width: calc(100vw - 24px); text-align: center; }
-  .lahn-workbench .wb-actions { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
-  .lahn-workbench .wb-button { min-width: 0 !important; white-space: normal !important; overflow-wrap: anywhere; }
-  .wb-heading { align-items: flex-start !important; }
-  .wb-version { margin-inline-start: auto; }
-  .settings-page { min-width: 0 !important; width: 100% !important; overflow-x: hidden !important; }
-  .settings-page > *, .settings-section > * { min-width: 0; max-width: 100%; }
-  .settings-section :is(button,select,input,textarea) { min-width: 0 !important; max-width: 100% !important; }
-}
-
-@media (max-width: 420px) {
-  .app { gap: 4px !important; padding: 4px !important; }
-  .side { min-height: 45px !important; max-height: 52px !important; }
-  .brand span { display: inline !important; }
-  #pls .nv { padding: 6px 8px !important; font-size: 11px !important; }
-  .bar { padding: 6px 7px !important; gap: 3px !important; }
-  .bar .ctl { gap: 3px !important; }
-  .bar .ctl .ib { width: 31px !important; min-width: 31px !important; height: 31px !important; }
-  .bar .ctl .play { width: 38px !important; min-width: 38px !important; height: 38px !important; }
-  .bar .rt { column-gap: 3px !important; }
-  .settings-page { padding-inline: 6px !important; }
-  .settings-section { padding: 11px !important; }
-  .settings-page .display-mode-grid,
-  .settings-page .display-tone-options { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
-  .settings-page .display-mode-card { min-width: 0 !important; min-height: 0 !important; }
-  .lahn-workbench .wb-stats, .lahn-workbench .wb-findings { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
-  .lahn-workbench .wb-actions { grid-template-columns: minmax(0,1fr) !important; }
-}
-
-@media (max-width: 350px) {
-  .bar .vol { flex-basis: 100% !important; width: 100% !important; max-width: 220px; }
-  .bar .rt { justify-content: space-between !important; }
-  .settings-page .display-mode-grid,
-  .settings-page .display-tone-options { grid-template-columns: minmax(0,1fr) !important; }
-}
-
-@media (max-height: 620px) and (max-width: 760px) {
-  .bar { gap: 2px !important; padding-block: 4px !important; }
-  .bar .thumb { width: 34px !important; height: 34px !important; }
-  .bar .ctl .ib { height: 30px !important; }
-  .bar .ctl .play { height: 36px !important; }
-  #npv img { width: min(45vw, 180px) !important; }
-}
-
 @media (prefers-reduced-transparency: reduce) {
-  body.display-lahn[data-display-tone="light"] .app main #list .settings-page > .settings-section,
-  body.display-lahn[data-display-tone="light"] .side,
-  body.display-lahn[data-display-tone="light"] .bar {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    background: #fff !important;
+  #qd, body.display-apple .bar { -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+}
+
+/* DJ Deck B preview is an in-app dialog, not a browser-created popup window. */
+.lahn-deck-preview-overlay {
+  position:fixed; inset:0; z-index:15000; display:grid; place-items:center;
+  padding:20px; background:rgba(5,6,10,.58); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.lahn-deck-preview-overlay[hidden] { display:none !important; }
+.lahn-deck-preview-card {
+  width:min(470px,100%); padding:18px; border-radius:17px; color:var(--text);
+  background:color-mix(in srgb,var(--panel) 96%,transparent); border:1px solid var(--line);
+  box-shadow:0 22px 80px rgba(0,0,0,.42);
+}
+.lahn-deck-preview-card header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+.lahn-deck-preview-card header small { color:var(--mute); letter-spacing:.12em; font-size:9px; }
+.lahn-deck-preview-card h3 { margin:4px 0 0; font-size:16px; overflow-wrap:anywhere; }
+.lahn-deck-preview-card audio { width:100%; }
+.lahn-deck-preview-close { width:32px; height:32px; border:1px solid var(--line); border-radius:50%; color:var(--text); background:transparent; font-size:21px; cursor:pointer; }
+.lahn-deck-preview-note { margin:12px 0 0; color:var(--mute); font-size:11px; }
+body.display-apple .lahn-deck-preview-card { background:rgba(42,42,46,.96); border-color:rgba(255,255,255,.16); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); }
+body.display-apple[data-display-tone="light"] .lahn-deck-preview-card { background:rgba(250,250,252,.97); }
+
+/* Final neutral Apple overrides for legacy red controls and detached mini-player. */
+body.display-apple :is(.ib:hover,.ib.on,.mini.on,.chip.pri,.smart-mix-button,.smart-mix-primary) {
+  color:var(--text) !important;
+  border-color:var(--line) !important;
+  background-color:color-mix(in srgb,var(--text) 9%,transparent) !important;
+}
+body.display-apple #play, body.display-apple .bar #play {
+  color:#202022 !important; background:#f5f5f7 !important; border-color:transparent !important;
+}
+body.display-apple[data-display-tone="light"] #play,
+body.display-apple[data-display-tone="light"] .bar #play {
+  color:#fff !important; background:#34363d !important;
+}
+body.display-apple #seek, body.display-apple input[type="range"] { accent-color:var(--text) !important; }
+body.display-apple #lxMiniPlayer {
+  --tint:var(--text) !important;
+  border-color:color-mix(in srgb,var(--text) 20%,transparent) !important;
+}
+body.display-apple #lxMiniPlayer :is(button,.mini,.ib) { color:var(--text) !important; }
+body.display-apple[data-display-tone="light"] #lxMiniPlayer { background:rgba(248,248,251,.92) !important; }
+
+
+/* LAHN DESKTOP 1.3.5 — queue edge, Apple transport and Lahn Flow. */
+
+
+/* Queue location is controlled by final logical-edge CSS; JavaScript does not move it. */
+#qd { box-sizing:border-box !important; transform:none !important; }
+#qd .q-now-playing { min-width:0 !important; }
+#qd .q-now-playing .qnp-copy { min-width:0 !important; display:flex !important; flex-direction:column !important; gap:3px !important; }
+#qd .q-next-label { flex:0 0 auto !important; padding:8px 13px 3px !important; color:var(--mute) !important; font-size:10px !important; font-weight:800 !important; letter-spacing:.08em !important; }
+
+/* Apple Music transport: each of the three regions gets its own real width. */
+body.display-apple {
+  --tint:#e9eaee !important; --tint-rgb:233,234,238 !important;
+  --page-accent:#9297a2 !important; --apple-control:#eceef2;
+}
+body.display-apple[data-display-tone="dark"] {
+  --bg:#1b1c20 !important; --panel:rgba(39,40,45,.88) !important;
+  --text:#f4f5f7 !important; --mute:#aeb1ba !important;
+  --line:rgba(255,255,255,.14) !important; color-scheme:dark !important;
+  background:#1b1c20 !important; color:#f4f5f7 !important;
+}
+body.display-apple[data-display-tone="light"] {
+  --bg:#eff0f3 !important; --panel:rgba(255,255,255,.84) !important;
+  --text:#24262c !important; --mute:#686d78 !important;
+  --line:rgba(30,34,44,.14) !important; color-scheme:light !important;
+  background:#eff0f3 !important; color:#24262c !important;
+}
+body.display-apple .bar {
+  position:fixed !important; left:50% !important; right:auto !important;
+  bottom:max(14px,env(safe-area-inset-bottom)) !important;
+  transform:translateX(-50%) !important;
+  display:grid !important;
+  grid-template-columns:minmax(180px,.82fr) minmax(360px,1.55fr) minmax(205px,.88fr) !important;
+  grid-template-rows:minmax(58px,auto) !important;
+  align-items:center !important; justify-items:stretch !important;
+  gap:14px !important; width:min(900px,calc(100vw - 36px)) !important;
+  max-width:900px !important; min-height:82px !important; height:auto !important;
+  box-sizing:border-box !important; padding:10px 16px !important;
+  overflow:visible !important; isolation:isolate !important;
+  border:1px solid rgba(255,255,255,.20) !important; border-radius:22px !important;
+  background:rgba(38,39,44,.76) !important; color:#f4f5f7 !important;
+  box-shadow:0 18px 52px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.15) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.5) !important;
+  backdrop-filter:blur(28px) saturate(1.5) !important; z-index:12040 !important;
+}
+body.display-apple[data-display-tone="light"] .bar {
+  background:rgba(249,250,252,.79) !important; color:#24262c !important;
+  border-color:rgba(255,255,255,.88) !important;
+  box-shadow:0 16px 46px rgba(35,39,50,.17),inset 0 1px 0 rgba(255,255,255,.96) !important;
+}
+body.display-apple .bar .np {
+  display:grid !important; grid-template-columns:44px minmax(0,1fr) 28px !important;
+  align-items:center !important; gap:9px !important; width:100% !important;
+  min-width:0 !important; overflow:hidden !important;
+}
+body.display-apple .bar .thumb { width:44px !important; height:44px !important; border-radius:8px !important; box-shadow:0 4px 14px rgba(0,0,0,.22) !important; }
+body.display-apple .bar .info { display:flex !important; flex-direction:column !important; gap:4px !important; min-width:0 !important; overflow:hidden !important; }
+body.display-apple .bar #title, body.display-apple .bar #artist { display:block !important; max-width:100% !important; overflow:hidden !important; white-space:nowrap !important; text-overflow:ellipsis !important; color:var(--text) !important; }
+body.display-apple .bar #title { font-size:12px !important; font-weight:750 !important; }
+body.display-apple .bar #artist { font-size:10px !important; color:var(--mute) !important; }
+body.display-apple .bar .np #fv { width:28px !important; min-width:28px !important; height:28px !important; padding:5px !important; }
+body.display-apple .bar .mid {
+  display:grid !important; grid-template-rows:30px 18px !important;
+  align-content:center !important; justify-items:stretch !important;
+  gap:7px !important; width:100% !important; min-width:0 !important;
+  overflow:visible !important;
+}
+body.display-apple .bar .ctl {
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  flex-wrap:nowrap !important; white-space:nowrap !important; gap:clamp(4px,.7vw,10px) !important;
+  width:100% !important; min-width:0 !important; min-height:30px !important;
+}
+body.display-apple .bar .ctl > button {
+  flex:0 0 30px !important; width:30px !important; min-width:30px !important;
+  max-width:30px !important; height:30px !important; min-height:30px !important;
+  padding:5px !important; display:inline-grid !important; place-items:center !important;
+  margin:0 !important; line-height:1 !important;
+}
+body.display-apple .bar .ctl > #play {
+  flex-basis:36px !important; width:36px !important; min-width:36px !important;
+  max-width:36px !important; height:36px !important; min-height:36px !important;
+  border-radius:50% !important; background:#f4f5f7 !important; color:#25262b !important;
+}
+body.display-apple[data-display-tone="light"] .bar .ctl > #play { background:#30333a !important; color:#fff !important; }
+body.display-apple .bar .ctl > #abBtn { flex-basis:34px !important; width:34px !important; min-width:34px !important; max-width:34px !important; font-size:9px !important; }
+body.display-apple .bar .seekrow {
+  display:grid !important; grid-template-columns:32px minmax(0,1fr) 32px !important;
+  align-items:center !important; gap:7px !important; width:100% !important;
+  min-width:0 !important; margin:0 !important; padding:0 !important;
+  color:var(--mute) !important; font-size:10px !important;
+}
+body.display-apple .bar .seekrow #seek { display:block !important; width:100% !important; min-width:0 !important; height:4px !important; margin:0 !important; accent-color:var(--text) !important; }
+body.display-apple .bar .seekrow #waveformCanvas { display:none !important; }
+body.display-apple .bar .rt {
+  display:flex !important; flex-direction:row !important; align-items:center !important;
+  justify-content:flex-end !important; flex-wrap:nowrap !important; gap:4px !important;
+  width:100% !important; min-width:0 !important; overflow:visible !important;
+}
+body.display-apple .bar .rt > button {
+  flex:0 0 30px !important; width:30px !important; min-width:30px !important;
+  max-width:30px !important; height:30px !important; min-height:30px !important;
+  padding:5px !important; display:inline-grid !important; place-items:center !important;
+}
+body.display-apple .bar .rt .vol {
+  display:flex !important; flex:1 1 82px !important; width:auto !important;
+  min-width:72px !important; max-width:104px !important; align-items:center !important; gap:6px !important;
+}
+body.display-apple .bar .rt .vol svg { flex:0 0 16px !important; width:16px !important; height:16px !important; color:var(--text) !important; }
+body.display-apple .bar .rt .vol #vol { display:block !important; width:100% !important; min-width:30px !important; height:4px !important; accent-color:var(--text) !important; }
+body.display-apple .bar button, body.display-apple .bar .ib { color:var(--text) !important; background:transparent !important; border-color:transparent !important; opacity:1 !important; }
+body.display-apple .bar button:hover, body.display-apple .bar .ib:hover, body.display-apple .bar .ib.on { background:color-mix(in srgb,var(--text) 10%,transparent) !important; color:var(--text) !important; }
+body.display-apple .bar #play, body.display-apple .bar #play:hover { border:0 !important; }
+body.display-apple .bar #tc, body.display-apple .bar #td { color:var(--mute) !important; font-variant-numeric:tabular-nums !important; }
+body.display-apple .bar canvas#barViz { opacity:.035 !important; }
+body.display-apple .app { padding-bottom:112px !important; }
+
+/* Apple contrast pass: remove inherited accent remnants and make every interactive label legible. */
+body.display-apple :is(.brand,.nv,.sh,.top,.top *,main h1,main h2,main h3,main h4,main p,main label,main strong,main b,main small,.settings-row,.settings-section,.settings-action,.settings-control,.chip,.mini,.ib,.search-wrap input,.search-wrap button,.display-tone-button,.display-mode-card,.wb-button,.wb-stat,.smart-mix-button,.smart-mix-primary) { color:var(--text) !important; }
+body.display-apple :is(input:not([type="range"]),select,textarea) { color:var(--text) !important; background:color-mix(in srgb,var(--panel) 88%,transparent) !important; border-color:var(--line) !important; caret-color:var(--text) !important; }
+body.display-apple :is(input,textarea,select)::placeholder { color:var(--mute) !important; opacity:1 !important; }
+body.display-apple :is(.chip,.mini,.ib,.settings-action,.wb-button,.display-tone-button) { border-color:var(--line) !important; }
+body.display-apple :is(.chip.pri,.smart-mix-primary,.wb-button.wb-primary,.settings-action.primary) { background:color-mix(in srgb,var(--text) 10%,var(--panel)) !important; color:var(--text) !important; border-color:var(--line) !important; }
+body.display-apple[data-display-tone="light"] :is(.modal-card,.modal-box,.remix-panel,.lx-modal,#menu,#toast,#qd,.lahn-workbench,.lahn-deck-preview-card) { color:#25272d !important; }
+body.display-apple[data-display-tone="dark"] :is(.modal-card,.modal-box,.remix-panel,.lx-modal,#menu,#toast,#qd,.lahn-workbench,.lahn-deck-preview-card) { color:#f2f3f5 !important; }
+body.display-apple[data-display-tone="light"] #qd :is(button,input,.qr,.qh2,.q-now-playing,.q-next-label) { color:#26282f !important; }
+body.display-apple[data-display-tone="dark"] #qd :is(button,input,.qr,.qh2,.q-now-playing,.q-next-label) { color:#f2f3f5 !important; }
+body.display-apple[data-display-tone="light"] #qd input::placeholder { color:#757985 !important; }
+body.display-apple[data-display-tone="dark"] #qd input::placeholder { color:#aeb2bc !important; }
+body.display-apple .lahn-workbench { --tint:#dfe1e6 !important; --tint-rgb:223,225,230 !important; --page-accent:#9297a2 !important; }
+body.display-apple .wb-button.wb-primary { background:#e7e8ec !important; color:#272a31 !important; }
+body.display-apple[data-display-tone="light"] .wb-button.wb-primary { background:#32353d !important; color:#fff !important; }
+body.display-apple .hero { --page-accent:#969ba6 !important; }
+
+/* Responsive Apple transport: two rows before controls become cramped. */
+@media (max-width: 940px) {
+  body.display-apple .bar { width:calc(100vw - 24px) !important; grid-template-columns:minmax(0,1fr) auto !important; grid-template-rows:auto auto !important; gap:7px 12px !important; min-height:94px !important; padding:8px 12px !important; }
+  body.display-apple .bar .np { grid-column:1 !important; grid-row:1 !important; }
+  body.display-apple .bar .rt { grid-column:2 !important; grid-row:1 !important; width:auto !important; }
+  body.display-apple .bar .mid { grid-column:1 / -1 !important; grid-row:2 !important; grid-template-columns:minmax(210px,1fr) minmax(140px,1fr) !important; grid-template-rows:30px !important; align-items:center !important; gap:12px !important; }
+  body.display-apple .bar .mid .ctl { justify-content:flex-start !important; }
+  body.display-apple .bar .mid .seekrow { grid-column:2 !important; grid-row:1 !important; }
+  body.display-apple .bar .thumb { width:38px !important; height:38px !important; }
+}
+@media (max-width: 600px) {
+  body.display-apple .app { padding-bottom:126px !important; }
+  body.display-apple .bar { bottom:max(7px,env(safe-area-inset-bottom)) !important; width:calc(100vw - 14px) !important; min-height:112px !important; grid-template-columns:minmax(0,1fr) auto !important; gap:5px 7px !important; padding:7px 9px !important; border-radius:16px !important; }
+  body.display-apple .bar .np { grid-column:1 !important; grid-row:1 !important; grid-template-columns:34px minmax(0,1fr) !important; gap:7px !important; }
+  body.display-apple .bar .np #fv { display:none !important; }
+  body.display-apple .bar .thumb { width:34px !important; height:34px !important; }
+  body.display-apple .bar .rt { grid-column:2 !important; grid-row:1 !important; gap:1px !important; }
+  body.display-apple .bar .rt > #pipBtn, body.display-apple .bar .rt > #audioFxBtn { display:none !important; }
+  body.display-apple .bar .rt .vol { display:none !important; }
+  body.display-apple .bar .mid { grid-column:1 / -1 !important; grid-row:2 !important; grid-template-columns:1fr !important; grid-template-rows:28px 16px !important; gap:4px !important; }
+  body.display-apple .bar .mid .ctl { justify-content:center !important; gap:5px !important; }
+  body.display-apple .bar .mid .seekrow { grid-column:1 !important; grid-row:2 !important; }
+  body.display-apple .bar .ctl > button { width:27px !important; min-width:27px !important; max-width:27px !important; height:27px !important; min-height:27px !important; flex-basis:27px !important; }
+  body.display-apple .bar .ctl > #play { width:32px !important; min-width:32px !important; max-width:32px !important; height:32px !important; min-height:32px !important; flex-basis:32px !important; }
+}
+@media (prefers-reduced-transparency:reduce) { body.display-apple .bar { backdrop-filter:none !important; -webkit-backdrop-filter:none !important; background:var(--panel) !important; } }
+
+/* Lahn Flow is integrated with the library, listening history and queue. */
+</style>
+
+<style id="lahn-1-3-5-final-queue-apple-visibility">
+/* Keep the playback queue flush to the correct viewport edge in all themes. */
+#qd { position:fixed !important; top:12px !important; bottom:112px !important; height:auto !important; max-height:calc(100vh - 124px) !important; width:min(390px,94vw) !important; transform:none !important; translate:none !important; animation:none !important; transition:none !important; margin:0 !important; }
+html[dir="rtl"] #qd { left:10px !important; right:auto !important; inset-inline-start:10px !important; inset-inline-end:auto !important; }
+html[dir="ltr"] #qd { left:auto !important; right:10px !important; inset-inline-start:auto !important; inset-inline-end:10px !important; }
+#qd[hidden] { display:none !important; }
+@media(max-width:760px) { #qd { top:8px !important; bottom:104px !important; width:min(360px,calc(100vw - 16px)) !important; max-height:calc(100vh - 112px) !important; } html[dir="rtl"] #qd { left:8px !important; } html[dir="ltr"] #qd { right:8px !important; } }
+/* Apple play button: high-contrast icon inside the circular control. */
+body.display-apple .bar .ctl > #play,
+body.display-apple .bar .ctl > #play:hover,
+body.display-apple .bar .ctl > #play:focus-visible { background:#f4f5f7 !important; color:#1f2229 !important; border:0 !important; opacity:1 !important; }
+body.display-apple .bar .ctl > #play svg { width:21px !important; height:21px !important; display:block !important; visibility:visible !important; opacity:1 !important; fill:#1f2229 !important; color:#1f2229 !important; }
+body.display-apple .bar .ctl > #play svg #pp { fill:#1f2229 !important; stroke:none !important; opacity:1 !important; }
+body.display-apple[data-display-tone="light"] .bar .ctl > #play,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play:hover { background:#30343c !important; color:#fff !important; }
+body.display-apple[data-display-tone="light"] .bar .ctl > #play svg,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play svg #pp { fill:#fff !important; color:#fff !important; }
+/* Seek control is always visible in Apple mode, including when waveform mode is selected. */
+body.display-apple .bar .seekrow #seek { display:block !important; opacity:1 !important; visibility:visible !important; pointer-events:auto !important; appearance:none !important; -webkit-appearance:none !important; height:16px !important; min-height:16px !important; background:transparent !important; accent-color:#f4f5f7 !important; }
+body.display-apple .bar .seekrow #waveformCanvas { display:none !important; visibility:hidden !important; }
+body.display-apple .bar .seekrow #seek::-webkit-slider-runnable-track { height:4px !important; border:0 !important; border-radius:99px !important; background:linear-gradient(to right,#f4f5f7 0%,#f4f5f7 var(--seek-progress,var(--p,0%)),rgba(255,255,255,.27) var(--seek-progress,var(--p,0%)),rgba(255,255,255,.27) 100%) !important; }
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-webkit-slider-runnable-track { background:linear-gradient(to right,#30343c 0%,#30343c var(--seek-progress,var(--p,0%)),rgba(38,42,50,.20) var(--seek-progress,var(--p,0%)),rgba(38,42,50,.20) 100%) !important; }
+body.display-apple .bar .seekrow #seek::-webkit-slider-thumb { -webkit-appearance:none !important; width:10px !important; height:10px !important; margin-top:-3px !important; border:1px solid #fff !important; border-radius:50% !important; background:#f4f5f7 !important; }
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-webkit-slider-thumb { background:#30343c !important; }
+body.display-apple .bar .seekrow #seek::-moz-range-track { height:4px !important; background:rgba(255,255,255,.27) !important; border:0 !important; border-radius:99px !important; }
+body.display-apple .bar .seekrow #seek::-moz-range-progress { height:4px !important; background:#f4f5f7 !important; border-radius:99px !important; }
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-moz-range-track { background:rgba(38,42,50,.20) !important; }
+body.display-apple[data-display-tone="light"] .bar .seekrow #seek::-moz-range-progress { background:#30343c !important; }
+.lahn-flow-exclude { display:flex !important; align-items:center !important; gap:8px !important; flex-direction:row !important; }
+.lahn-flow-exclude input { width:16px !important; height:16px !important; accent-color:var(--tint) !important; }
+</style>
+
+<script id="lahn-1-3-6-queue-direction-runtime">
+(() => {
+  'use strict';
+  const syncQueueEdge = () => {
+    const queue = document.getElementById('qd');
+    if (!queue) return;
+    const rtl = document.documentElement.dir === 'rtl';
+    queue.style.setProperty('inset-inline-start','auto','important');
+    queue.style.setProperty('inset-inline-end','auto','important');
+    queue.style.setProperty('left',rtl ? '10px' : 'auto','important');
+    queue.style.setProperty('right',rtl ? 'auto' : '10px','important');
+  };
+  syncQueueEdge();
+  window.addEventListener('lahn-language-change',syncQueueEdge);
+  document.addEventListener('lahn-language-change',syncQueueEdge);
+  new MutationObserver(syncQueueEdge).observe(document.documentElement,{attributes:true,attributeFilter:['dir']});
+})();
+</script>
+
+<style id="lahn-1-3-7-unified-transport-and-local-clock">
+/* Stable transport geometry: Spotify and Apple share one measured 3-zone layout. */
+body.display-spotify .bar,
+body.display-apple .bar {
+  display:grid !important;
+  grid-template-columns:minmax(180px,1fr) minmax(300px,1.42fr) minmax(190px,1fr) !important;
+  grid-template-areas:"np mid rt" !important;
+  grid-template-rows:minmax(64px,auto) !important;
+  align-items:center !important;
+  justify-items:stretch !important;
+  column-gap:clamp(8px,1.15vw,16px) !important;
+  row-gap:0 !important;
+  box-sizing:border-box !important;
+  min-width:0 !important;
+  min-height:92px !important;
+  height:auto !important;
+  padding:9px 14px !important;
+  overflow:visible !important;
+}
+html[dir="rtl"] body.display-spotify .bar,
+html[dir="rtl"] body.display-apple .bar {
+  grid-template-areas:"rt mid np" !important;
+}
+body.display-spotify .bar > .np,
+body.display-apple .bar > .np {
+  grid-area:np !important;
+  display:grid !important;
+  grid-template-columns:48px minmax(0,1fr) 32px !important;
+  align-items:center !important;
+  justify-items:stretch !important;
+  gap:9px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+body.display-spotify .bar .thumb,
+body.display-apple .bar .thumb {
+  width:46px !important;
+  height:46px !important;
+  min-width:46px !important;
+  min-height:46px !important;
+  max-width:46px !important;
+  max-height:46px !important;
+  flex:0 0 46px !important;
+  overflow:hidden !important;
+}
+body.display-spotify .bar .info,
+body.display-apple .bar .info {
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  gap:3px !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+body.display-spotify .bar #title,
+body.display-spotify .bar #artist,
+body.display-apple .bar #title,
+body.display-apple .bar #artist {
+  display:block !important;
+  max-width:100% !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  white-space:nowrap !important;
+  text-overflow:ellipsis !important;
+  line-height:1.35 !important;
+}
+body.display-spotify .bar .np > #fv,
+body.display-apple .bar .np > #fv {
+  display:grid !important;
+  place-items:center !important;
+  flex:0 0 32px !important;
+  width:32px !important;
+  min-width:32px !important;
+  max-width:32px !important;
+  height:32px !important;
+  min-height:32px !important;
+  max-height:32px !important;
+  padding:6px !important;
+  margin:0 !important;
+}
+body.display-spotify .bar .mid,
+body.display-apple .bar .mid {
+  grid-area:mid !important;
+  display:grid !important;
+  grid-template-rows:36px 18px !important;
+  align-content:center !important;
+  justify-items:stretch !important;
+  gap:5px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  margin:0 !important;
+  overflow:visible !important;
+}
+body.display-spotify .bar .ctl,
+body.display-apple .bar .ctl {
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:clamp(4px,.65vw,9px) !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:36px !important;
+  max-height:36px !important;
+  padding:0 !important;
+  margin:0 !important;
+  overflow:visible !important;
+}
+body.display-spotify .bar .ctl > button,
+body.display-apple .bar .ctl > button {
+  display:inline-grid !important;
+  place-items:center !important;
+  flex:0 0 32px !important;
+  width:32px !important;
+  min-width:32px !important;
+  max-width:32px !important;
+  height:32px !important;
+  min-height:32px !important;
+  max-height:32px !important;
+  box-sizing:border-box !important;
+  padding:6px !important;
+  margin:0 !important;
+  line-height:1 !important;
+  overflow:hidden !important;
+}
+body.display-spotify .bar .ctl > #play,
+body.display-apple .bar .ctl > #play {
+  flex:0 0 38px !important;
+  width:38px !important;
+  min-width:38px !important;
+  max-width:38px !important;
+  height:38px !important;
+  min-height:38px !important;
+  max-height:38px !important;
+  padding:8px !important;
+  border-radius:50% !important;
+}
+body.display-spotify .bar .ctl > button svg,
+body.display-apple .bar .ctl > button svg {
+  display:block !important;
+  width:18px !important;
+  min-width:18px !important;
+  max-width:18px !important;
+  height:18px !important;
+  min-height:18px !important;
+  max-height:18px !important;
+  flex:0 0 18px !important;
+}
+body.display-spotify .bar .ctl > #play svg,
+body.display-apple .bar .ctl > #play svg {
+  width:20px !important;
+  height:20px !important;
+  min-width:20px !important;
+  min-height:20px !important;
+}
+body.display-spotify .bar .ctl > #abBtn,
+body.display-apple .bar .ctl > #abBtn {
+  font-size:9px !important;
+  letter-spacing:-.04em !important;
+  padding:3px !important;
+}
+body.display-spotify .bar .seekrow,
+body.display-apple .bar .seekrow {
+  display:grid !important;
+  grid-template-columns:34px minmax(0,1fr) 34px !important;
+  grid-template-rows:18px !important;
+  align-items:center !important;
+  gap:7px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:18px !important;
+  min-height:18px !important;
+  max-height:18px !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  font-size:10px !important;
+  line-height:1 !important;
+}
+body.display-spotify .bar .seekrow > span,
+body.display-apple .bar .seekrow > span {
+  display:block !important;
+  width:34px !important;
+  min-width:34px !important;
+  max-width:34px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  line-height:18px !important;
+  font-variant-numeric:tabular-nums !important;
+}
+body.display-spotify .bar .seekrow #seek,
+body.display-apple .bar .seekrow #seek {
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  height:16px !important;
+  min-height:16px !important;
+  max-height:16px !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+body.display-spotify .bar .rt,
+body.display-apple .bar .rt {
+  grid-area:rt !important;
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:5px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  min-height:36px !important;
+  max-height:40px !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+body.display-spotify .bar .rt > button,
+body.display-apple .bar .rt > button {
+  display:inline-grid !important;
+  place-items:center !important;
+  flex:0 0 32px !important;
+  width:32px !important;
+  min-width:32px !important;
+  max-width:32px !important;
+  height:32px !important;
+  min-height:32px !important;
+  max-height:32px !important;
+  box-sizing:border-box !important;
+  padding:6px !important;
+  margin:0 !important;
+}
+body.display-spotify .bar .rt > button svg,
+body.display-apple .bar .rt > button svg {
+  display:block !important;
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  min-height:18px !important;
+}
+body.display-spotify .bar .rt .vol,
+body.display-apple .bar .rt .vol {
+  display:flex !important;
+  flex:1 1 92px !important;
+  width:auto !important;
+  min-width:70px !important;
+  max-width:116px !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+body.display-spotify .bar .rt .vol #vol,
+body.display-apple .bar .rt .vol #vol {
+  display:block !important;
+  flex:1 1 auto !important;
+  width:100% !important;
+  min-width:24px !important;
+  max-width:100% !important;
+  height:16px !important;
+  min-height:16px !important;
+  margin:0 !important;
+}
+html[dir="rtl"] body.display-spotify .bar .np,
+html[dir="rtl"] body.display-apple .bar .np { direction:rtl !important; text-align:right !important; }
+html[dir="ltr"] body.display-spotify .bar .np,
+html[dir="ltr"] body.display-apple .bar .np { direction:ltr !important; text-align:left !important; }
+html[dir="rtl"] body.display-spotify .bar .rt,
+html[dir="rtl"] body.display-apple .bar .rt { flex-direction:row-reverse !important; }
+html[dir="ltr"] body.display-spotify .bar .rt,
+html[dir="ltr"] body.display-apple .bar .rt { flex-direction:row !important; }
+body.display-spotify .bar .mid,
+body.display-apple .bar .mid,
+body.display-spotify .bar .ctl,
+body.display-apple .bar .ctl,
+body.display-spotify .bar .seekrow,
+body.display-apple .bar .seekrow { direction:ltr !important; }
+
+/* At narrower widths use two orderly rows instead of squeezing the controls. */
+@media (max-width: 1040px) {
+  body.display-spotify .bar,
+  body.display-apple .bar {
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:"np rt" "mid mid" !important;
+    grid-template-rows:auto auto !important;
+    row-gap:5px !important;
+    min-height:102px !important;
+    padding:7px 11px !important;
   }
+  body.display-spotify .bar .mid,
+  body.display-apple .bar .mid {
+    grid-template-columns:minmax(225px,auto) minmax(130px,1fr) !important;
+    grid-template-rows:34px !important;
+    align-items:center !important;
+    gap:12px !important;
+  }
+  body.display-spotify .bar .mid .ctl,
+  body.display-apple .bar .mid .ctl { justify-content:flex-start !important; }
+  body.display-spotify .bar .mid .seekrow,
+  body.display-apple .bar .mid .seekrow { grid-column:2 !important; grid-row:1 !important; }
+  body.display-spotify .bar .rt,
+  body.display-apple .bar .rt { width:auto !important; }
+  html[dir="rtl"] body.display-spotify .bar,
+  html[dir="rtl"] body.display-apple .bar { grid-template-areas:"rt np" "mid mid" !important; }
+}
+@media (max-width: 680px) {
+  body.display-spotify .app,
+  body.display-apple .app { grid-template-rows:minmax(0,1fr) 118px !important; padding-bottom:0 !important; }
+  body.display-spotify .bar,
+  body.display-apple .bar {
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:"np rt" "ctl ctl" "seek seek" !important;
+    grid-template-rows:38px 34px 18px !important;
+    row-gap:3px !important;
+    min-height:106px !important;
+    padding:6px 9px !important;
+  }
+  body.display-spotify .bar .mid,
+  body.display-apple .bar .mid { display:contents !important; }
+  body.display-spotify .bar .ctl,
+  body.display-apple .bar .ctl { grid-area:ctl !important; justify-content:center !important; gap:clamp(3px,1.5vw,7px) !important; }
+  body.display-spotify .bar .seekrow,
+  body.display-apple .bar .seekrow { grid-area:seek !important; }
+  body.display-spotify .bar .np,
+  body.display-apple .bar .np { grid-template-columns:34px minmax(0,1fr) !important; gap:7px !important; }
+  body.display-spotify .bar .thumb,
+  body.display-apple .bar .thumb { width:34px !important; height:34px !important; min-width:34px !important; min-height:34px !important; max-width:34px !important; max-height:34px !important; }
+  body.display-spotify .bar .np #fv,
+  body.display-apple .bar .np #fv { display:none !important; }
+  body.display-spotify .bar .rt,
+  body.display-apple .bar .rt { width:auto !important; min-height:32px !important; max-height:32px !important; }
+  body.display-spotify .bar .rt > #pipBtn,
+  body.display-apple .bar .rt > #pipBtn,
+  body.display-spotify .bar .rt > #audioFxBtn,
+  body.display-apple .bar .rt > #audioFxBtn,
+  body.display-spotify .bar .rt .vol,
+  body.display-apple .bar .rt .vol { display:none !important; }
+  body.display-spotify .bar .ctl > button,
+  body.display-apple .bar .ctl > button { flex-basis:28px !important; width:28px !important; min-width:28px !important; max-width:28px !important; height:28px !important; min-height:28px !important; max-height:28px !important; padding:5px !important; }
+  body.display-spotify .bar .ctl > #play,
+  body.display-apple .bar .ctl > #play { flex-basis:32px !important; width:32px !important; min-width:32px !important; max-width:32px !important; height:32px !important; min-height:32px !important; max-height:32px !important; }
+  body.display-spotify .bar .ctl > button svg,
+  body.display-apple .bar .ctl > button svg { width:16px !important; height:16px !important; min-width:16px !important; min-height:16px !important; }
+  html[dir="rtl"] body.display-spotify .bar,
+  html[dir="rtl"] body.display-apple .bar { grid-template-areas:"rt np" "ctl ctl" "seek seek" !important; }
 }
 
+/* Keep greeting aligned and readable under the Spotify hero heading. */
+body.display-spotify .lx-spt-time-greeting { margin-bottom:4px !important; }
+body.display-spotify .lx-spt-local-clock {
+  display:block !important;
+  width:max-content !important;
+  max-width:100% !important;
+  margin:0 0 9px !important;
+  color:#b3b3b3 !important;
+  font-size:11px !important;
+  font-weight:600 !important;
+  line-height:1.4 !important;
+  letter-spacing:.01em !important;
+  font-variant-numeric:tabular-nums !important;
+}
+body.display-spotify[data-display-tone="light"] .lx-spt-local-clock { color:#62666e !important; }
 
-/* Lahn theme only: remove the circular surface/focus ring from the close
-   buttons on the full song screen and full lyrics screen. */
-body.display-lahn #npv > #npx,
-body.display-lahn #lyricDisplayPanel > #lyricClose,
-body[data-display-mode="lahn"] #npv > #npx,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  border: 0 !important;
-  border-style: none !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  outline-offset: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  -webkit-tap-highlight-color: transparent !important;
+
+/* Lahn 1.3.8: slim, direction-aware Spotify/Apple volume rail */
+body.display-spotify .bar .vol #vol,
+body.display-apple .bar .vol #vol {
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  display:block !important;
+  flex:1 1 auto !important;
+  width:100% !important;
+  min-width:24px !important;
+  max-width:100% !important;
+  height:14px !important;
+  min-height:14px !important;
+  box-sizing:border-box !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:transparent !important;
+  cursor:pointer !important;
 }
-body.display-lahn #npv > #npx:hover,
-body.display-lahn #npv > #npx:focus,
-body.display-lahn #npv > #npx:focus-visible,
-body.display-lahn #npv > #npx:active,
-body.display-lahn #lyricDisplayPanel > #lyricClose:hover,
-body.display-lahn #lyricDisplayPanel > #lyricClose:focus,
-body.display-lahn #lyricDisplayPanel > #lyricClose:focus-visible,
-body.display-lahn #lyricDisplayPanel > #lyricClose:active,
-body[data-display-mode="lahn"] #npv > #npx:hover,
-body[data-display-mode="lahn"] #npv > #npx:focus,
-body[data-display-mode="lahn"] #npv > #npx:focus-visible,
-body[data-display-mode="lahn"] #npv > #npx:active,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose:hover,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose:focus,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose:focus-visible,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose:active {
-  border: 0 !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
+
+/* Spotify: green played portion, restrained track contrast. */
+body.display-spotify .bar .vol #vol {
+  --volume-fill:#1ed760;
+  --volume-track:rgba(255,255,255,.24);
 }
-body.display-lahn #npv > #npx::before,
-body.display-lahn #npv > #npx::after,
-body.display-lahn #lyricDisplayPanel > #lyricClose::before,
-body.display-lahn #lyricDisplayPanel > #lyricClose::after,
-body[data-display-mode="lahn"] #npv > #npx::before,
-body[data-display-mode="lahn"] #npv > #npx::after,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose::before,
-body[data-display-mode="lahn"] #lyricDisplayPanel > #lyricClose::after {
-  content: none !important;
-  display: none !important;
+body.display-spotify[data-display-tone="light"] .bar .vol #vol {
+  --volume-fill:#168a43;
+  --volume-track:rgba(28,33,39,.22);
+}
+
+/* Apple: monochrome glass controls; no inherited pink accent. */
+body.display-apple .bar .vol #vol {
+  --volume-fill:#f4f5f7;
+  --volume-track:rgba(255,255,255,.25);
+}
+body.display-apple[data-display-tone="light"] .bar .vol #vol {
+  --volume-fill:#30343c;
+  --volume-track:rgba(38,42,50,.22);
+}
+
+body.display-spotify .bar .vol #vol::-webkit-slider-runnable-track,
+body.display-apple .bar .vol #vol::-webkit-slider-runnable-track {
+  height:3px !important;
+  min-height:3px !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:linear-gradient(to right,
+    var(--volume-fill) 0%,
+    var(--volume-fill) var(--p,0%),
+    var(--volume-track) var(--p,0%),
+    var(--volume-track) 100%) !important;
+}
+html[dir="rtl"] body.display-spotify .bar .vol #vol::-webkit-slider-runnable-track,
+html[dir="rtl"] body.display-apple .bar .vol #vol::-webkit-slider-runnable-track {
+  background:linear-gradient(to left,
+    var(--volume-fill) 0%,
+    var(--volume-fill) var(--p,0%),
+    var(--volume-track) var(--p,0%),
+    var(--volume-track) 100%) !important;
+}
+
+body.display-spotify .bar .vol #vol::-webkit-slider-thumb,
+body.display-apple .bar .vol #vol::-webkit-slider-thumb {
+  -webkit-appearance:none !important;
+  width:8px !important;
+  height:8px !important;
+  margin-top:-2.5px !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:var(--volume-fill) !important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--volume-track) 55%,transparent) !important;
+  opacity:0 !important;
+  transition:opacity .12s ease !important;
+}
+body.display-spotify .bar .vol #vol:hover::-webkit-slider-thumb,
+body.display-spotify .bar .vol #vol:focus-visible::-webkit-slider-thumb,
+body.display-apple .bar .vol #vol:hover::-webkit-slider-thumb,
+body.display-apple .bar .vol #vol:focus-visible::-webkit-slider-thumb {
+  opacity:1 !important;
+}
+
+body.display-spotify .bar .vol #vol::-moz-range-track,
+body.display-apple .bar .vol #vol::-moz-range-track {
+  height:3px !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:var(--volume-track) !important;
+}
+body.display-spotify .bar .vol #vol::-moz-range-progress,
+body.display-apple .bar .vol #vol::-moz-range-progress {
+  height:3px !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:var(--volume-fill) !important;
+}
+body.display-spotify .bar .vol #vol::-moz-range-thumb,
+body.display-apple .bar .vol #vol::-moz-range-thumb {
+  width:8px !important;
+  height:8px !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:var(--volume-fill) !important;
+  opacity:0 !important;
+}
+body.display-spotify .bar .vol #vol:hover::-moz-range-thumb,
+body.display-spotify .bar .vol #vol:focus-visible::-moz-range-thumb,
+body.display-apple .bar .vol #vol:hover::-moz-range-thumb,
+body.display-apple .bar .vol #vol:focus-visible::-moz-range-thumb {
+  opacity:1 !important;
 }
 
 </style>
 
+
+<style id="lahn-1-3-9-volume-direction-and-apple-play-centering">
+/* Volume values are always normalized LTR, then the whole range control is mirrored
+   in RTL. This keeps value, fill, thumb position and pointer interaction in sync. */
+body.display-spotify .bar .vol #vol,
+body.display-apple .bar .vol #vol {
+  direction:ltr !important;
+  transform:scaleX(1) !important;
+  transform-origin:center center !important;
+  --volume-progress:var(--p,0%);
+}
+html[dir="rtl"] body.display-spotify .bar .vol #vol,
+html[dir="rtl"] body.display-apple .bar .vol #vol {
+  direction:ltr !important;
+  transform:scaleX(-1) !important;
+  transform-origin:center center !important;
+}
+body.display-spotify .bar .vol #vol::-webkit-slider-runnable-track,
+body.display-apple .bar .vol #vol::-webkit-slider-runnable-track {
+  background:linear-gradient(to right,
+    var(--volume-fill) 0%,
+    var(--volume-fill) var(--p,0%),
+    var(--volume-track) var(--p,0%),
+    var(--volume-track) 100%) !important;
+}
+/* Match the specificity of the older RTL rule so the new physical gradient wins. */
+html[dir="rtl"] body.display-spotify .bar .vol #vol::-webkit-slider-runnable-track,
+html[dir="rtl"] body.display-apple .bar .vol #vol::-webkit-slider-runnable-track {
+  background:linear-gradient(to right,
+    var(--volume-fill) 0%,
+    var(--volume-fill) var(--p,0%),
+    var(--volume-track) var(--p,0%),
+    var(--volume-track) 100%) !important;
+}
+/* The input itself flips in RTL, so keep the browser-native progress direction LTR. */
+body.display-spotify .bar .vol #vol::-moz-range-track,
+body.display-apple .bar .vol #vol::-moz-range-track {
+  direction:ltr !important;
+  background:var(--volume-track) !important;
+}
+body.display-spotify .bar .vol #vol::-moz-range-progress,
+body.display-apple .bar .vol #vol::-moz-range-progress {
+  direction:ltr !important;
+  background:var(--volume-fill) !important;
+}
+
+/* Precisely center Apple play/pause glyphs in the circular button. */
+body.display-apple .bar .ctl > #play,
+body.display-apple .bar .ctl > #play:hover,
+body.display-apple .bar .ctl > #play:focus,
+body.display-apple .bar .ctl > #play:focus-visible {
+  position:relative !important;
+  display:inline-grid !important;
+  place-items:center !important;
+  align-items:center !important;
+  justify-items:center !important;
+  box-sizing:border-box !important;
+  padding:0 !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  line-height:0 !important;
+  text-align:center !important;
+  direction:ltr !important;
+}
+body.display-apple .bar .ctl > #play > svg {
+  position:absolute !important;
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  top:50% !important;
+  left:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  width:20px !important;
+  height:20px !important;
+  min-width:20px !important;
+  min-height:20px !important;
+  max-width:20px !important;
+  max-height:20px !important;
+  margin:0 !important;
+  padding:0 !important;
+  transform:translate(-50%,-50%) !important;
+  transform-origin:center center !important;
+  direction:ltr !important;
+  overflow:visible !important;
+  fill:currentColor !important;
+  color:inherit !important;
+}
+body.display-apple .bar .ctl > #play > svg > #pp {
+  fill:currentColor !important;
+  stroke:none !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<style id="lahn-1-3-10-apple-waveform-and-play-contrast">
+/* Apple play/pause: dark control in light mode, light control in dark mode. */
+body.display-apple[data-display-tone="dark"] .bar .ctl > #play,
+body.display-apple[data-display-tone="dark"] .bar .ctl > #play:hover,
+body.display-apple[data-display-tone="dark"] .bar .ctl > #play:focus-visible {
+  background:#f1f2f4 !important;
+  color:#20232a !important;
+  border:0 !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.8) !important;
+}
+body.display-apple[data-display-tone="dark"] .bar .ctl > #play svg,
+body.display-apple[data-display-tone="dark"] .bar .ctl > #play svg #pp {
+  color:#20232a !important;
+  fill:#20232a !important;
+}
+body.display-apple[data-display-tone="light"] .bar .ctl > #play,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play:hover,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play:focus-visible {
+  background:#30343c !important;
+  color:#ffffff !important;
+  border:0 !important;
+  box-shadow:0 2px 8px rgba(25,29,38,.23),inset 0 1px 0 rgba(255,255,255,.16) !important;
+}
+body.display-apple[data-display-tone="light"] .bar .ctl > #play svg,
+body.display-apple[data-display-tone="light"] .bar .ctl > #play svg #pp {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+}
+body.display-apple .bar .ctl > #play > svg > #pp {
+  stroke:none !important;
+  opacity:1 !important;
+}
+
+/* Apple waveform seek mode: show the real canvas bars and hide only the transparent hit area. */
+body.display-apple:not(.seek-normal) .bar .seekrow {
+  position:relative !important;
+  overflow:hidden !important;
+  min-height:18px !important;
+  height:18px !important;
+}
+body.display-apple:not(.seek-normal) .bar .seekrow #waveformCanvas {
+  display:block !important;
+  visibility:visible !important;
+  opacity:.92 !important;
+  position:absolute !important;
+  top:2px !important;
+  left:41px !important;
+  right:auto !important;
+  width:calc(100% - 82px) !important;
+  height:14px !important;
+  z-index:2 !important;
+  pointer-events:none !important;
+}
+body.display-apple:not(.seek-normal) .bar .seekrow #seek {
+  display:block !important;
+  position:absolute !important;
+  top:0 !important;
+  left:41px !important;
+  right:auto !important;
+  width:calc(100% - 82px) !important;
+  max-width:calc(100% - 82px) !important;
+  height:18px !important;
+  min-height:18px !important;
+  max-height:18px !important;
+  margin:0 !important;
+  padding:0 !important;
+  opacity:0 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  z-index:3 !important;
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  background:transparent !important;
+  accent-color:transparent !important;
+  cursor:pointer !important;
+}
+body.display-apple:not(.seek-normal) .bar .seekrow #seek::-webkit-slider-runnable-track {
+  height:18px !important;
+  background:transparent !important;
+  border:0 !important;
+}
+body.display-apple:not(.seek-normal) .bar .seekrow #seek::-webkit-slider-thumb {
+  width:0 !important;
+  height:0 !important;
+  opacity:0 !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+body.display-apple:not(.seek-normal) .bar .seekrow #seek::-moz-range-track {
+  height:18px !important;
+  background:transparent !important;
+  border:0 !important;
+}
+body.display-apple:not(.seek-normal) .bar .seekrow #seek::-moz-range-thumb {
+  width:0 !important;
+  height:0 !important;
+  opacity:0 !important;
+  border:0 !important;
+}
+/* Normal seek preference still uses a thin, visible line and no waveform. */
+body.display-apple.seek-normal .bar .seekrow #waveformCanvas {
+  display:none !important;
+  visibility:hidden !important;
+}
+body.display-apple.seek-normal .bar .seekrow #seek {
+  display:block !important;
+  position:static !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:4px !important;
+  min-height:4px !important;
+  max-height:4px !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  background:transparent !important;
+  accent-color:var(--text) !important;
+}
+body.display-apple.seek-normal .bar .seekrow #seek::-webkit-slider-runnable-track {
+  height:4px !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:linear-gradient(to right,var(--text) 0%,var(--text) var(--p,0%),color-mix(in srgb,var(--text) 20%,transparent) var(--p,0%),color-mix(in srgb,var(--text) 20%,transparent) 100%) !important;
+}
+body.display-apple.seek-normal .bar .seekrow #seek::-moz-range-track {
+  height:4px !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:color-mix(in srgb,var(--text) 20%,transparent) !important;
+}
+body.display-apple.seek-normal .bar .seekrow #seek::-moz-range-progress {
+  height:4px !important;
+  border:0 !important;
+  border-radius:99px !important;
+  background:var(--text) !important;
+}
+</style>
+
+
+
+<style id="lahn-1-3-11-settings-direction-eq-columns">
+/* Settings follow the selected language in Spotify and Apple, not a fixed RTL layout. */
+html[dir="rtl"] body.display-spotify .app main #list > .settings-page,
+html[dir="rtl"] body.display-apple .app main #list > .settings-page {
+  direction: rtl !important;
+  text-align: right !important;
+}
+html[dir="ltr"] body.display-spotify .app main #list > .settings-page,
+html[dir="ltr"] body.display-apple .app main #list > .settings-page {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="rtl"] body.display-spotify .app main #list > .settings-page .settings-section,
+html[dir="rtl"] body.display-apple .app main #list > .settings-page .settings-section {
+  direction: rtl !important;
+  text-align: right !important;
+}
+html[dir="ltr"] body.display-spotify .app main #list > .settings-page .settings-section,
+html[dir="ltr"] body.display-apple .app main #list > .settings-page .settings-section {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="rtl"] body.display-spotify .app main #list > .settings-page .settings-section :is(.chip-grid,.skin-grid,.display-mode-grid,.display-tone-options,.smart-mix-actions,.settings-actions,.eq-inline-toolbar),
+html[dir="rtl"] body.display-apple .app main #list > .settings-page .settings-section :is(.chip-grid,.skin-grid,.display-mode-grid,.display-tone-options,.smart-mix-actions,.settings-actions,.eq-inline-toolbar) {
+  direction: rtl !important;
+}
+html[dir="ltr"] body.display-spotify .app main #list > .settings-page .settings-section :is(.chip-grid,.skin-grid,.display-mode-grid,.display-tone-options,.smart-mix-actions,.settings-actions,.eq-inline-toolbar),
+html[dir="ltr"] body.display-apple .app main #list > .settings-page .settings-section :is(.chip-grid,.skin-grid,.display-mode-grid,.display-tone-options,.smart-mix-actions,.settings-actions,.eq-inline-toolbar) {
+  direction: ltr !important;
+}
+/* Keep controls that are intrinsically numeric/audio-oriented in their own direction. */
+body.display-spotify .settings-page .eq-inline .eqs,
+body.display-apple .settings-page .eq-inline .eqs {
+  direction: ltr !important;
+}
+
+/* Match the original Lahn equalizer: true vertical columns with full-height travel. */
+html body.display-spotify .app main #list .settings-page .eq-inline .eqs,
+html body.display-apple .app main #list .settings-page .eq-inline .eqs {
+  display: flex !important;
+  align-items: end !important;
+  justify-content: space-around !important;
+  gap: clamp(5px, 1.2vw, 13px) !important;
+  min-height: 178px !important;
+  padding: 12px 8px 8px !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: thin;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb {
+  display: flex !important;
+  flex: 0 0 30px !important;
+  min-width: 30px !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 5px !important;
+  font-size: 11px !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb > div,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb > div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 30px !important;
+  height: 130px !important;
+  min-height: 130px !important;
+  overflow: visible !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb input.eq-input-inline,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb input.eq-input-inline {
+  appearance: slider-vertical !important;
+  -webkit-appearance: slider-vertical !important;
+  writing-mode: vertical-lr !important;
+  direction: rtl !important;
+  transform: none !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+  height: 126px !important;
+  min-height: 126px !important;
+  max-height: 126px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: ns-resize !important;
+  touch-action: pan-x !important;
+  background: transparent !important;
+  accent-color: var(--tint) !important;
+  opacity: 1 !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-webkit-slider-runnable-track,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-webkit-slider-runnable-track {
+  width: 5px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: rgba(var(--w), .22) !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-webkit-slider-thumb,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  width: 15px !important;
+  height: 15px !important;
+  border: 2px solid var(--bg) !important;
+  border-radius: 50% !important;
+  background: var(--tint) !important;
+  box-shadow: 0 0 0 2px rgba(var(--tint-rgb), .18), 0 2px 8px rgba(0,0,0,.28) !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-moz-range-track,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-moz-range-track {
+  width: 5px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: rgba(var(--w), .22) !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-moz-range-thumb,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb input.eq-input-inline::-moz-range-thumb {
+  width: 11px !important;
+  height: 11px !important;
+  border: 2px solid var(--bg) !important;
+  border-radius: 50% !important;
+  background: var(--tint) !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb .eq-band-value,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb .eq-band-value {
+  min-height: 14px !important;
+  font-size: 10px !important;
+  line-height: 14px !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+}
+html body.display-spotify .app main #list .settings-page .eq-inline .eqb > span,
+html body.display-apple .app main #list .settings-page .eq-inline .eqb > span {
+  font-size: 10px !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 560px) {
+  html body.display-spotify .app main #list .settings-page .eq-inline .eqs,
+  html body.display-apple .app main #list .settings-page .eq-inline .eqs { gap: 7px !important; }
+  html body.display-spotify .app main #list .settings-page .eq-inline .eqb,
+  html body.display-apple .app main #list .settings-page .eq-inline .eqb { flex-basis: 28px !important; min-width: 28px !important; }
+}
+</style>
+
+<script id="lahn-1-3-11-settings-direction-sync">
+(() => {
+  'use strict';
+  const currentDir = () => (document.documentElement.dir || 'ltr').toLowerCase() === 'rtl' ? 'rtl' : 'ltr';
+  const apply = () => {
+    const root = document.querySelector('#list > .settings-page');
+    if (!root) return;
+    const dir = currentDir();
+    root.setAttribute('dir', dir);
+    root.style.setProperty('direction', dir, 'important');
+    root.style.setProperty('text-align', dir === 'rtl' ? 'right' : 'left', 'important');
+    root.querySelectorAll('.settings-section').forEach(section => {
+      section.setAttribute('dir', dir);
+      section.style.setProperty('direction', dir, 'important');
+      section.style.setProperty('text-align', dir === 'rtl' ? 'right' : 'left', 'important');
+    });
+    root.querySelectorAll('.eq-inline .eqs').forEach(eq => {
+      eq.setAttribute('dir', 'ltr');
+      eq.style.setProperty('direction', 'ltr', 'important');
+    });
+  };
+  let queued = false;
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; apply(); });
+  };
+  document.addEventListener('DOMContentLoaded', apply, { once: true });
+  window.addEventListener('lahn-language-change', schedule);
+  window.addEventListener('lahn:display-mode-changed', schedule);
+  const list = document.getElementById('list');
+  if (list && 'MutationObserver' in window) new MutationObserver(schedule).observe(list, { childList: true, subtree: true });
+  const rootObserver = new MutationObserver(schedule);
+  rootObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['dir'] });
+  schedule();
+})();
+</script>
+
+
+<style id="lahn-1-3-12-waveform-rtl-and-optical-play-center">
+/* Elapsed waveform bars follow the active language direction; JS redraws on every direction change. */
+body.display-apple:not(.seek-normal) .bar .seekrow #waveformCanvas {
+  direction: ltr !important;
+  transform: none !important;
+}
+html[dir="rtl"] body.display-apple:not(.seek-normal) .bar .seekrow #waveformCanvas {
+  transform: none !important;
+}
+/* The play triangle's path centroid is now centered in its 24x24 viewBox. */
+body.display-apple .bar .ctl > #play > svg {
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  transform: translate(calc(-50% + 1px), -50%) !important;
+  transform-origin: 50% 50% !important;
+}
+</style>
+
+</body>
+</html>
